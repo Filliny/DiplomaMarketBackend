@@ -16,7 +16,6 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "LOCAL_DB": "true",
         "GOOGLE_APPLICATION_CREDENTIALS": "<actual_path>\\synthetic-keel-381920-292ea9f4af88.json"
       },
       "dotnetRunMessages": true,

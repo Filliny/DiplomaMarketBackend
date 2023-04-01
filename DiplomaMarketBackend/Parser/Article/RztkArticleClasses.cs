@@ -51,8 +51,8 @@ namespace DiplomaMarketBackend.Parser.Article
 
     public class CartQuantity
     {
-        public int min { get; set; }
-        public object max { get; set; }
+        public int? min { get; set; }
+        public int? max { get; set; }
     }
 
     public class Category
@@ -107,7 +107,7 @@ namespace DiplomaMarketBackend.Parser.Article
         public string mark_percent { get; set; }
         public object adult_alert { get; set; }
         public List<string> warning { get; set; }
-        public List<object> videos { get; set; }
+        public List<Video> videos { get; set; }
         public List<object> video_presentation { get; set; }
         public Description description { get; set; }
         public bool isPreorder { get; set; }
@@ -266,5 +266,20 @@ namespace DiplomaMarketBackend.Parser.Article
         public int priority { get; set; }
     }
 
+    public class Video
+    {
+        public string name { get; set; }
+        public int id { get; set; }
+        public string type { get; set; }
+        public string ext_video_id { get; set; }
+        public string tag { get; set; }
+        public string title { get; set; }
+        public string url { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        public string created_at { get; set; }
+        public string preview_url { get; set; }
+        public int order { get; set; }
+    }
 
 }

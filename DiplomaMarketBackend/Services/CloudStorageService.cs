@@ -38,6 +38,7 @@ namespace DiplomaMarketBackend.Services
                         var url = _options.GoogleCloudStorageURL + _options.GoogleCloudStorageBucketName + "/" + fileNameToSave;
                         return url.ToString();
                         //return uploadedFile.MediaLink;
+                        
                     }
                 }
             }

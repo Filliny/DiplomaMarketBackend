@@ -3,6 +3,7 @@ using System;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230401205511_warnings")]
+    partial class warnings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,9 +84,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<int?>("DescriptionId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("DocketId")
-                        .HasColumnType("integer");
-
                     b.Property<decimal>("OldPrice")
                         .HasColumnType("numeric");
 
@@ -112,8 +112,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("DescriptionId");
-
-                    b.HasIndex("DocketId");
 
                     b.HasIndex("TitleId");
 
@@ -240,31 +238,31 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<int?>("ArticleModelId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("base_actionId")
+                    b.Property<int>("base_actionId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("bigId")
+                    b.Property<int>("bigId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("big_tileId")
+                    b.Property<int>("big_tileId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("largeId")
+                    b.Property<int>("largeId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("mediumId")
+                    b.Property<int>("mediumId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("mobile_largeId")
+                    b.Property<int>("mobile_largeId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("mobile_mediumId")
+                    b.Property<int>("mobile_mediumId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("originalId")
+                    b.Property<int>("originalId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("previewId")
+                    b.Property<int>("previewId")
                         .HasColumnType("integer");
 
                     b.Property<int>("smallId")
@@ -319,13 +317,14 @@ namespace DiplomaMarketBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("height")
+                    b.Property<int>("height")
                         .HasColumnType("integer");
 
                     b.Property<string>("url")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("width")
+                    b.Property<int>("width")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -434,8 +433,8 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
-                    b.Property<string>("Type")
-                        .HasColumnType("text");
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("URL")
                         .HasColumnType("text");
@@ -443,6 +442,8 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ArticleModelId");
+
+                    b.HasIndex("TypeId");
 
                     b.ToTable("Videos");
                 });
@@ -559,10 +560,6 @@ namespace DiplomaMarketBackend.Migrations
                         .WithMany()
                         .HasForeignKey("DescriptionId");
 
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Docket")
-                        .WithMany()
-                        .HasForeignKey("DocketId");
-
                     b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Title")
                         .WithMany()
                         .HasForeignKey("TitleId");
@@ -572,8 +569,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Description");
-
-                    b.Navigation("Docket");
 
                     b.Navigation("Title");
                 });
@@ -633,39 +628,57 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "base_action")
                         .WithMany()
-                        .HasForeignKey("base_actionId");
+                        .HasForeignKey("base_actionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "big")
                         .WithMany()
-                        .HasForeignKey("bigId");
+                        .HasForeignKey("bigId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "big_tile")
                         .WithMany()
-                        .HasForeignKey("big_tileId");
+                        .HasForeignKey("big_tileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "large")
                         .WithMany()
-                        .HasForeignKey("largeId");
+                        .HasForeignKey("largeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "medium")
                         .WithMany()
-                        .HasForeignKey("mediumId");
+                        .HasForeignKey("mediumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "mobile_large")
                         .WithMany()
-                        .HasForeignKey("mobile_largeId");
+                        .HasForeignKey("mobile_largeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "mobile_medium")
                         .WithMany()
-                        .HasForeignKey("mobile_mediumId");
+                        .HasForeignKey("mobile_mediumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "original")
                         .WithMany()
-                        .HasForeignKey("originalId");
+                        .HasForeignKey("originalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "preview")
                         .WithMany()
-                        .HasForeignKey("previewId");
+                        .HasForeignKey("previewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PictureModel", "small")
                         .WithMany()
@@ -740,6 +753,14 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasOne("DiplomaMarketBackend.Entity.Models.ArticleModel", null)
                         .WithMany("Video")
                         .HasForeignKey("ArticleModelId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.VideoTypeModel", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.WarningModel", b =>

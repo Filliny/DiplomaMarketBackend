@@ -12,6 +12,10 @@ namespace DiplomaMarketBackend.Entity.Models
         public int? DescriptionId { get; set; }
         public TextContent? Description { get; set; }
 
+
+        public int? DocketId { get; set; }
+        public TextContent? Docket { get; set; }
+
         public decimal Price { get; set; }
         public decimal OldPrice { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
@@ -22,12 +26,16 @@ namespace DiplomaMarketBackend.Entity.Models
         public BrandModel? Brand { get; set; }
         public string? Status { get; set; } //active/inactive
         public string? SellStatus { get; set; }//available/unavailable
-        public string? Warning { get; set; }
+        public List<WarningModel>? Warning { get; set; }
         public List<VideoModel> Video { get; set; }
         public List<ImageModel> Images { get; set; }
         public List<BreadcrumbsModel> Breadcrumbs { get; set; }
         public List<ArticleCharacteristic> ArticleCharacteristics { get; set; }
         public List<TagModel> Tags { get; set; }
+
+
+        public int rztk_art_id { get; set; }
+
 
         public ArticleModel()
         {
@@ -36,6 +44,8 @@ namespace DiplomaMarketBackend.Entity.Models
             Images = new List<ImageModel>();
             Breadcrumbs = new List<BreadcrumbsModel>();
             Tags = new();
+
+
 
         }
 

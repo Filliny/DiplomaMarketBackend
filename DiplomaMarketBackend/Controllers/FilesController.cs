@@ -2,6 +2,8 @@
 using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
+using DiplomaMarketBackend.Parser;
+using DiplomaMarketBackend.Parser.Article;
 using DiplomaMarketBackend.Parser.Categories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +23,14 @@ namespace DiplomaMarketBackend.Controllers
         ILogger<FilesController> _logger;
         ICloudStorageService _storageService;
         BaseContext _context;
+        IFileService _fileService;
 
-        public FilesController(ILogger<FilesController> logger, ICloudStorageService cloudStorageService, BaseContext context)
+        public FilesController(ILogger<FilesController> logger, ICloudStorageService cloudStorageService, BaseContext context, IFileService fileService)
         {
             _logger = logger;
             _storageService = cloudStorageService;
             _context = context;
+            _fileService = fileService; 
         }
 
         [HttpPost]
@@ -45,7 +49,7 @@ namespace DiplomaMarketBackend.Controllers
         public async Task<IActionResult> CreateCategory([FromBody] dynamic json)
         {
 
-            dynamic jdata = JsonConvert.DeserializeObject<dynamic>(json.ToString());
+            dynamic jdata = await JsonConvert.DeserializeObject<dynamic>(json.ToString());
 
             var data = jdata["data"];
             Language defLanguage = _context.Languages.First(l => l.Id == "RU");
@@ -56,7 +60,7 @@ namespace DiplomaMarketBackend.Controllers
             foreach (var key in data)
             {
                 var value = key.Value;
-                Category category = JsonConvert.DeserializeObject<Category>(value.ToString());
+                Parser.Categories.Category category = JsonConvert.DeserializeObject<Parser.Categories.Category>(value.ToString());
 
                 var top = GetCategory(category, defLanguage, null);
 
@@ -136,9 +140,6 @@ namespace DiplomaMarketBackend.Controllers
             return Ok($"Received json");
         }
 
-
-
-
         private CategoryModel GetCategory(ICategory foreignCategory, Language defLanguage, CategoryModel parent)
         {
 
@@ -208,16 +209,153 @@ namespace DiplomaMarketBackend.Controllers
         [Route("parseArticles")]
         public async Task<IActionResult> ParseArticles()
         {
+            var categoryes = _context.Categories.ToList();
 
-            string artId = "334251100";
-            string endpoint = "https://rozetka.com.ua/api/product-api/v4/goods/get-main?front-type=xl&country=UA&lang=ru&goodsId=" + artId;
-            var client = new HttpClient();
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, endpoint);
+            var languages = new string[]{ "UK", "RU" };
 
-            var response = await client.SendAsync(request);
-            var responseBody = await response.Content.ReadAsStringAsync();
+            foreach(var category in categoryes)
+            {
+                string cat_point = "https://xl-catalog-api.rozetka.com.ua/v4/goods/get?front-type=xl&country=UA&lang=ru&category_id=" + category.rztk_cat_id.ToString();
 
-            var myDeserializedClass = JsonConvert.DeserializeObject<DiplomaMarketBackend.Parser.Article.Root>(responseBody);
+
+                var client = new HttpClient();
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, cat_point);
+
+                var response = await client.SendAsync(request);
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+                var myCategoryClass = JsonConvert.DeserializeObject<DiplomaMarketBackend.Parser.Category.Root>(responseBody);
+
+                if (myCategoryClass == null) continue;
+
+
+
+                foreach(var id in myCategoryClass.data.ids)
+                {
+                    foreach(var lang in languages)
+                    {
+                        string endpoint = "https://rozetka.com.ua/api/product-api/v4/goods/get-main?front-type=xl&country=UA&lang="+lang+"&goodsId=" + id;
+                        var art_client = new HttpClient();
+                        HttpRequestMessage artrequest = new HttpRequestMessage(HttpMethod.Get, endpoint);
+
+                        var aresponse = await client.SendAsync(artrequest);
+                        var aresponseBody = await aresponse.Content.ReadAsStringAsync();
+
+                        var article = JsonConvert.DeserializeObject<DiplomaMarketBackend.Parser.Article.Root>(aresponseBody);
+
+                        if (article == null) continue;
+
+                        var new_article = _context.Articles.FirstOrDefault(a => a.rztk_art_id == id);
+
+                        if (new_article == null)
+                        {
+                            new_article = new ArticleModel();
+
+                            new_article.rztk_art_id = id;
+                            new_article.Category = category;
+                            new_article.Title = TextContentHelper.CreateTextContent(_context,article.data.title,lang);
+                            new_article.Price = decimal.Parse(article.data.price);
+                            new_article.OldPrice = decimal.Parse(article.data.old_price);
+                            new_article.Description = TextContentHelper.CreateTextContent(_context,article.data.description.text,lang);
+                            new_article.Docket = TextContentHelper.CreateTextContent(_context, article.data.docket, lang);
+                            new_article.Updated = DateTime.Now;
+
+
+                            BrandModel? brand = _context.Brands.FirstOrDefault(b=>b.rztk_brand_id == article.data.brand_id);
+
+                            if(brand == null)
+                            {
+                                brand = new BrandModel() {
+
+                                    Name = article.data.brand,
+                                    Description = article.data.brand_name,
+                                    LogoURL = _fileService.SaveFileFromUrl("logo", article.data.brand_logo).Result,
+                                    rztk_brand_id = article.data.brand_id,
+                                };
+
+                                _context.Brands.Add(brand); 
+                                _context.SaveChanges();
+
+                            }
+
+                            new_article.Brand = brand;
+
+                            new_article.Status = "active";
+                            new_article.SellStatus = "available";
+
+                            if(article.data.warning != null)
+                            {
+                                new_article.Warning = new List<WarningModel>();
+
+                                foreach (var warning in article.data.warning)
+                                {
+                                    var warn = new WarningModel()
+                                    {
+                                        Message = TextContentHelper.CreateTextContent(_context, warning, lang)
+                                    };
+                                    _context.Warnings.Add(warn);    
+                                    _context.SaveChanges() ;
+                                    new_article.Warning.Add(warn);
+                                }
+
+
+                            }
+
+                            if(article.data.videos != null && article.data.videos.Count != 0)
+                            {
+                                foreach(var videos in article.data.videos)
+                                {
+                                    if (videos.type == "rozetka") continue;
+
+                                    var new_video = new VideoModel()
+                                    {
+                                        Title = videos.title,
+                                        URL = videos.url,
+                                        Type = videos.type,
+                                        PreviewURL = videos.preview_url,
+                                        ExternalId = videos.ext_video_id
+                                    };
+
+                                    _context.Videos.Add(new_video);
+                                    _context.SaveChanges(); 
+
+                                    new_article.Video.Add(new_video) ;
+                                }
+                            }
+
+                            if(article.data.images != null && article.data.images.Count != 0)
+                            {
+                                foreach(var images in article.data.images)
+                                {
+                                    var new_image = new ImageModel()
+                                    {
+
+                                    };
+                                }
+
+                            }  
+
+
+
+                        }
+
+                    }
+
+
+                }
+            }
+
+
+
+            //string artId = "334251100";
+            //string endpoint = "https://rozetka.com.ua/api/product-api/v4/goods/get-main?front-type=xl&country=UA&lang=ru&goodsId=" + artId;
+            //var client = new HttpClient();
+            //HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, endpoint);
+
+            //var response = await client.SendAsync(request);
+            //var responseBody = await response.Content.ReadAsStringAsync();
+
+            //var myDeserializedClass = JsonConvert.DeserializeObject<DiplomaMarketBackend.Parser.Article.Root>(responseBody);
 
             return Ok($"Received json");
         }
@@ -308,14 +446,16 @@ namespace DiplomaMarketBackend.Controllers
         [Route("big/{id}")]
         public async Task<IActionResult> bigImage(string id)
         {
+            
             string MimeType = "image/jpg";
             var img_id = id.Split('.')[0];
-            var client = new MongoClient("mongodb://root:example@localhost:27017");
-            var db = client.GetDatabase("test");
-            IGridFSBucket gridFS = new GridFSBucket(db);
+            //var client = new MongoClient("mongodb://root:example@localhost:27017");
+            //var db = client.GetDatabase("test");
+            //IGridFSBucket gridFS = new GridFSBucket(db);
 
             //await gridFS.DownloadToStreamAsync(new ObjectId(id), context.Response.Body);
-             var bytes = await gridFS.DownloadAsBytesAsync(new ObjectId(img_id));
+             //var bytes = await gridFS.DownloadAsBytesAsync(new ObjectId(img_id));
+            var bytes = _fileService.GetFile(img_id,"fs").Result;
             return File(bytes,MimeType);
         }
 

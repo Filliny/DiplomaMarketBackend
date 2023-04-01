@@ -24,6 +24,7 @@ namespace DiplomaMarketBackend.Entity
         public DbSet<PictureModel> Pictures { get; set; }
         public DbSet<VideoModel> Videos { get; set; }
         public DbSet<VideoTypeModel> VideoTypes { get; set; }
+        public DbSet<WarningModel> Warnings { get; set; }
 
         //Translations
         public DbSet<Language> Languages { get; set; }

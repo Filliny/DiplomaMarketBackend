@@ -6,6 +6,7 @@ using DiplomaMarketBackend.Models;
 using DiplomaMarketBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,12 +18,11 @@ namespace DiplomaMarketBackend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //string currConnectionString = "LocalDMarketMySQL";
-            string currConnectionString = "LocalDMarketNpgsql";
+            string currConnectionString = "DMarketNpgsql";
 
-            if (Environment.GetEnvironmentVariable("LOCAL_DB") == null)
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
             {
-                currConnectionString = "LocalDMarketNpgsql";
+                currConnectionString = "DMarketNpgsqlLocal";
             }
 
             var connectionString = builder.Configuration.GetConnectionString(currConnectionString) ?? throw new InvalidOperationException("Connection string  not found.");
@@ -36,6 +36,10 @@ namespace DiplomaMarketBackend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(JwtBearerHandler);
+
+            builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+            builder.Services.AddSingleton<IFileService, FileService>();
+
             builder.Services.Configure<GCSConfigOptions>(builder.Configuration);
             builder.Services.AddSingleton<ICloudStorageService, CloudStorageService>();
 
@@ -94,6 +98,7 @@ namespace DiplomaMarketBackend
             app.MapControllers();
 
             app.Run();
+
         }
 
         private static void JwtBearerHandler(JwtBearerOptions option)

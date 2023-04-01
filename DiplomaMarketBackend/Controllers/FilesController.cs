@@ -325,12 +325,109 @@ namespace DiplomaMarketBackend.Controllers
 
                             if(article.data.images != null && article.data.images.Count != 0)
                             {
-                                foreach(var images in article.data.images)
+                                foreach(var image in article.data.images)
                                 {
-                                    var new_image = new ImageModel()
-                                    {
+                                    var new_image = new ImageModel();
 
+                                    PictureModel original = new PictureModel()
+                                    {
+                                        width = image.original.width,
+                                        height = image.original.height,
+                                        url = _fileService.SaveFileFromUrl("original", image.original.url).Result
                                     };
+
+                                    PictureModel base_action = new PictureModel()
+                                    {
+                                        width = image.base_action.width,
+                                        height = image.base_action.height,
+                                        url = _fileService.SaveFileFromUrl("base_action", image.base_action.url).Result
+                                    };
+
+                                    PictureModel preview = new PictureModel()
+                                    {
+                                        width = image.preview.width,
+                                        height = image.preview.height,
+                                        url = _fileService.SaveFileFromUrl("preview", image.preview.url).Result
+                                    };
+
+                                    PictureModel small = new PictureModel()
+                                    {
+                                        width = image.small.width,
+                                        height = image.small.height,
+                                        url = _fileService.SaveFileFromUrl("bigTile", image.small.url).Result
+                                    };
+
+                                    PictureModel medium = new PictureModel()
+                                    {
+                                        width = image.medium.width,
+                                        height = image.medium.height,
+                                        url = _fileService.SaveFileFromUrl("medium", image.medium.url).Result
+                                    };
+
+                                    PictureModel large = new PictureModel()
+                                    {
+                                        width = image.large.width,
+                                        height = image.large.height,
+                                        url = _fileService.SaveFileFromUrl("large", image.large.url).Result
+                                    };
+
+                                    PictureModel big_tile = new PictureModel()
+                                    {
+                                        width = image.big_tile.width,
+                                        height = image.big_tile.height,
+                                        url = _fileService.SaveFileFromUrl("big_tile", image.big_tile.url).Result
+                                    };
+
+                                    PictureModel big = new PictureModel()
+                                    {
+                                        width = image.big.width,
+                                        height = image.big.height,
+                                        url = _fileService.SaveFileFromUrl("big", image.big.url).Result
+                                    };
+
+                                    PictureModel mobile_medium = new PictureModel()
+                                    {
+                                        width = image.mobile_medium.width,
+                                        height = image.mobile_medium.height,
+                                        url = _fileService.SaveFileFromUrl("mobile_medium", image.mobile_medium.url).Result
+                                    };
+
+                                    PictureModel mobile_large = new PictureModel()
+                                    {
+                                        width = image.mobile_large.width,
+                                        height = image.mobile_large.height,
+                                        url = _fileService.SaveFileFromUrl("mobile_large", image.mobile_large.url).Result
+                                    };
+
+
+                                    _context.Pictures.Add(original);
+                                    _context.Pictures.Add(base_action);
+                                    _context.Pictures.Add(preview);
+                                    _context.Pictures.Add(small);
+                                    _context.Pictures.Add(medium);
+                                    _context.Pictures.Add(large);
+                                    _context.Pictures.Add(big_tile);
+                                    _context.Pictures.Add(big);
+                                    _context.Pictures.Add(mobile_medium);
+                                    _context.Pictures.Add(mobile_large);
+                                    _context.SaveChanges();
+
+                                    new_image.original = original;
+                                    new_image.base_action = base_action;
+                                    new_image.preview = preview;
+                                    new_image.small = small;
+                                    new_image.medium = medium;
+                                    new_image.large = large;
+                                    new_image.big_tile = big_tile;
+                                    new_image.big = big;
+                                    new_image.mobile_medium = mobile_medium;
+                                    new_image.mobile_large = mobile_large;
+
+                                    _context.Images.Add(new_image);
+                                    _context.SaveChanges();
+
+                                    new_article.Images.Add(new_image);
+
                                 }
 
                             }  

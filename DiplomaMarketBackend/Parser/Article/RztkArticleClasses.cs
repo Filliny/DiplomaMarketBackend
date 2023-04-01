@@ -6,22 +6,22 @@ namespace DiplomaMarketBackend.Parser.Article
     public class BaseAction
     {
         public string url { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class Big
     {
         public string url { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class BigTile
     {
         public string url { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class Brand
@@ -164,8 +164,8 @@ namespace DiplomaMarketBackend.Parser.Article
     public class Large
     {
         public string url { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class LastCategory
@@ -179,22 +179,22 @@ namespace DiplomaMarketBackend.Parser.Article
     public class Medium
     {
         public string url { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class MobileLarge
     {
         public string url { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class MobileMedium
     {
         public string url { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class Offers
@@ -211,15 +211,15 @@ namespace DiplomaMarketBackend.Parser.Article
     public class Original
     {
         public string url { get; set; }
-        public int width { get; set; }
-        public int height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class Preview
     {
         public string url { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class Product
@@ -255,8 +255,8 @@ namespace DiplomaMarketBackend.Parser.Article
     public class Small
     {
         public string url { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 
     public class Tag

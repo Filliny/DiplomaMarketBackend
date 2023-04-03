@@ -24,9 +24,14 @@
         public CategoryModel? Category { get; set; }
         public int? ArticleId { get; set; }
         public ArticleModel? Article { get; set; }
+        public int? Order { get; set; }
         public CharacteristicType Type { get; set;}
         public List<CharacteristicValueModel> Values { get;}
 
+        public int ? GroupId { get; set; }
+        public CharacteristicGroupModel? CharacteristicGroup { get; set; }
+
+        public int roz_har_id { get; set; }
 
         public ArticleCharacteristic()
         {

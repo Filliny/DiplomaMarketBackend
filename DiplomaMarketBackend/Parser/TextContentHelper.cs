@@ -5,21 +5,30 @@ namespace DiplomaMarketBackend.Parser
 {
     public static class TextContentHelper
     {
-        public static void UpdateTextContent(BaseContext _db, string text, int content_id, string lang_id)
+        public static void UpdateTextContent(BaseContext _db, string text, int? content_id, string lang_id)
         {
             var textContent  = _db.textContents.FirstOrDefault(c=>c.Id == content_id);
-
             if (textContent == null) return;
 
-            var translation = new Translation()
+            var exist_transl = _db.translations.FirstOrDefault(t=>t.TextContentId == content_id && t.LanguageId == lang_id);
+
+            if(exist_transl != null)
             {
-                LanguageId = lang_id.ToUpper(),
-                TranslationString = text,
-            };
+                exist_transl.TranslationString = text;
+                _db.Update(exist_transl);
+            }
+            else
+            {
+                var translation = new Translation()
+                {
+                    LanguageId = lang_id.ToUpper(),
+                    TranslationString = text,
+                };
 
-            textContent.Translations.Add(translation);
+                textContent.Translations.Add(translation);
 
-            _db.SaveChanges();
+            }
+
 
         }
 
@@ -33,7 +42,6 @@ namespace DiplomaMarketBackend.Parser
             };
 
             _db.translations.Add(translation);
-            _db.SaveChanges();
 
 
             var textContent = new TextContent()
@@ -45,7 +53,6 @@ namespace DiplomaMarketBackend.Parser
             textContent.Translations.Add(translation);
 
             _db.textContents.Add(textContent);
-            _db.SaveChanges();
 
             return textContent; 
 

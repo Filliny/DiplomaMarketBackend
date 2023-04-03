@@ -80,6 +80,12 @@ namespace DiplomaMarketBackend.Services
             return id.ToString();
         }
 
+        public void DeleteFile(string bucketName, string fileId)
+        {
+            var gridFS = getBucket(bucketName);
+            gridFS.Delete(new ObjectId(fileId));
+        }
+
 
         private IGridFSBucket getBucket(string bucketName)
         {

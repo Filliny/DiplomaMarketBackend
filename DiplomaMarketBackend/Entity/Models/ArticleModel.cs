@@ -13,7 +13,7 @@ namespace DiplomaMarketBackend.Entity.Models
         public TextContent? Description { get; set; }
 
 
-        public int? DocketId { get; set; }
+        public int?  DocketId { get; set; }
         public TextContent? Docket { get; set; }
 
         public decimal Price { get; set; }

@@ -75,29 +75,29 @@ namespace DiplomaMarketBackend.Parser.Article
         public string status { get; set; }
         public string status_inherited { get; set; }
         public string comments_mark { get; set; }
-        public int category_id { get; set; }
-        public int seller_id { get; set; }
-        public int merchant_id { get; set; }
-        public int group_id { get; set; }
-        public int producer_id { get; set; }
+        public int? category_id { get; set; }
+        public int? seller_id { get; set; }
+        public int? merchant_id { get; set; }
+        public int? group_id { get; set; }
+        public int? producer_id { get; set; }
         public string docket { get; set; }
         public string state { get; set; }
         public object title_short { get; set; }
         public string promo_title_part { get; set; }
         public string mpath { get; set; }
-        public bool is_set { get; set; }
-        public string brand { get; set; }
-        public int brand_id { get; set; }
+        public bool? is_set { get; set; }
+        public string? brand { get; set; }
+        public int? brand_id { get; set; }
         public string brand_name { get; set; }
         public string brand_logo { get; set; }
         public List<Breadcrumb> breadcrumbs { get; set; }
         public LastCategory last_category { get; set; }
         public List<Image> images { get; set; }
         public Tag tag { get; set; }
-        public int sla_id { get; set; }
+        public int? sla_id { get; set; }
         public int is_markdown { get; set; }
         public bool use_group_links { get; set; }
-        public List<object> custom_buttons { get; set; }
+        public object custom_buttons { get; set; }
         public string article { get; set; }
         public CartQuantity cart_quantity { get; set; }
         public bool has_alternate { get; set; }
@@ -282,4 +282,9 @@ namespace DiplomaMarketBackend.Parser.Article
         public int order { get; set; }
     }
 
+    public class CustomButtons
+    {
+        public string custom_button_buy_name { get; set; }
+        public string custom_button_buy_url { get; set; }
+    }
 }

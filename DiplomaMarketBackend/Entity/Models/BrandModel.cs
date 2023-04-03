@@ -7,6 +7,6 @@
         public string? Description { get; set; }
         public string? LogoURL { get; set; }
 
-        public int rztk_brand_id { get; set; }
+        public int? rztk_brand_id { get; set; }
     }
 }

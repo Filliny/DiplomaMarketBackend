@@ -9,7 +9,8 @@ namespace DiplomaMarketBackend.Entity
         public BaseContext(DbContextOptions<BaseContext> options)
              : base(options)
         {
-            Database.EnsureCreated();
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            //Database.EnsureCreated();
         }
 
         public DbSet<UserModel> Users { get; set; }
@@ -25,6 +26,7 @@ namespace DiplomaMarketBackend.Entity
         public DbSet<VideoModel> Videos { get; set; }
         public DbSet<VideoTypeModel> VideoTypes { get; set; }
         public DbSet<WarningModel> Warnings { get; set; }
+        public DbSet<CharacteristicGroupModel> CharacteristicGroups { get; set; }
 
         //Translations
         public DbSet<Language> Languages { get; set; }

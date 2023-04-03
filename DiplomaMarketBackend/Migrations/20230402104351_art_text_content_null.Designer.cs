@@ -3,6 +3,7 @@ using System;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230402104351_art_text_content_null")]
+    partial class art_text_content_null
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,16 +39,7 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<int?>("CategoryId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("CharacteristicGroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("GroupId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("NameId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("Order")
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
@@ -57,16 +51,11 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<int>("roz_har_id")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ArticleId");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("CharacteristicGroupId");
 
                     b.HasIndex("NameId");
 
@@ -151,7 +140,7 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<int?>("rztk_brand_id")
+                    b.Property<int>("rztk_brand_id")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -174,10 +163,8 @@ namespace DiplomaMarketBackend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("href")
+                        .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("roz_bread_id")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -217,30 +204,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("ParentCategoryId");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CharacteristicGroupModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("groupTitleId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("group_order")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("rztk_grp_id")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("groupTitleId");
-
-                    b.ToTable("CharacteristicGroups");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CharacteristicValueModel", b =>
@@ -568,10 +531,6 @@ namespace DiplomaMarketBackend.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId");
 
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.CharacteristicGroupModel", "CharacteristicGroup")
-                        .WithMany("options")
-                        .HasForeignKey("CharacteristicGroupId");
-
                     b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Name")
                         .WithMany()
                         .HasForeignKey("NameId");
@@ -583,8 +542,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Navigation("Article");
 
                     b.Navigation("Category");
-
-                    b.Navigation("CharacteristicGroup");
 
                     b.Navigation("Name");
 
@@ -656,15 +613,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Navigation("Name");
 
                     b.Navigation("ParentCategory");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CharacteristicGroupModel", b =>
-                {
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "groupTitle")
-                        .WithMany()
-                        .HasForeignKey("groupTitleId");
-
-                    b.Navigation("groupTitle");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CharacteristicValueModel", b =>
@@ -837,11 +785,6 @@ namespace DiplomaMarketBackend.Migrations
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CategoryModel", b =>
                 {
                     b.Navigation("ChildCategories");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CharacteristicGroupModel", b =>
-                {
-                    b.Navigation("options");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.TextContent", b =>

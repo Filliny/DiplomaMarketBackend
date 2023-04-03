@@ -3,6 +3,7 @@ using System;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230402131218_charactesistic_groups")]
+    partial class charactesistic_groups
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,9 +58,6 @@ namespace DiplomaMarketBackend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("roz_har_id")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -151,7 +151,7 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<int?>("rztk_brand_id")
+                    b.Property<int>("rztk_brand_id")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -174,6 +174,7 @@ namespace DiplomaMarketBackend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("href")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("roz_bread_id")

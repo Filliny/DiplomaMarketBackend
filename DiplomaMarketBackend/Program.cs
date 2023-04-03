@@ -75,7 +75,7 @@ namespace DiplomaMarketBackend
 
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment()|| app.Environment.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
@@ -96,6 +96,7 @@ namespace DiplomaMarketBackend
             app.UseCors();//CORS with default policy
 
             app.MapControllers();
+           
 
             app.Run();
 

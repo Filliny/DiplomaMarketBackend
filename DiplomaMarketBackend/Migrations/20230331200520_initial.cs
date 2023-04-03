@@ -13,7 +13,7 @@ namespace DiplomaMarketBackend.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
 
-            this.Down(migrationBuilder);
+            //this.Down(migrationBuilder);
 
             migrationBuilder.CreateTable(
                 name: "Brands",

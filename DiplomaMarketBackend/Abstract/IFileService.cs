@@ -10,5 +10,7 @@ namespace DiplomaMarketBackend.Abstract
 
         public Task<string> SaveFileFromUrl(string bucketName, string Url);
 
+        public void DeleteFile(string bucketName, string fileId);
+
     }
 }

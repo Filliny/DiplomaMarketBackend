@@ -283,9 +283,9 @@ namespace DiplomaMarketBackend.Controllers
 
                 if (myCategoryClass == null) continue;
 
+                var ids = myCategoryClass.data.ids.Take(20);
 
-
-                foreach (var id in myCategoryClass.data.ids)
+                foreach (var id in ids)
                 {
                     foreach (var lang in languages)
                     {

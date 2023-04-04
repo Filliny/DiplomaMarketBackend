@@ -321,8 +321,6 @@ namespace DiplomaMarketBackend.Controllers
                 ToListAsync();
             }
 
-
-
             return Ok();
         }
 

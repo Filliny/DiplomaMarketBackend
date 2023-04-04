@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 
 namespace DiplomaMarketBackend
 {
@@ -34,7 +35,12 @@ namespace DiplomaMarketBackend
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            });
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(JwtBearerHandler);
 
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
@@ -42,6 +48,8 @@ namespace DiplomaMarketBackend
 
             builder.Services.Configure<GCSConfigOptions>(builder.Configuration);
             builder.Services.AddSingleton<ICloudStorageService, CloudStorageService>();
+
+            builder.Services.AddResponseCaching();
 
 
             //Allow CORS default policy
@@ -90,6 +98,7 @@ namespace DiplomaMarketBackend
             });
 
             app.UseHttpsRedirection();
+            app.UseResponseCaching();
 
             app.UseAuthentication();
             app.UseAuthorization();

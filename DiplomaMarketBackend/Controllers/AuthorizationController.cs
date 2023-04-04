@@ -18,6 +18,11 @@ namespace DiplomaMarketBackend.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Autentificates user
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult MakeAuth([FromBody] RequestAuthModel model)
         {

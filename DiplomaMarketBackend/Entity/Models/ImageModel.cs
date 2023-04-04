@@ -15,5 +15,8 @@ namespace DiplomaMarketBackend.Entity.Models
         public PictureModel? big { get; set; }
         public PictureModel? mobile_medium { get; set; }
         public PictureModel? mobile_large { get; set; }
+
+        public int? ArticleModelId { get; set; }
+        public ArticleModel? ArticleModel { get; set; }
     }
 }

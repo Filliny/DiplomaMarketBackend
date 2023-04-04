@@ -29,7 +29,7 @@
         public List<CharacteristicValueModel> Values { get;}
 
         public int ? GroupId { get; set; }
-        public CharacteristicGroupModel? CharacteristicGroup { get; set; }
+        public CharacteristicGroupModel? Group { get; set; }
 
         public int roz_har_id { get; set; }
 

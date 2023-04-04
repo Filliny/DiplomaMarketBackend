@@ -26,7 +26,7 @@ namespace DiplomaMarketBackend.Entity.Models
         public BrandModel? Brand { get; set; }
         public string? Status { get; set; } //active/inactive
         public string? SellStatus { get; set; }//available/unavailable
-        public List<WarningModel>? Warning { get; set; }
+        public List<WarningModel> Warning { get; set; }
         public List<VideoModel> Video { get; set; }
         public List<ImageModel> Images { get; set; }
         public List<BreadcrumbsModel> Breadcrumbs { get; set; }
@@ -44,7 +44,7 @@ namespace DiplomaMarketBackend.Entity.Models
             Images = new List<ImageModel>();
             Breadcrumbs = new List<BreadcrumbsModel>();
             Tags = new();
-
+            Warning = new();
 
 
         }

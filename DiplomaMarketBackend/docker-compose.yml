@@ -3,18 +3,13 @@ version: '3.1'
 
 services:
 
-  db:
-    image: postgres
+  web:
+    image: filliny1/diplomamarketbackend:latest
     restart: always
-    ports:
-      - 5432:5432
     environment:
-      POSTGRES_PASSWORD: example
+      ASPNETCORE_ENVIRONMENT: "Development"
     volumes:
-      - C:\Users\oleg\data\postgres:/var/lib/postgresql/data
-
-  adminer:
-    image: adminer
-    restart: always
+      - C:\Users\oleg\files:/app/files/
     ports:
-      - 8088:8080
+      - "80:80"
+      - "443:443"

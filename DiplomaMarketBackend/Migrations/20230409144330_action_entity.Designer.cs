@@ -3,6 +3,7 @@ using System;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230409144330_action_entity")]
+    partial class action_entity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,21 +25,6 @@ namespace DiplomaMarketBackend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ActionModelArticleModel", b =>
-                {
-                    b.Property<int>("ActionsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ArticlesId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ActionsId", "ArticlesId");
-
-                    b.HasIndex("ArticlesId");
-
-                    b.ToTable("ActionModelArticleModel");
-                });
-
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ActionModel", b =>
                 {
                     b.Property<int>("Id")
@@ -44,14 +32,6 @@ namespace DiplomaMarketBackend.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BannerBig")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("BannerSmall")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<int?>("DescriptionId")
                         .HasColumnType("integer");
@@ -124,6 +104,9 @@ namespace DiplomaMarketBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ActionId")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("BrandId")
                         .HasColumnType("integer");
 
@@ -161,6 +144,8 @@ namespace DiplomaMarketBackend.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ActionId");
 
                     b.HasIndex("BrandId");
 
@@ -610,21 +595,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ActionModelArticleModel", b =>
-                {
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.ActionModel", null)
-                        .WithMany()
-                        .HasForeignKey("ActionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.ArticleModel", null)
-                        .WithMany()
-                        .HasForeignKey("ArticlesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ActionModel", b =>
                 {
                     b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Description")
@@ -669,6 +639,10 @@ namespace DiplomaMarketBackend.Migrations
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ArticleModel", b =>
                 {
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.ActionModel", "Action")
+                        .WithMany("Articles")
+                        .HasForeignKey("ActionId");
+
                     b.HasOne("DiplomaMarketBackend.Entity.Models.BrandModel", "Brand")
                         .WithMany()
                         .HasForeignKey("BrandId");
@@ -696,6 +670,8 @@ namespace DiplomaMarketBackend.Migrations
                         .HasForeignKey("TitleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Action");
 
                     b.Navigation("Brand");
 
@@ -910,6 +886,11 @@ namespace DiplomaMarketBackend.Migrations
                         .HasForeignKey("MessageId");
 
                     b.Navigation("Message");
+                });
+
+            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ActionModel", b =>
+                {
+                    b.Navigation("Articles");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ArticleCharacteristic", b =>

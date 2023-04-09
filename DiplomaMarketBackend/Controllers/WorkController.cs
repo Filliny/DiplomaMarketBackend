@@ -1,4 +1,5 @@
-﻿using DiplomaMarketBackend.Abstract;
+﻿using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
+using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
@@ -11,6 +12,7 @@ using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -91,15 +93,20 @@ namespace DiplomaMarketBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> upload(IFormFile file)
+        [Route("uploadFile")]
+        public async Task<IActionResult> uploadFile(IFormFile file,string bucket)
         {
+            if (file.Length > 0)
+            {
+                string id = _fileService.SaveFileFromStream(bucket, file.FileName, file.OpenReadStream()).Result;
 
+                var baseUrl = Request.Scheme + "://" + Request.Host + $"/api/Goods/{bucket}/";
 
+                return Ok($"Received file {file.FileName} with size in bytes {file.Length} and url is {baseUrl+id}.jpg");
 
-            var url = _storageService.UploadFileAsync(file, file.FileName).Result.ToString();
+            }
 
-
-            return Ok($"Received file {file.FileName} with size in bytes {file.Length} and url is {url}");
+            return BadRequest("Check parameters!");
         }
 
         [HttpPost]

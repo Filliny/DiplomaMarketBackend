@@ -63,6 +63,12 @@ namespace DiplomaMarketBackend.Services
             return id.ToString();
         }
 
+        /// <summary>
+        /// Saves file from given URL to database
+        /// </summary>
+        /// <param name="bucketName">desired bucket name</param>
+        /// <param name="Url">file url where to take file</param>
+        /// <returns>GridFs file id</returns>
         public async Task<string> SaveFileFromUrl(string bucketName, string Url)
         {
             _logger.LogWarning("Gettin file :" + Url);
@@ -105,7 +111,9 @@ namespace DiplomaMarketBackend.Services
 
         private IGridFSBucket getBucket(string bucketName)
         {
+           
             return new GridFSBucket(_database);
+
         }
     }
 }

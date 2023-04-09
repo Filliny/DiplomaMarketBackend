@@ -1,8 +1,11 @@
 ﻿using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
+using DiplomaMarketBackend.Entity.Models;
+using DiplomaMarketBackend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Dynamic;
+using System.Xml;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -84,8 +87,7 @@ namespace DiplomaMarketBackend.Controllers
         [Route("get-main")]
         public async Task<IActionResult> GetArticleFull([FromQuery] string lang, string goodsId)
         {
-            if (lang.ToUpper() != "UK" && lang.ToUpper() != "RU")
-                lang = "UA";
+            lang = lang.NormalizeLang();
 
             dynamic dresponse = new ExpandoObject();
             IDictionary<string, object> response = (IDictionary<string, object>)dresponse;
@@ -100,6 +102,7 @@ namespace DiplomaMarketBackend.Controllers
                     Include(a => a.Docket).ThenInclude(t => t.Translations).
                     Include(a => a.Brand).
                     Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
                     Include(a => a.Video).
                     //Include(a => a.Images).
                     FirstOrDefaultAsync(a => a.Id == art_id);
@@ -109,187 +112,7 @@ namespace DiplomaMarketBackend.Controllers
                     return NotFound($"Article id={goodsId} not exist!");
                 }
 
-                //create images
-                // image = group of pictures
-                // picture = one sample of concrete size
-                var out_images = new List<dynamic>();
-
-                var baseUrl = Request.Scheme + "://" + Request.Host + "/api/Goods/";
-
-                var art_images = _context.Images.
-                    Include(i => i.original).
-                     Include(i => i.base_action).
-                      Include(i => i.preview).
-                       Include(i => i.small).
-                        Include(i => i.medium).
-                         Include(i => i.large).
-                          Include(i => i.big_tile).
-                           Include(i => i.big).
-                            Include(i => i.mobile_large).
-                             Include(i => i.mobile_medium).
-                                Where(i => i.ArticleModelId == art_id).ToList();
-
-                foreach (var image in art_images)
-                {
-                    dynamic out_image_entity = new ExpandoObject();
-                    ((IDictionary<string, object>)out_image_entity).Add("id", image.Id);
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.original),
-                     new
-                     {
-                         url = baseUrl + nameof(image.original) + "/" + image.original.url + ".jpg",
-                         width = image.original.width,
-                         height = image.original.height,
-                     });
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.base_action),
-                     new
-                     {
-                         url = baseUrl + nameof(image.base_action) + "/" + image.base_action.url + ".jpg",
-                         width = image.base_action.width,
-                         height = image.base_action.height,
-                     });
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.preview),
-                     new
-                     {
-                         url = baseUrl + nameof(image.preview) + "/" + image.preview.url + ".jpg",
-                         width = image.preview.width,
-                         height = image.preview.height,
-                     });
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.small),
-                     new
-                     {
-                         url = baseUrl + nameof(image.small) + "/" + image.small.url + ".jpg",
-                         width = image.small.width,
-                         height = image.small.height,
-                     });
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.medium),
-                     new
-                     {
-                         url = baseUrl + nameof(image.medium) + "/" + image.medium.url + ".jpg",
-                         width = image.medium.width,
-                         height = image.medium.height,
-                     });
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.large),
-                     new
-                     {
-                         url = baseUrl + nameof(image.large) + "/" + image.large.url + ".jpg",
-                         width = image.large.width,
-                         height = image.large.height,
-                     });
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.big_tile),
-                     new
-                     {
-                         url = baseUrl + nameof(image.big_tile) + "/" + image.big_tile.url + ".jpg",
-                         width = image.big_tile.width,
-                         height = image.big_tile.height,
-                     });
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.big),
-                     new
-                     {
-                         url = baseUrl + nameof(image.big) + "/" + image.big.url + ".jpg",
-                         width = image.big.width,
-                         height = image.big.height,
-                     });
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.mobile_large),
-                     new
-                     {
-                         url = baseUrl + nameof(image.mobile_large) + "/" + image.mobile_large.url + ".jpg",
-                         width = image.mobile_large.width,
-                         height = image.mobile_large.height,
-                     });
-
-                    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.mobile_medium),
-                     new
-                     {
-                         url = baseUrl + nameof(image.mobile_medium) + "/" + image.mobile_medium.url + ".jpg",
-                         width = image.mobile_medium.width,
-                         height = image.mobile_medium.height,
-                     });
-
-                    out_images.Add(out_image_entity);
-                }
-
-                //breadcrumbs collect
-                var out_breadcrumbs = new List<dynamic>();
-
-                foreach (var item in article.Breadcrumbs)
-                {
-                    var piece = new
-                    {
-                        id = item.Id,
-                        title = item.Title.Content(lang),
-                        href = "todo"
-                    };
-
-                    out_breadcrumbs.Add(piece);
-                }
-
-                //warnings collect
-
-                var out_warnings = new List<dynamic>();
-
-                foreach (var item in article.Warning)
-                {
-                    var piece = new
-                    {
-                        title = item.Message.Translations.First(t => t.LanguageId == lang.ToUpper()).TranslationString ?? item.Message.OriginalText ?? "",
-                    };
-
-                    out_warnings.Add(piece);
-                }
-
-                //videos collect
-
-                var out_videos = new List<dynamic>();
-
-                foreach (var item in article.Video)
-                {
-                    var piece = new
-                    {
-                        name = item.Title,
-                        id = item.Id,
-                        type = item.Type,
-                        ext_video_id = item.ExternalId,
-                        title = item.Title,
-                        url = item.URL,
-                        preview_url = item.PreviewURL,
-                        order = item.Order
-                    };
-
-                    out_videos.Add(piece);
-                }
-
-
-                response.Add("id", article.Id);
-                response.Add("price", article.Price.ToString());
-                response.Add("old_price", article.OldPrice.ToString());
-                response.Add("title", article.Title.Content(lang));
-                response.Add("description", article.Description.Content(lang));
-                response.Add("status", article.Status ?? "");
-                response.Add("sell_status", article.SellStatus ?? "");
-                response.Add("comments_amount", 0);
-                response.Add("category_id", article.CategoryId);
-                response.Add("docket", article.Docket.Content(lang));
-
-                response.Add("brand", article.Brand.Name ?? "");
-                response.Add("brand_name", article.Brand.Description ?? "");
-                response.Add("brand_logo", baseUrl + "logo/" + article.Brand.LogoURL + ".jpg");
-                response.Add("breadcrumbs", out_breadcrumbs);
-                response.Add("images", out_images);
-
-                response.Add("warning", out_warnings);
-                response.Add("videos", out_videos);
-
-                response.Add("tags", new object[] { });
-
+                response = ArticleToDto(article, lang);
 
             }
             else
@@ -312,9 +135,7 @@ namespace DiplomaMarketBackend.Controllers
         [Route("get-characteristic")]
         public async Task<IActionResult> GetArticleCharacteristics([FromQuery] string lang, string goodsId)
         {
-            if (lang.ToUpper() != "UK" && lang.ToUpper() != "RU")
-                lang = "UA";
-
+            lang = lang.NormalizeLang();
 
             var characteristic_group_list = new List<dynamic>();
 
@@ -441,6 +262,81 @@ namespace DiplomaMarketBackend.Controllers
             return new JsonResult(new { data = characteristic_group_list });
         }
 
+        /// <summary>
+        /// Get articles for actions 
+        /// </summary>
+        /// <param name="goods_on_page">goods count to display</param>
+        /// <param name="page">page to display starts from 1</param>
+        /// <param name="lang">language</param>
+        /// <returns>List of articles taken in any action sell</returns>
+        /// <response code="400">If the request value is bad</response>
+        [HttpGet]
+        [Route("all-actions")]
+        [ResponseCache(VaryByQueryKeys = new[] { "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
+        public async Task<IActionResult> GetAllActions([FromQuery] string goods_on_page, string page, string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            if (string.IsNullOrEmpty(page)) page = "1";
+
+            var articles = new List<dynamic>();
+
+            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
+            {
+
+                var action_goods = await _context.Articles.
+                    Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Description).ThenInclude(t => t.Translations).
+                    Include(a => a.Docket).ThenInclude(t => t.Translations).
+                    Include(a => a.Brand).
+                    Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    Include(a => a.Video).
+                    Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                    Where(a => a.Actions.Count > 0).ToListAsync();
+
+
+                int total_goods = action_goods.Count;
+                int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
+
+                if (page_num == 0) page_num = 1;
+                if (page_num > total_pages) page_num = total_pages;
+
+                int skip = (page_num - 1) * quantity;
+
+
+                action_goods = action_goods.Skip(skip).Take(quantity).ToList();
+
+
+
+                foreach (var article in action_goods)
+                {
+
+                    articles.Add(ArticleToDto(article, lang));
+
+                }
+
+                var result = new
+                {
+                    data = new
+                    {
+                        articles,
+                        total_goods,
+                        total_pages,
+                        displayed_page = page_num
+                    }
+                };
+
+                return new JsonResult(result);
+            }
+            else
+            {
+                return BadRequest("Check  parameters!");
+            }
+
+
+        }
+
 
         /// <summary>
         /// Gets file by url from Mongo
@@ -458,6 +354,496 @@ namespace DiplomaMarketBackend.Controllers
 
             var bytes = _fileService.GetFile(img_id, bucket).Result;
             return File(bytes, MimeType);
+        }
+
+
+        /// <summary>
+        /// Gets hot new articles
+        /// </summary>
+        /// <param name="goods_on_page">goods count to display</param>
+        /// <param name="page">page to display starts from 1</param>
+        /// <param name="lang">language</param>
+        /// <returns>List of latest added articles</returns>
+        /// <response code="400">If the request value is bad</response>
+        [HttpGet]
+        [Route("hot-news")]
+        [ResponseCache(VaryByQueryKeys = new[] { "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
+        public async Task<IActionResult> GetHotNews([FromQuery] string goods_on_page, string page, string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            if (string.IsNullOrEmpty(page)) page = "1";
+
+            var articles = new List<dynamic>();
+
+            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
+            {
+
+                var action_goods = await _context.Articles.
+                    Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Description).ThenInclude(t => t.Translations).
+                    Include(a => a.Docket).ThenInclude(t => t.Translations).
+                    Include(a => a.Brand).
+                    Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    Include(a => a.Video).
+                    Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                    OrderByDescending(a => a.Id).Take(100).ToListAsync();
+
+
+                int total_goods = action_goods.Count;
+                int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
+
+                if (page_num == 0) page_num = 1;
+                if (page_num > total_pages) page_num = total_pages;
+
+                int skip = (page_num - 1) * quantity;
+
+
+                action_goods = action_goods.Skip(skip).Take(quantity).ToList();
+
+
+
+                foreach (var article in action_goods)
+                {
+
+                    articles.Add(ArticleToDto(article, lang));
+
+                }
+
+                var result = new
+                {
+                    data = new
+                    {
+                        articles,
+                        total_goods,
+                        total_pages,
+                        displayed_page = page_num
+                    }
+                };
+
+                return new JsonResult(result);
+            }
+            else
+            {
+                return BadRequest("Check  parameters!");
+            }
+
+
+        }
+
+
+        /// <summary>
+        /// Gets most favorable articles from favorites list
+        /// </summary>
+        /// <param name="goods_on_page">goods count to display</param>
+        /// <param name="page">page to display starts from 1</param>
+        /// <param name="lang">language</param>
+        /// <returns>List of most favorable articles</returns>
+        /// <response code="400">If the request value is bad</response>
+        [HttpGet]
+        [Route("most-favorites")]
+        [ResponseCache(VaryByQueryKeys = new[] { "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
+        public async Task<IActionResult> MostFavorable([FromQuery] string goods_on_page, string page, string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            if (string.IsNullOrEmpty(page)) page = "1";
+
+            var articles = new List<dynamic>();
+
+            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
+            {
+
+                var action_goods = await _context.Articles.
+                    Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Description).ThenInclude(t => t.Translations).
+                    Include(a => a.Docket).ThenInclude(t => t.Translations).
+                    Include(a => a.Brand).
+                    Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    Include(a => a.Video).
+                    Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                    OrderByDescending(a => a.rztk_art_id).Skip(1000).Take(100).ToListAsync();
+
+
+                int total_goods = action_goods.Count;
+                int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
+
+                if (page_num == 0) page_num = 1;
+                if (page_num > total_pages) page_num = total_pages;
+
+                int skip = (page_num - 1) * quantity;
+
+
+                action_goods = action_goods.Skip(skip).Take(quantity).ToList();
+
+
+
+                foreach (var article in action_goods)
+                {
+
+                    articles.Add(ArticleToDto(article, lang));
+
+                }
+
+                var result = new
+                {
+                    data = new
+                    {
+                        articles,
+                        total_goods,
+                        total_pages,
+                        displayed_page = page_num
+                    }
+                };
+
+                return new JsonResult(result);
+            }
+            else
+            {
+                return BadRequest("Check  parameters!");
+            }
+
+
+        }
+
+
+        /// <summary>
+        /// Gets most awaitable articles from wait lists
+        /// </summary>
+        /// <param name="goods_on_page">goods count to display</param>
+        /// <param name="page">page to display starts from 1</param>
+        /// <param name="lang">language</param>
+        /// <returns>List of most awaitable articles </returns>
+        /// <response code="400">If the request value is bad</response>
+        [HttpGet]
+        [Route("most-awaitable")]
+        [ResponseCache(VaryByQueryKeys = new[] { "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
+        public async Task<IActionResult> MostAwaitable([FromQuery] string goods_on_page, string page, string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            if (string.IsNullOrEmpty(page)) page = "1";
+
+            var articles = new List<dynamic>();
+
+            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
+            {
+
+                var action_goods = await _context.Articles.
+                    Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Description).ThenInclude(t => t.Translations).
+                    Include(a => a.Docket).ThenInclude(t => t.Translations).
+                    Include(a => a.Brand).
+                    Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    Include(a => a.Video).
+                    Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                    OrderByDescending(a => a.DocketId).Skip(1000).Take(100).ToListAsync();
+
+
+                int total_goods = action_goods.Count;
+                int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
+
+                if (page_num == 0) page_num = 1;
+                if (page_num > total_pages) page_num = total_pages;
+
+                int skip = (page_num - 1) * quantity;
+
+                action_goods = action_goods.Skip(skip).Take(quantity).ToList();
+
+                foreach (var article in action_goods)
+                {
+
+                    articles.Add(ArticleToDto(article, lang));
+
+                }
+
+                var result = new
+                {
+                    data = new
+                    {
+                        articles,
+                        total_goods,
+                        total_pages,
+                        displayed_page = page_num
+                    }
+                };
+
+                return new JsonResult(result);
+            }
+            else
+            {
+                return BadRequest("Check  parameters!");
+            }
+
+
+        }
+
+        /// <summary>
+        /// Get articles by list of id (for example last of seen)
+        /// </summary>
+        /// <param name="articlesIds">List of id</param>
+        /// <param name="lang">language</param>
+        /// <returns>Returns articles list</returns>
+        /// <response code="400">If the request value is bad or list is empty</response>
+        [HttpPost]
+        [Route("from-list")]
+        public async Task<IActionResult> GetByIdList([FromBody] List<int> articles_Ids, [FromQuery] string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            var articles = new List<dynamic>();
+
+            //var articles_Ids = new List<int>();
+
+            if (articles_Ids != null && articles_Ids.Count > 0)
+            {
+
+                var action_goods = await _context.Articles.
+                    Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Description).ThenInclude(t => t.Translations).
+                    Include(a => a.Docket).ThenInclude(t => t.Translations).
+                    Include(a => a.Brand).
+                    Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    Include(a => a.Video).
+                    Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                    Where(a => articles_Ids.Contains(a.Id)).ToListAsync();
+
+
+
+                foreach (var article in action_goods)
+                {
+
+                    articles.Add(ArticleToDto(article, lang));
+
+                }
+
+                var result = new
+                {
+                    data = new
+                    {
+                        articles
+
+                    }
+                };
+
+                return new JsonResult(result);
+            }
+            else
+            {
+                return BadRequest("Check  parameters!");
+            }
+
+
+        }
+
+        private dynamic ArticleToDto(ArticleModel article, string lang)
+        {
+            dynamic dresponse = new ExpandoObject();
+            IDictionary<string, object> response = (IDictionary<string, object>)dresponse;
+
+            //create images
+            // image = group of pictures
+            // picture = one sample of concrete size
+            var out_images = new List<dynamic>();
+
+            var baseUrl = Request.Scheme + "://" + Request.Host + "/api/Goods/";
+
+            var art_images = _context.Images.
+                Include(i => i.original).
+                 Include(i => i.base_action).
+                  Include(i => i.preview).
+                   Include(i => i.small).
+                    Include(i => i.medium).
+                     Include(i => i.large).
+                      Include(i => i.big_tile).
+                       Include(i => i.big).
+                        Include(i => i.mobile_large).
+                         Include(i => i.mobile_medium).
+                            Where(i => i.ArticleModelId == article.Id).ToList();
+
+            foreach (var image in art_images)
+            {
+                dynamic out_image_entity = new ExpandoObject();
+                ((IDictionary<string, object>)out_image_entity).Add("id", image.Id);
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.original),
+                 new
+                 {
+                     url = baseUrl + nameof(image.original) + "/" + image.original.url + ".jpg",
+                     width = image.original.width,
+                     height = image.original.height,
+                 });
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.base_action),
+                 new
+                 {
+                     url = baseUrl + nameof(image.base_action) + "/" + image.base_action.url + ".jpg",
+                     width = image.base_action.width,
+                     height = image.base_action.height,
+                 });
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.preview),
+                 new
+                 {
+                     url = baseUrl + nameof(image.preview) + "/" + image.preview.url + ".jpg",
+                     width = image.preview.width,
+                     height = image.preview.height,
+                 });
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.small),
+                 new
+                 {
+                     url = baseUrl + nameof(image.small) + "/" + image.small.url + ".jpg",
+                     width = image.small.width,
+                     height = image.small.height,
+                 });
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.medium),
+                 new
+                 {
+                     url = baseUrl + nameof(image.medium) + "/" + image.medium.url + ".jpg",
+                     width = image.medium.width,
+                     height = image.medium.height,
+                 });
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.large),
+                 new
+                 {
+                     url = baseUrl + nameof(image.large) + "/" + image.large.url + ".jpg",
+                     width = image.large.width,
+                     height = image.large.height,
+                 });
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.big_tile),
+                 new
+                 {
+                     url = baseUrl + nameof(image.big_tile) + "/" + image.big_tile.url + ".jpg",
+                     width = image.big_tile.width,
+                     height = image.big_tile.height,
+                 });
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.big),
+                 new
+                 {
+                     url = baseUrl + nameof(image.big) + "/" + image.big.url + ".jpg",
+                     width = image.big.width,
+                     height = image.big.height,
+                 });
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.mobile_large),
+                 new
+                 {
+                     url = baseUrl + nameof(image.mobile_large) + "/" + image.mobile_large.url + ".jpg",
+                     width = image.mobile_large.width,
+                     height = image.mobile_large.height,
+                 });
+
+                ((IDictionary<string, object>)out_image_entity).Add(nameof(image.mobile_medium),
+                 new
+                 {
+                     url = baseUrl + nameof(image.mobile_medium) + "/" + image.mobile_medium.url + ".jpg",
+                     width = image.mobile_medium.width,
+                     height = image.mobile_medium.height,
+                 });
+
+                out_images.Add(out_image_entity);
+            }
+
+            //breadcrumbs collect
+            var out_breadcrumbs = new List<dynamic>();
+
+            foreach (var item in article.Breadcrumbs)
+            {
+                var piece = new
+                {
+                    id = item.Id,
+                    title = item.Title.Content(lang),
+                    href = "todo"
+                };
+
+                out_breadcrumbs.Add(piece);
+            }
+
+            //warnings collect
+
+            var out_warnings = new List<dynamic>();
+
+            foreach (var item in article.Warning)
+            {
+                var piece = new
+                {
+                    title = item.Message.Translations.First(t => t.LanguageId == lang).TranslationString ?? item.Message.OriginalText ?? "",
+                };
+
+                out_warnings.Add(piece);
+            }
+
+            //videos collect
+
+            var out_videos = new List<dynamic>();
+
+            foreach (var item in article.Video)
+            {
+                var piece = new
+                {
+                    name = item.Title,
+                    id = item.Id,
+                    type = item.Type,
+                    ext_video_id = item.ExternalId,
+                    title = item.Title,
+                    url = item.URL,
+                    preview_url = item.PreviewURL,
+                    order = item.Order
+                };
+
+                out_videos.Add(piece);
+            }
+
+
+
+            //actions collect
+            var actions = new List<dynamic>();
+            if (article.Actions.Count > 0)
+            {
+                foreach (var action in article.Actions)
+                {
+                    var act = new
+                    {
+                        Name = action.Name.Content(lang),
+
+                    };
+                    actions.Add(act);
+                }
+            }
+
+
+            response.Add("id", article.Id);
+            response.Add("price", article.Price.ToString());
+            response.Add("old_price", article.OldPrice.ToString());
+            response.Add("title", article.Title.Content(lang));
+            response.Add("description", article.Description.Content(lang));
+            response.Add("status", article.Status ?? "");
+            response.Add("sell_status", article.SellStatus ?? "");
+            response.Add("comments_amount", 0);
+            response.Add("category_id", article.CategoryId);
+            response.Add("docket", article.Docket.Content(lang));
+
+            response.Add("brand", article.Brand.Name ?? "");
+            response.Add("brand_name", article.Brand.Description ?? "");
+            response.Add("brand_logo", baseUrl + "logo/" + article.Brand.LogoURL + ".jpg");
+            response.Add("breadcrumbs", out_breadcrumbs);
+            response.Add("images", out_images);
+
+            response.Add("warning", out_warnings);
+            response.Add("videos", out_videos);
+            response.Add("actions", actions);
+            response.Add("tags", new object[] { });
+
+            return response;
         }
     }
 }

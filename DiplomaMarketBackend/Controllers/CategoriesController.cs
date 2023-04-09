@@ -1,5 +1,6 @@
 ﻿using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
+using DiplomaMarketBackend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static System.Net.WebRequestMethods;
@@ -46,8 +47,7 @@ namespace DiplomaMarketBackend.Controllers
         [ResponseCache(VaryByQueryKeys = new[] {"lang"}, Duration = 3600)]
         public IActionResult GetFullTree([FromQuery] string lang)
         {
-            if (lang.ToUpper() != "UK" && lang.ToUpper() != "RU")
-                lang = "UA";
+            lang= lang.NormalizeLang();
 
             var top_categories = _context.Categories
                  .Include(c => c.Name)

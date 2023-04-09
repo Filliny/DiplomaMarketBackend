@@ -32,8 +32,7 @@ namespace DiplomaMarketBackend.Entity.Models
         public List<BreadcrumbsModel> Breadcrumbs { get; set; }
         public List<CharacteristicValueModel> Values { get; set; }
         public List<TagModel> Tags { get; set; }
-
-
+        public List<ActionModel> Actions { get; set; }
         public int rztk_art_id { get; set; }
 
 
@@ -45,7 +44,7 @@ namespace DiplomaMarketBackend.Entity.Models
             Breadcrumbs = new List<BreadcrumbsModel>();
             Tags = new();
             Warning = new();
-
+            Actions = new();
 
         }
 

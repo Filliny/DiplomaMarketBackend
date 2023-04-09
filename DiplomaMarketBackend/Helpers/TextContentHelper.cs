@@ -3,8 +3,19 @@ using DiplomaMarketBackend.Entity.Models;
 
 namespace DiplomaMarketBackend.Helpers
 {
+    /// <summary>
+    /// Helper for set and get string values for translated strings in entities
+    /// </summary>
     public static class TextContentHelper
     {
+
+        /// <summary>
+        /// Update existing text content by adding new translation entity
+        /// </summary>
+        /// <param name="_db">database context</param>
+        /// <param name="text">text value</param>
+        /// <param name="content_id">existing content id </param>
+        /// <param name="lang_id">language id</param>
         public static void UpdateTextContent(BaseContext _db, string text, int? content_id, string lang_id)
         {
             var textContent = _db.textContents.FirstOrDefault(c => c.Id == content_id);
@@ -28,10 +39,16 @@ namespace DiplomaMarketBackend.Helpers
                 textContent.Translations.Add(translation);
 
             }
-
-
         }
 
+        /// <summary>
+        /// Create text content entity for translated values 
+        /// (e.g. names, descriptions)
+        /// </summary>
+        /// <param name="_db">database context</param>
+        /// <param name="text">default text value</param>
+        /// <param name="lang_id">language id</param>
+        /// <returns></returns>
         public static TextContent? CreateTextContent(BaseContext _db, string text, string lang_id)
         {
 

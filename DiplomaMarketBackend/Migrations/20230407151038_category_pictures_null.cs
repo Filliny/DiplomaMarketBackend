@@ -5,14 +5,14 @@
 namespace DiplomaMarketBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class breadrumbs_href_null : Migration
+    public partial class category_pictures_null : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "href",
-                table: "Breadcrumbs",
+                name: "ImgUrl",
+                table: "Categories",
                 type: "text",
                 nullable: true,
                 oldClrType: typeof(string),
@@ -23,8 +23,8 @@ namespace DiplomaMarketBackend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "href",
-                table: "Breadcrumbs",
+                name: "ImgUrl",
+                table: "Categories",
                 type: "text",
                 nullable: false,
                 defaultValue: "",

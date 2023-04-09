@@ -73,11 +73,11 @@ namespace DiplomaMarketBackend.Controllers
 
 
         /// <summary>
-        /// Get main article parameters
+        /// Get main article main parameters
         /// </summary>
         /// <param name="lang">language (e.g. uk\ru)</param>
         /// <param name="goodsId">id of article</param>
-        /// <returns></returns>
+        /// <returns>main article parameters</returns>
         /// <response code="404">If the item is not exist</response>
         /// <response code="400">If the request value is bad</response>
         [HttpGet]
@@ -225,8 +225,7 @@ namespace DiplomaMarketBackend.Controllers
                     var piece = new
                     {
                         id = item.Id,
-                        //title = item.Title.Translations.FirstOrDefault(t => t.LanguageId == lang.ToUpper()).TranslationString ?? item.Title.OriginalText ?? ""
-                        title = item.Title.OriginalText,
+                        title = item.Title.Content(lang),
                         href = "todo"
                     };
 
@@ -272,13 +271,13 @@ namespace DiplomaMarketBackend.Controllers
                 response.Add("id", article.Id);
                 response.Add("price", article.Price.ToString());
                 response.Add("old_price", article.OldPrice.ToString());
-                response.Add("title", article.Title.Translations.First(t => t.LanguageId == lang.ToUpper()).TranslationString ?? article.Title.OriginalText ?? "");
-                response.Add("description", article.Description.Translations.First(t => t.LanguageId == lang.ToUpper()).TranslationString ?? article.Description.OriginalText ?? "");
+                response.Add("title", article.Title.Content(lang));
+                response.Add("description", article.Description.Content(lang));
                 response.Add("status", article.Status ?? "");
                 response.Add("sell_status", article.SellStatus ?? "");
                 response.Add("comments_amount", 0);
                 response.Add("category_id", article.CategoryId);
-                response.Add("docket", article.Docket.Translations.First(t => t.LanguageId == lang.ToUpper()).TranslationString ?? article.Docket.OriginalText ?? "");
+                response.Add("docket", article.Docket.Content(lang));
 
                 response.Add("brand", article.Brand.Name ?? "");
                 response.Add("brand_name", article.Brand.Description ?? "");
@@ -287,7 +286,7 @@ namespace DiplomaMarketBackend.Controllers
                 response.Add("images", out_images);
 
                 response.Add("warning", out_warnings);
-                response.Add("videos", out_warnings);
+                response.Add("videos", out_videos);
 
                 response.Add("tags", new object[] { });
 
@@ -301,27 +300,145 @@ namespace DiplomaMarketBackend.Controllers
             return new JsonResult(new { data = response });
         }
 
-
+        /// <summary>
+        /// Get article detailed characteristics by given id
+        /// </summary>
+        /// <param name="lang">language (e.g. uk\ru)</param>
+        /// <param name="goodsId">id of article</param>
+        /// <returns>all article characteristics</returns>
+        /// <response code="404">If the item is not exist</response>
+        /// <response code="400">If the request value is bad</response>
         [HttpGet]
         [Route("get-characteristic")]
         public async Task<IActionResult> GetArticleCharacteristics([FromQuery] string lang, string goodsId)
         {
             if (lang.ToUpper() != "UK" && lang.ToUpper() != "RU")
                 lang = "UA";
-            dynamic dresponse = new ExpandoObject();
-            IDictionary<string, object> response = (IDictionary<string, object>)dresponse;
+
+
+            var characteristic_group_list = new List<dynamic>();
 
 
             if (int.TryParse(goodsId, out int art_id))
             {
-                var characteristics = await _context.ArticleCharacteristics.
-                Include(c => c.Group).
-                Include(c => c.Values).
-                Where(c => c.ArticleId == art_id).
+                var values = await _context.Values.
+                Include(v => v.Title).ThenInclude(t => t.Translations).
+                Include(v => v.CharacteristicType).ThenInclude(t => t.Group).ThenInclude(g => g.groupTitle).ThenInclude(t => t.Translations).
+                Include(v => v.CharacteristicType).ThenInclude(v => v.Name).ThenInclude(v => v.Translations).
+                Include(v => v.CharacteristicType).ThenInclude(v => v.Title).ThenInclude(v => v.Translations).
+                Where(c => c.articleId == art_id).
                 ToListAsync();
+
+                var groups = values.GroupBy(v => v.CharacteristicType).GroupBy(v => v.Key.Group).ToList();
+
+
+                foreach (var group in groups)
+                {
+                    if (group.Key == null)
+                    {
+                        dynamic zero_group = new ExpandoObject();
+                        IDictionary<string, object> dictionary_zero_group = (IDictionary<string, object>)zero_group;
+
+                        dictionary_zero_group.Add("group_id", 0);
+                        dictionary_zero_group.Add("group_order", 99999999);
+                        dictionary_zero_group.Add("groupTitle", "");
+
+                        var zero_group_options = new List<dynamic>();
+
+                        foreach (var charakterystyc_type in group)
+                        {
+                            var list_values = new List<dynamic>();
+
+                            foreach (var val in charakterystyc_type.Key.Values)
+                            {
+                                var to_list = new
+                                {
+                                    title = val.Title.Content(lang),
+                                    href = val.href
+                                };
+
+                                list_values.Add(to_list);
+                            }
+
+
+                            var dyna_charakter = new
+                            {
+                                id = charakterystyc_type.Key.Id,
+                                type = charakterystyc_type.Key.Type,
+                                name = charakterystyc_type.Key.Name.Content(lang),
+                                title = charakterystyc_type.Key.Title.Content(lang),
+                                category_id = charakterystyc_type.Key.CategoryId,
+                                status = charakterystyc_type.Key.Status,
+                                order = charakterystyc_type.Key.Order,
+                                comparable = charakterystyc_type.Key.Comparable,
+                                values = list_values
+
+                            };
+
+                            zero_group_options.Add(dyna_charakter);
+                        }
+
+                        dictionary_zero_group.Add("options", zero_group_options);
+                        characteristic_group_list.Add(zero_group);
+                    }
+                    else //for exist group key
+                    {
+                        dynamic d_group = new ExpandoObject();
+                        IDictionary<string, object> dictionary_group = (IDictionary<string, object>)d_group;
+
+                        dictionary_group.Add("group_id", group.Key.Id);
+                        dictionary_group.Add("group_order", group.Key.group_order);
+                        dictionary_group.Add("groupTitle", group.Key.groupTitle.Content(lang));
+
+                        var group_options = new List<dynamic>();
+
+                        foreach (var charakterystyc_type in group)
+                        {
+                            var list_values = new List<dynamic>();
+
+                            foreach (var val in charakterystyc_type.Key.Values)
+                            {
+                                var to_list = new
+                                {
+                                    title = val.Title.Content(lang),
+                                    href = val.href
+                                };
+
+                                list_values.Add(to_list);
+                            }
+
+
+                            var dyna_charakter = new
+                            {
+                                id = charakterystyc_type.Key.Id,
+                                type = charakterystyc_type.Key.Type,
+                                name = charakterystyc_type.Key.Name.Content(lang),
+                                title = charakterystyc_type.Key.Title.Content(lang),
+                                category_id = charakterystyc_type.Key.CategoryId,
+                                status = charakterystyc_type.Key.Status,
+                                order = charakterystyc_type.Key.Order,
+                                comparable = charakterystyc_type.Key.Comparable,
+                                values = list_values
+
+                            };
+
+                            group_options.Add(dyna_charakter);
+                        }
+
+                        dictionary_group.Add("options", group_options);
+                        characteristic_group_list.Add(d_group);
+
+                    }
+
+                }
+
+            }
+            else
+            {
+                return BadRequest("Check request parameters!");
             }
 
-            return Ok();
+            return new JsonResult(new { data = characteristic_group_list });
         }
 
 

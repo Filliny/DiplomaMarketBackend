@@ -1,16 +1,23 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace DiplomaMarketBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class art_textcontent_relation : Migration
+    public partial class article_non_null_texts : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Articles_Brands_BrandId",
+                table: "Articles");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Articles_Categories_CategoryId",
+                table: "Articles");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Articles_textContents_DescriptionId",
                 table: "Articles");
@@ -22,22 +29,6 @@ namespace DiplomaMarketBackend.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Articles_textContents_TitleId",
                 table: "Articles");
-
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "RegDate",
-                table: "Users",
-                type: "timestamp without time zone",
-                nullable: false,
-                oldClrType: typeof(DateTime),
-                oldType: "timestamp with time zone");
-
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "Updated",
-                table: "Articles",
-                type: "timestamp without time zone",
-                nullable: false,
-                oldClrType: typeof(DateTime),
-                oldType: "timestamp with time zone");
 
             migrationBuilder.AlterColumn<int>(
                 name: "TitleId",
@@ -69,13 +60,41 @@ namespace DiplomaMarketBackend.Migrations
                 oldType: "integer",
                 oldNullable: true);
 
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "Created",
+            migrationBuilder.AlterColumn<int>(
+                name: "CategoryId",
                 table: "Articles",
-                type: "timestamp without time zone",
+                type: "integer",
                 nullable: false,
-                oldClrType: typeof(DateTime),
-                oldType: "timestamp with time zone");
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: "integer",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<int>(
+                name: "BrandId",
+                table: "Articles",
+                type: "integer",
+                nullable: false,
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: "integer",
+                oldNullable: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Articles_Brands_BrandId",
+                table: "Articles",
+                column: "BrandId",
+                principalTable: "Brands",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Articles_Categories_CategoryId",
+                table: "Articles",
+                column: "CategoryId",
+                principalTable: "Categories",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Articles_textContents_DescriptionId",
@@ -106,6 +125,14 @@ namespace DiplomaMarketBackend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
+                name: "FK_Articles_Brands_BrandId",
+                table: "Articles");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Articles_Categories_CategoryId",
+                table: "Articles");
+
+            migrationBuilder.DropForeignKey(
                 name: "FK_Articles_textContents_DescriptionId",
                 table: "Articles");
 
@@ -116,22 +143,6 @@ namespace DiplomaMarketBackend.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Articles_textContents_TitleId",
                 table: "Articles");
-
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "RegDate",
-                table: "Users",
-                type: "timestamp with time zone",
-                nullable: false,
-                oldClrType: typeof(DateTime),
-                oldType: "timestamp without time zone");
-
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "Updated",
-                table: "Articles",
-                type: "timestamp with time zone",
-                nullable: false,
-                oldClrType: typeof(DateTime),
-                oldType: "timestamp without time zone");
 
             migrationBuilder.AlterColumn<int>(
                 name: "TitleId",
@@ -157,13 +168,35 @@ namespace DiplomaMarketBackend.Migrations
                 oldClrType: typeof(int),
                 oldType: "integer");
 
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "Created",
+            migrationBuilder.AlterColumn<int>(
+                name: "CategoryId",
                 table: "Articles",
-                type: "timestamp with time zone",
-                nullable: false,
-                oldClrType: typeof(DateTime),
-                oldType: "timestamp without time zone");
+                type: "integer",
+                nullable: true,
+                oldClrType: typeof(int),
+                oldType: "integer");
+
+            migrationBuilder.AlterColumn<int>(
+                name: "BrandId",
+                table: "Articles",
+                type: "integer",
+                nullable: true,
+                oldClrType: typeof(int),
+                oldType: "integer");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Articles_Brands_BrandId",
+                table: "Articles",
+                column: "BrandId",
+                principalTable: "Brands",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Articles_Categories_CategoryId",
+                table: "Articles",
+                column: "CategoryId",
+                principalTable: "Categories",
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Articles_textContents_DescriptionId",

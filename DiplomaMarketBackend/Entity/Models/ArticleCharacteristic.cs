@@ -22,9 +22,8 @@
         public string? Status { get; set; }
         public int? CategoryId { get; set; }
         public CategoryModel? Category { get; set; }
-        public int? ArticleId { get; set; }
-        public ArticleModel? Article { get; set; }
         public int? Order { get; set; }
+        public string? Comparable { get; set; }
         public CharacteristicType Type { get; set;}
         public List<CharacteristicValueModel> Values { get;}
 

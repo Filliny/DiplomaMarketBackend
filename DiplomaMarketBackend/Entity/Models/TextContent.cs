@@ -13,7 +13,17 @@
             Translations = new List<Translation>();
         }
 
+        public string Content(string language)
+        {
+            var translation = Translations.FirstOrDefault(t=>t.LanguageId == language.ToUpper());
 
+            if(translation == null) {
+
+                return OriginalText??"";
+            }
+
+            return translation.TranslationString??"";
+        }
 
     }
 }

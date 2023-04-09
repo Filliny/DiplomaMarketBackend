@@ -7,6 +7,10 @@
 
         public int? ParentId { get; set; }
 
+        public string? SmallIcon { get; set; }
+
+        public string? BigPicture { get; set; }
+
         public List<Category> Children { get; set; }
 
         public Category()

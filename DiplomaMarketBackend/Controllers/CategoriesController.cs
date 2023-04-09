@@ -2,6 +2,7 @@
 using DiplomaMarketBackend.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Net.WebRequestMethods;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -42,7 +43,7 @@ namespace DiplomaMarketBackend.Controllers
         [Route("full")]
         [HttpGet]
         [Produces("application/json")]
-        [ResponseCache(VaryByQueryKeys = new[] {"lang"}, Duration = 30)]
+        [ResponseCache(VaryByQueryKeys = new[] {"lang"}, Duration = 3600)]
         public IActionResult GetFullTree([FromQuery] string lang)
         {
             if (lang.ToUpper() != "UK" && lang.ToUpper() != "RU")
@@ -56,16 +57,20 @@ namespace DiplomaMarketBackend.Controllers
 
             var result = new List<Models.Category>();
 
+            string loge = "\n\n\nCategory tree\n\n\n";
+            var baseUrl = Request.Scheme + "://" + Request.Host + "/api/Goods/category/";
+
             foreach (var category in top_categories)
             {
                 var output_cat = new Models.Category();
 
                 if (category.Name != null)
                 {
-                    output_cat.Name = category.Name.Translations.FirstOrDefault(t => t.LanguageId == lang.ToUpper()) != null ?
-                    category.Name.Translations.First(t => t.LanguageId == lang.ToUpper()).TranslationString :
-                    category.Name.OriginalText;
+                    output_cat.Name = category.Name.Content(lang);
                     output_cat.Id = category.Id;
+                    output_cat.SmallIcon = category.ImgData != null ? Convert.ToBase64String(category.ImgData) : null;
+                    output_cat.BigPicture = category.ImgUrl != ""? baseUrl + category.ImgUrl + ".jpg":null;
+                    loge += "\n"+ category.Name.Content(lang);
                 }
 
                 var mid_childs = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ParentCategoryId == category.Id).ToList();
@@ -75,10 +80,11 @@ namespace DiplomaMarketBackend.Controllers
                     var output_mchild = new Models.Category();
                     if (child.Name != null)
                     {
-                        output_mchild.Name = child.Name.Translations.FirstOrDefault(t => t.LanguageId == lang.ToUpper()) != null ?
-                        child.Name.Translations.FirstOrDefault(t => t.LanguageId == lang.ToUpper()).TranslationString :
-                        child.Name.OriginalText;
+                        output_mchild.Name = child.Name.Content(lang);
                         output_mchild.Id = child.Id;
+                        output_mchild.SmallIcon = child.ImgData != null ? Convert.ToBase64String(child.ImgData) : null;
+                        output_mchild.BigPicture = child.ImgUrl != ""?baseUrl + child.ImgUrl + ".jpg":null;
+                        loge += "\n--"+ child.Name.Content(lang);
                     }
 
                     var low_childs = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ParentCategoryId == child.Id).ToList();
@@ -88,10 +94,11 @@ namespace DiplomaMarketBackend.Controllers
                         var output_lchild = new Models.Category();
                         if (child.Name != null)
                         {
-                            output_lchild.Name = lowchild.Name.Translations.FirstOrDefault(t => t.LanguageId == lang.ToUpper()) != null ?
-                            lowchild.Name.Translations.FirstOrDefault(t => t.LanguageId == lang.ToUpper()).TranslationString :
-                            lowchild.Name.OriginalText;
+                            output_lchild.Name = lowchild.Name.Content(lang);
                             output_lchild.Id = lowchild.Id;
+                            output_lchild.SmallIcon = lowchild.ImgData != null ? Convert.ToBase64String(lowchild.ImgData) : null;
+                            output_lchild.BigPicture = lowchild.ImgUrl != "" ? baseUrl + lowchild.ImgUrl + ".jpg" : null;
+                            loge += "\n----"+ lowchild.Name.Content(lang);
                         }
 
                         output_mchild.Children.Add(output_lchild);
@@ -99,6 +106,8 @@ namespace DiplomaMarketBackend.Controllers
 
                     output_cat.Children.Add(output_mchild);
                 }
+
+                //_logger.LogInformation(loge);
 
                 result.Add(output_cat);
             }

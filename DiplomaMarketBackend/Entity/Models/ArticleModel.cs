@@ -6,22 +6,22 @@ namespace DiplomaMarketBackend.Entity.Models
     {
         public int Id { get; set; }
 
-        public int? TitleId { get; set; }
-        public TextContent? Title { get; set; }
+        public int TitleId { get; set; }
+        public TextContent Title { get; set; }
 
-        public int? DescriptionId { get; set; }
-        public TextContent? Description { get; set; }
+        public int DescriptionId { get; set; }
+        public TextContent Description { get; set; }
 
 
-        public int?  DocketId { get; set; }
-        public TextContent? Docket { get; set; }
+        public int  DocketId { get; set; }
+        public TextContent Docket { get; set; }
 
         public decimal Price { get; set; }
         public decimal OldPrice { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime Updated { get; set; }
-        public int? CategoryId { get; set; }
-        public CategoryModel? Category { get; set; }
+        public int CategoryId { get; set; }
+        public CategoryModel Category { get; set; }
         public int? BrandId { get; set; }
         public BrandModel? Brand { get; set; }
         public string? Status { get; set; } //active/inactive
@@ -30,7 +30,7 @@ namespace DiplomaMarketBackend.Entity.Models
         public List<VideoModel> Video { get; set; }
         public List<ImageModel> Images { get; set; }
         public List<BreadcrumbsModel> Breadcrumbs { get; set; }
-        public List<ArticleCharacteristic> ArticleCharacteristics { get; set; }
+        public List<CharacteristicValueModel> Values { get; set; }
         public List<TagModel> Tags { get; set; }
 
 
@@ -39,7 +39,7 @@ namespace DiplomaMarketBackend.Entity.Models
 
         public ArticleModel()
         {
-            ArticleCharacteristics = new ();
+            Values = new ();
             Video = new List<VideoModel>();
             Images = new List<ImageModel>();
             Breadcrumbs = new List<BreadcrumbsModel>();

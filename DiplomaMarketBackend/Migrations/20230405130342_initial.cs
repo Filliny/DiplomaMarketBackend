@@ -12,9 +12,6 @@ namespace DiplomaMarketBackend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-
-            //this.Down(migrationBuilder);
-
             migrationBuilder.CreateTable(
                 name: "Brands",
                 columns: table => new
@@ -23,7 +20,8 @@ namespace DiplomaMarketBackend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    LogoURL = table.Column<string>(type: "text", nullable: true)
+                    LogoURL = table.Column<string>(type: "text", nullable: true),
+                    rztk_brand_id = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -48,9 +46,9 @@ namespace DiplomaMarketBackend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    url = table.Column<string>(type: "text", nullable: false),
-                    width = table.Column<int>(type: "integer", nullable: false),
-                    height = table.Column<int>(type: "integer", nullable: false)
+                    url = table.Column<string>(type: "text", nullable: true),
+                    width = table.Column<int>(type: "integer", nullable: true),
+                    height = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -67,7 +65,7 @@ namespace DiplomaMarketBackend.Migrations
                     Username = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false),
                     Role = table.Column<string>(type: "text", nullable: false),
-                    RegDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    RegDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -113,7 +111,7 @@ namespace DiplomaMarketBackend.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     NameId = table.Column<int>(type: "integer", nullable: true),
-                    DescriptionId = table.Column<int>(type: "integer", nullable: false),
+                    DescriptionId = table.Column<int>(type: "integer", nullable: true),
                     ParentCategoryId = table.Column<int>(type: "integer", nullable: true),
                     rztk_cat_id = table.Column<int>(type: "integer", nullable: true)
                 },
@@ -129,11 +127,30 @@ namespace DiplomaMarketBackend.Migrations
                         name: "FK_Categories_textContents_DescriptionId",
                         column: x => x.DescriptionId,
                         principalTable: "textContents",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Categories_textContents_NameId",
                         column: x => x.NameId,
+                        principalTable: "textContents",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CharacteristicGroups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    group_order = table.Column<int>(type: "integer", nullable: false),
+                    groupTitleId = table.Column<int>(type: "integer", nullable: true),
+                    rztk_grp_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacteristicGroups", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CharacteristicGroups_textContents_groupTitleId",
+                        column: x => x.groupTitleId,
                         principalTable: "textContents",
                         principalColumn: "Id");
                 });
@@ -146,7 +163,7 @@ namespace DiplomaMarketBackend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TranslationString = table.Column<string>(type: "text", nullable: true),
                     LanguageId = table.Column<string>(type: "text", nullable: true),
-                    TextContentId = table.Column<int>(type: "integer", nullable: true)
+                    TextContentId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -160,7 +177,8 @@ namespace DiplomaMarketBackend.Migrations
                         name: "FK_translations_textContents_TextContentId",
                         column: x => x.TextContentId,
                         principalTable: "textContents",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -170,16 +188,17 @@ namespace DiplomaMarketBackend.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TitleId = table.Column<int>(type: "integer", nullable: true),
-                    DescriptionId = table.Column<int>(type: "integer", nullable: false),
+                    DescriptionId = table.Column<int>(type: "integer", nullable: true),
+                    DocketId = table.Column<int>(type: "integer", nullable: true),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
                     OldPrice = table.Column<decimal>(type: "numeric", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Updated = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CategoryId = table.Column<int>(type: "integer", nullable: true),
-                    BrandId = table.Column<int>(type: "integer", nullable: false),
+                    BrandId = table.Column<int>(type: "integer", nullable: true),
                     Status = table.Column<string>(type: "text", nullable: true),
                     SellStatus = table.Column<string>(type: "text", nullable: true),
-                    Warning = table.Column<string>(type: "text", nullable: true)
+                    rztk_art_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -188,8 +207,7 @@ namespace DiplomaMarketBackend.Migrations
                         name: "FK_Articles_Brands_BrandId",
                         column: x => x.BrandId,
                         principalTable: "Brands",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Articles_Categories_CategoryId",
                         column: x => x.CategoryId,
@@ -199,8 +217,12 @@ namespace DiplomaMarketBackend.Migrations
                         name: "FK_Articles_textContents_DescriptionId",
                         column: x => x.DescriptionId,
                         principalTable: "textContents",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Articles_textContents_DocketId",
+                        column: x => x.DocketId,
+                        principalTable: "textContents",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Articles_textContents_TitleId",
                         column: x => x.TitleId,
@@ -219,7 +241,11 @@ namespace DiplomaMarketBackend.Migrations
                     Status = table.Column<string>(type: "text", nullable: true),
                     CategoryId = table.Column<int>(type: "integer", nullable: true),
                     ArticleId = table.Column<int>(type: "integer", nullable: true),
-                    Type = table.Column<int>(type: "integer", nullable: false)
+                    Order = table.Column<int>(type: "integer", nullable: true),
+                    Comparable = table.Column<string>(type: "text", nullable: true),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    GroupId = table.Column<int>(type: "integer", nullable: true),
+                    roz_har_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -233,6 +259,11 @@ namespace DiplomaMarketBackend.Migrations
                         name: "FK_ArticleCharacteristics_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ArticleCharacteristics_CharacteristicGroups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "CharacteristicGroups",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ArticleCharacteristics_textContents_NameId",
@@ -252,8 +283,9 @@ namespace DiplomaMarketBackend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TitleId = table.Column<int>(type: "integer", nullable: false),
-                    href = table.Column<string>(type: "text", nullable: false),
+                    TitleId = table.Column<int>(type: "integer", nullable: true),
+                    href = table.Column<string>(type: "text", nullable: true),
+                    roz_bread_id = table.Column<int>(type: "integer", nullable: false),
                     ArticleModelId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
@@ -268,8 +300,7 @@ namespace DiplomaMarketBackend.Migrations
                         name: "FK_Breadcrumbs_textContents_TitleId",
                         column: x => x.TitleId,
                         principalTable: "textContents",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -278,16 +309,16 @@ namespace DiplomaMarketBackend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    originalId = table.Column<int>(type: "integer", nullable: false),
-                    base_actionId = table.Column<int>(type: "integer", nullable: false),
-                    previewId = table.Column<int>(type: "integer", nullable: false),
+                    originalId = table.Column<int>(type: "integer", nullable: true),
+                    base_actionId = table.Column<int>(type: "integer", nullable: true),
+                    previewId = table.Column<int>(type: "integer", nullable: true),
                     smallId = table.Column<int>(type: "integer", nullable: false),
-                    mediumId = table.Column<int>(type: "integer", nullable: false),
-                    largeId = table.Column<int>(type: "integer", nullable: false),
-                    big_tileId = table.Column<int>(type: "integer", nullable: false),
-                    bigId = table.Column<int>(type: "integer", nullable: false),
-                    mobile_mediumId = table.Column<int>(type: "integer", nullable: false),
-                    mobile_largeId = table.Column<int>(type: "integer", nullable: false),
+                    mediumId = table.Column<int>(type: "integer", nullable: true),
+                    largeId = table.Column<int>(type: "integer", nullable: true),
+                    big_tileId = table.Column<int>(type: "integer", nullable: true),
+                    bigId = table.Column<int>(type: "integer", nullable: true),
+                    mobile_mediumId = table.Column<int>(type: "integer", nullable: true),
+                    mobile_largeId = table.Column<int>(type: "integer", nullable: true),
                     ArticleModelId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
@@ -302,56 +333,47 @@ namespace DiplomaMarketBackend.Migrations
                         name: "FK_Images_Pictures_base_actionId",
                         column: x => x.base_actionId,
                         principalTable: "Pictures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Images_Pictures_bigId",
                         column: x => x.bigId,
                         principalTable: "Pictures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Images_Pictures_big_tileId",
                         column: x => x.big_tileId,
                         principalTable: "Pictures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Images_Pictures_largeId",
                         column: x => x.largeId,
                         principalTable: "Pictures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Images_Pictures_mediumId",
                         column: x => x.mediumId,
                         principalTable: "Pictures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Images_Pictures_mobile_largeId",
                         column: x => x.mobile_largeId,
                         principalTable: "Pictures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Images_Pictures_mobile_mediumId",
                         column: x => x.mobile_mediumId,
                         principalTable: "Pictures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Images_Pictures_originalId",
                         column: x => x.originalId,
                         principalTable: "Pictures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Images_Pictures_previewId",
                         column: x => x.previewId,
                         principalTable: "Pictures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Images_Pictures_smallId",
                         column: x => x.smallId,
@@ -366,8 +388,8 @@ namespace DiplomaMarketBackend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: true),
-                    Title = table.Column<string>(type: "text", nullable: true),
+                    NameId = table.Column<int>(type: "integer", nullable: true),
+                    TitleId = table.Column<int>(type: "integer", nullable: true),
                     Priority = table.Column<int>(type: "integer", nullable: true),
                     ArticleModelId = table.Column<int>(type: "integer", nullable: true)
                 },
@@ -379,6 +401,16 @@ namespace DiplomaMarketBackend.Migrations
                         column: x => x.ArticleModelId,
                         principalTable: "Articles",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tags_textContents_NameId",
+                        column: x => x.NameId,
+                        principalTable: "textContents",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tags_textContents_TitleId",
+                        column: x => x.TitleId,
+                        principalTable: "textContents",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -389,7 +421,7 @@ namespace DiplomaMarketBackend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "text", nullable: true),
                     URL = table.Column<string>(type: "text", nullable: true),
-                    TypeId = table.Column<int>(type: "integer", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: true),
                     PreviewURL = table.Column<string>(type: "text", nullable: true),
                     ExternalId = table.Column<string>(type: "text", nullable: true),
                     Order = table.Column<string>(type: "text", nullable: true),
@@ -403,12 +435,30 @@ namespace DiplomaMarketBackend.Migrations
                         column: x => x.ArticleModelId,
                         principalTable: "Articles",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Warnings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MessageId = table.Column<int>(type: "integer", nullable: true),
+                    ArticleModelId = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Warnings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Videos_VideoTypes_TypeId",
-                        column: x => x.TypeId,
-                        principalTable: "VideoTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Warnings_Articles_ArticleModelId",
+                        column: x => x.ArticleModelId,
+                        principalTable: "Articles",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Warnings_textContents_MessageId",
+                        column: x => x.MessageId,
+                        principalTable: "textContents",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -419,16 +469,24 @@ namespace DiplomaMarketBackend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TitleId = table.Column<int>(type: "integer", nullable: true),
                     href = table.Column<string>(type: "text", nullable: true),
-                    ArticleCharacteristicId = table.Column<int>(type: "integer", nullable: true)
+                    CharacteristicTypeId = table.Column<int>(type: "integer", nullable: false),
+                    articleId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Values", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Values_ArticleCharacteristics_ArticleCharacteristicId",
-                        column: x => x.ArticleCharacteristicId,
+                        name: "FK_Values_ArticleCharacteristics_CharacteristicTypeId",
+                        column: x => x.CharacteristicTypeId,
                         principalTable: "ArticleCharacteristics",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Values_Articles_articleId",
+                        column: x => x.articleId,
+                        principalTable: "Articles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Values_textContents_TitleId",
                         column: x => x.TitleId,
@@ -445,6 +503,11 @@ namespace DiplomaMarketBackend.Migrations
                 name: "IX_ArticleCharacteristics_CategoryId",
                 table: "ArticleCharacteristics",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ArticleCharacteristics_GroupId",
+                table: "ArticleCharacteristics",
+                column: "GroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ArticleCharacteristics_NameId",
@@ -470,6 +533,11 @@ namespace DiplomaMarketBackend.Migrations
                 name: "IX_Articles_DescriptionId",
                 table: "Articles",
                 column: "DescriptionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Articles_DocketId",
+                table: "Articles",
+                column: "DocketId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Articles_TitleId",
@@ -500,6 +568,11 @@ namespace DiplomaMarketBackend.Migrations
                 name: "IX_Categories_ParentCategoryId",
                 table: "Categories",
                 column: "ParentCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacteristicGroups_groupTitleId",
+                table: "CharacteristicGroups",
+                column: "groupTitleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Images_ArticleModelId",
@@ -562,6 +635,16 @@ namespace DiplomaMarketBackend.Migrations
                 column: "ArticleModelId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Tags_NameId",
+                table: "Tags",
+                column: "NameId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tags_TitleId",
+                table: "Tags",
+                column: "TitleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_textContents_OriginalLanguageId",
                 table: "textContents",
                 column: "OriginalLanguageId");
@@ -577,9 +660,14 @@ namespace DiplomaMarketBackend.Migrations
                 column: "TextContentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Values_ArticleCharacteristicId",
+                name: "IX_Values_articleId",
                 table: "Values",
-                column: "ArticleCharacteristicId");
+                column: "articleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Values_CharacteristicTypeId",
+                table: "Values",
+                column: "CharacteristicTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Values_TitleId",
@@ -592,9 +680,14 @@ namespace DiplomaMarketBackend.Migrations
                 column: "ArticleModelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Videos_TypeId",
-                table: "Videos",
-                column: "TypeId");
+                name: "IX_Warnings_ArticleModelId",
+                table: "Warnings",
+                column: "ArticleModelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Warnings_MessageId",
+                table: "Warnings",
+                column: "MessageId");
         }
 
         /// <inheritdoc />
@@ -622,16 +715,22 @@ namespace DiplomaMarketBackend.Migrations
                 name: "Videos");
 
             migrationBuilder.DropTable(
+                name: "VideoTypes");
+
+            migrationBuilder.DropTable(
+                name: "Warnings");
+
+            migrationBuilder.DropTable(
                 name: "Pictures");
 
             migrationBuilder.DropTable(
                 name: "ArticleCharacteristics");
 
             migrationBuilder.DropTable(
-                name: "VideoTypes");
+                name: "Articles");
 
             migrationBuilder.DropTable(
-                name: "Articles");
+                name: "CharacteristicGroups");
 
             migrationBuilder.DropTable(
                 name: "Brands");

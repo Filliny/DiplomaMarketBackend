@@ -65,19 +65,35 @@ namespace DiplomaMarketBackend.Services
 
         public async Task<string> SaveFileFromUrl(string bucketName, string Url)
         {
-            var gridFS = getBucket(bucketName);
-            string fileName = Path.GetFileName(Url).GetHashCode().ToString();
-            ObjectId id;
-            using (var webclient = new WebClient())
+            _logger.LogWarning("Gettin file :" + Url);
+
+            try
             {
-                var content = webclient.DownloadData(Url);
-                using (var stream = new MemoryStream(content))
+                var gridFS = getBucket(bucketName);
+                string fileName = Path.GetFileName(Url).GetHashCode().ToString();
+                ObjectId id;
+                using (var webclient = new WebClient())
                 {
-                    id = await gridFS.UploadFromStreamAsync(fileName, stream);
+                    var content = webclient.DownloadData(Url);
+                    using (var stream = new MemoryStream(content))
+                    {
+                        id = await gridFS.UploadFromStreamAsync(fileName, stream);
+                    }
                 }
+
+                return id.ToString();
+            }
+            catch (WebException e)
+            {
+                _logger.LogWarning(e.Message);
+                return "";
+
+            }catch (Exception e){
+
+                _logger.LogWarning(e.Message + "\n\n In file service");
+                throw;
             }
 
-            return id.ToString();
         }
 
         public void DeleteFile(string bucketName, string fileId)

@@ -1,18 +1,18 @@
 ﻿using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 
-namespace DiplomaMarketBackend.Parser
+namespace DiplomaMarketBackend.Helpers
 {
     public static class TextContentHelper
     {
         public static void UpdateTextContent(BaseContext _db, string text, int? content_id, string lang_id)
         {
-            var textContent  = _db.textContents.FirstOrDefault(c=>c.Id == content_id);
+            var textContent = _db.textContents.FirstOrDefault(c => c.Id == content_id);
             if (textContent == null) return;
 
-            var exist_transl = _db.translations.FirstOrDefault(t=>t.TextContentId == content_id && t.LanguageId == lang_id);
+            var exist_transl = _db.translations.FirstOrDefault(t => t.TextContentId == content_id && t.LanguageId == lang_id);
 
-            if(exist_transl != null)
+            if (exist_transl != null)
             {
                 exist_transl.TranslationString = text;
                 _db.Update(exist_transl);
@@ -47,14 +47,14 @@ namespace DiplomaMarketBackend.Parser
             var textContent = new TextContent()
             {
                 OriginalLanguageId = lang_id.ToUpper(),
-                OriginalText = text,    
+                OriginalText = text,
             };
 
             textContent.Translations.Add(translation);
 
             _db.textContents.Add(textContent);
 
-            return textContent; 
+            return textContent;
 
         }
     }

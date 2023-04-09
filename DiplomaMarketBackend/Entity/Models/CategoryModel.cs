@@ -9,6 +9,8 @@
 
         public int? DescriptionId { get; set; }
         public TextContent Description { get; set; }
+        public byte[]? ImgData { get; set; }
+        public string? ImgUrl { get; set; }
 
         public int? ParentCategoryId { get; set; }
         public CategoryModel? ParentCategory { get; set; }

@@ -5,7 +5,7 @@
 namespace DiplomaMarketBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class nullbrand : Migration
+    public partial class article_brand_null : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

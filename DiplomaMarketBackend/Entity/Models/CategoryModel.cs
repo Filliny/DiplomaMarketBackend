@@ -17,6 +17,10 @@
         public List<CategoryModel> ChildCategories { get; set; }
         public int? rztk_cat_id { get; set; }
 
+        public bool ? is_active { get; set; } = true;
+
+        public int ? ShowInCategoryId { get; set; }
+
         public CategoryModel() { 
         
             ChildCategories = new List<CategoryModel>();

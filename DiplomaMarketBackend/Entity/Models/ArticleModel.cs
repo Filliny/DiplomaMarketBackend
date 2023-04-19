@@ -22,6 +22,8 @@ namespace DiplomaMarketBackend.Entity.Models
         public DateTime Updated { get; set; }
         public int CategoryId { get; set; }
         public CategoryModel Category { get; set; }
+        public int? TopCategoryId { get; set; }
+        public CategoryModel? TopCategory { get; set; }
         public int? BrandId { get; set; }
         public BrandModel? Brand { get; set; }
         public string? Status { get; set; } //active/inactive
@@ -34,6 +36,12 @@ namespace DiplomaMarketBackend.Entity.Models
         public List<TagModel> Tags { get; set; }
         public List<ActionModel> Actions { get; set; }
         public int rztk_art_id { get; set; }
+        public decimal RatingCalculated { get; set; }
+
+        public List<ReviewModel> Reviews { get; set; }
+
+        public int? SellerId { get; set; }
+        public SellerModel? Seller { get; set; }
 
 
         public ArticleModel()

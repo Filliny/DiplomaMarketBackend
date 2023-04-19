@@ -13,6 +13,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -37,54 +38,37 @@ namespace DiplomaMarketBackend.Controllers
 
         [HttpPost]
         [Route("testSave")]
-        public async Task<IActionResult> test()
+        public async Task<IActionResult> AddTopCategory( string pass)
         {
+            if (pass != "pass123") return Ok();
 
-            _fileService.DeleteFile("fs", "6428277f976576a2e32d3bee");
+            var articles = _context.Articles.Include(a=>a.Category).ToList();
 
-            var art = new ArticleModel();
-
-            var transl = new Translation() { LanguageId = "UK", TranslationString = "SomeTranslation" };
-
-            _context.translations.Add(transl);
-
-            var namecontent = new TextContent { OriginalLanguageId = "UK", OriginalText = "Some text" };
-            namecontent.Translations.Add(transl);
-
-            art.Title = namecontent;
-            var desc = new TextContent()
+            foreach(var article in articles)
             {
-                OriginalLanguageId = "UK",
-                OriginalText = "Any"
-            };
-            _context.textContents.Add(desc);
+                if(article.Category.ParentCategoryId == null)
+                {
+                    article.TopCategory = article.Category;
+                }
+                else if(article.Category.ParentCategoryId != null)
+                {
+                    var parent_category_ofart = _context.Categories.Include(c=>c.ParentCategory).FirstOrDefault(c=>c.Id == article.Category.ParentCategoryId); 
 
-            art.Description = desc;
-
-            var dock = new TextContent()
-            {
-                OriginalLanguageId = "UK",
-                OriginalText = "Any"
-            };
-
-            _context.textContents.Add(dock);
-            art.Docket = dock;
-
-            var brand = new BrandModel()
-            {
-
-                Name = "Any",
-                Description = "Any",
-                LogoURL = "324535747"
-            };
-
-            _context.Brands.Add(brand);
-
-            art.Brand = brand;
-
-            _context.Articles.Add(art);
-            _context.SaveChanges();
-
+                    if(parent_category_ofart != null)
+                    {
+                        if (parent_category_ofart.ParentCategoryId == null)
+                        {
+                            article.TopCategory = parent_category_ofart;
+                        }
+                        else
+                        {
+                            article.TopCategory = parent_category_ofart.ParentCategory;
+                        }
+                    }
+                  
+                }
+                _context.SaveChanges();
+            }
 
 
 
@@ -103,6 +87,34 @@ namespace DiplomaMarketBackend.Controllers
                 var baseUrl = Request.Scheme + "://" + Request.Host + $"/api/Goods/{bucket}/";
 
                 return Ok($"Received file {file.FileName} with size in bytes {file.Length} and url is {baseUrl+id}.jpg");
+
+            }
+
+            return BadRequest("Check parameters!");
+        }
+
+
+        [HttpPost]
+        [Route("PictureForCategory")]
+        public async Task<IActionResult> uploadFileCategory(IFormFile file, string category_id, string password)
+        {
+            if (password != "pass123") return BadRequest("Pass not pass!");
+
+            if (file.Length > 0 && int.TryParse(category_id,out int cid))
+            {
+               
+
+                var category = _context.Categories.Include(c=>c.Name).FirstOrDefault(c=>c.Id == cid);
+
+                if (category != null)
+                {
+                    string id = _fileService.SaveFileFromStream("category", file.FileName, file.OpenReadStream()).Result;
+
+                    return Ok($"For category{category.Name.OriginalText} set {file.FileName} with size in bytes {file.Length} and url is {Request.GetImageURL(BucketNames.category, id)}.jpg");
+
+                }
+
+                return BadRequest("No such  category!");
 
             }
 
@@ -261,6 +273,7 @@ namespace DiplomaMarketBackend.Controllers
 
                     if (new_cat.Name != null)
                         new_cat.Name.Translations.Add(translation);
+
                     _context.SaveChanges();
                 }
 
@@ -360,7 +373,27 @@ namespace DiplomaMarketBackend.Controllers
                                     new_article.Docket = TextContentHelper.CreateTextContent(_context, article.data.docket, lang);
                                     new_article.Updated = DateTime.Now;
 
+                                    //top category fill
+                                    var top = category.ParentCategoryId;
+                                    if (category.ParentCategoryId != null)
+                                    {
+                                        var parent = _context.Categories.FirstOrDefault(c=>c.Id == category.ParentCategoryId);
+                                        if(parent != null)
+                                        {
+                                            if(parent.ParentCategoryId != null) {
 
+                                                top = parent.ParentCategoryId;
+                                            }
+                                            else
+                                            {
+                                                top = parent.Id;
+                                            }
+                                        }
+                                    }
+
+                                    new_article.TopCategoryId = top;
+
+                                    //brand fill
                                     BrandModel? brand = _context.Brands.FirstOrDefault(b => b.rztk_brand_id == article.data.brand_id);
 
                                     if (brand == null && article.data.brand_id != null)
@@ -875,31 +908,31 @@ namespace DiplomaMarketBackend.Controllers
 
         [HttpPost]
         [Route("saveFile")]
-        public async Task<IActionResult> SaveFile([FromHeader] string url)
+        public async Task<IActionResult> SaveFile([FromHeader] string url, string bucket_name)
         {
 
 
-            var id = _fileService.SaveFileFromUrl("fs", $"https://content.rozetka.com.ua/goods/images/preview/251021268.jpg");
+            var id = _fileService.SaveFileFromUrl(bucket_name, url).Result;
 
-            return Ok($"File saved" + id.ToString());
+            return Ok($"File saved " + id.ToString());
         }
 
-        [HttpGet]
-        [Route("big/{id}")]
-        public async Task<IActionResult> bigImage(string id, IFormFile file)
-        {
+        //[HttpGet]
+        //[Route("big/{id}")]
+        //public async Task<IActionResult> bigImage(string id, IFormFile file)
+        //{
 
-            string MimeType = "image/jpg";
-            var img_id = id.Split('.')[0];
-            //var client = new MongoClient("mongodb://root:example@localhost:27017");
-            //var db = client.GetDatabase("test");
-            //IGridFSBucket gridFS = new GridFSBucket(db);
+        //    string MimeType = "image/jpg";
+        //    var img_id = id.Split('.')[0];
+        //    //var client = new MongoClient("mongodb://root:example@localhost:27017");
+        //    //var db = client.GetDatabase("test");
+        //    //IGridFSBucket gridFS = new GridFSBucket(db);
 
-            //await gridFS.DownloadToStreamAsync(new ObjectId(id), context.Response.Body);
-            //var bytes = await gridFS.DownloadAsBytesAsync(new ObjectId(img_id));
-            var bytes = _fileService.GetFile(img_id, "fs").Result;
-            return File(bytes, MimeType);
-        }
+        //    //await gridFS.DownloadToStreamAsync(new ObjectId(id), context.Response.Body);
+        //    //var bytes = await gridFS.DownloadAsBytesAsync(new ObjectId(img_id));
+        //    var bytes = _fileService.GetFile(img_id, "fs").Result;
+        //    return File(bytes, MimeType);
+        //}
 
 
         [HttpGet]
@@ -1073,7 +1106,6 @@ namespace DiplomaMarketBackend.Controllers
             return Ok();
         }
 
-
         private void GetSubcategoryPictures(IWebDriver _driver, string url)
         {
             
@@ -1153,27 +1185,30 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
+
+        /// <summary>
+        /// parses concrete category articles
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="category_id"></param>
+        /// <param name="quantity"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("parseCategory")]
-        public async Task<IActionResult> ParseCategory([FromHeader] string password, string category_name, string quantity)
+        public async Task<IActionResult> ParseCategory([FromHeader] string password, string category_id, string quantity)
         {
             if (password != "pass123") return Ok("pass not pass");
 
-            
-            if (category_name == null  ) { return Ok("Check parameters"); }
-
             if(!int.TryParse(quantity,out int how_many)) { return Ok("Check parameters"); }
+            if (!int.TryParse(quantity, out int cat_id)) { return Ok("Check parameters"); }
 
-            var translation = _context.translations.FirstOrDefault(t=>t.TranslationString == category_name);
             var categoryes = new List<CategoryModel>();
 
-            if (translation != null)
-            {
-                var our_category_by_name = _context.Categories.FirstOrDefault(c => c.NameId == translation.TextContentId) ;
-                if (our_category_by_name == null) { return Ok("No such category"); }
 
-                categoryes.Add(our_category_by_name);
-            }
+            var our_category_by_name = _context.Categories.FirstOrDefault(c => c.Id == cat_id) ;
+            if (our_category_by_name == null) { return Ok("No such category"); }
+
+            categoryes.Add(our_category_by_name);
 
             var languages = new string[] { "UK", "RU" };
 
@@ -1212,27 +1247,47 @@ namespace DiplomaMarketBackend.Controllers
 
                             foreach (var lang in languages)
                             {
+                                var not_received = true;
 
-                                //get article
-                                string endpoint = "https://rozetka.com.ua/api/product-api/v4/goods/get-main?front-type=xl&country=UA&lang=" + lang.ToLower() + "&goodsId=" + id;
-                                var art_client = new HttpClient();
-                                HttpRequestMessage artrequest = new HttpRequestMessage(HttpMethod.Get, endpoint);
+                                do
+                                {
+                                    try
+                                    {
+                                        //get article
+                                        string endpoint = "https://www.rozetka.com.ua/api/product-api/v4/goods/get-main?front-type=xl&country=UA&lang=" + lang.ToLower() + "&goodsId=" + id;
+                                        var art_client = new HttpClient();
+                                        HttpRequestMessage artrequest = new HttpRequestMessage(HttpMethod.Get, endpoint);
 
-                                var aresponse = await client.SendAsync(artrequest);
-                                aresponseBody = await aresponse.Content.ReadAsStringAsync();
+                                        var aresponse = await client.SendAsync(artrequest);
+                                        aresponseBody = await aresponse.Content.ReadAsStringAsync();
+
+
+
+                                        //get characteristic
+                                        string char_endpoint = "https://www.rozetka.com.ua/api/product-api/v4/goods/get-characteristic?front-type=xl&country=UA&lang=" + lang.ToLower() + "&goodsId=" + id;
+                                        var char_client = new HttpClient();
+                                        HttpRequestMessage char_request = new HttpRequestMessage(HttpMethod.Get, char_endpoint);
+
+                                        var char_response = await client.SendAsync(char_request);
+                                        char_responseBody = await char_response.Content.ReadAsStringAsync();
+
+                                        not_received = false;
+                                    }
+                                    catch(HttpRequestException)
+                                    {
+                                        _logger.LogWarning("Connection failure - retrying");
+                                    }
+                                    catch (Exception)
+                                    {
+
+                                        
+                                    }
+
+                                }while(not_received);
+
 
                                 var article = JsonConvert.DeserializeObject<DiplomaMarketBackend.Parser.Article.Root>(aresponseBody);
-
-                                //get characteristic
-                                string char_endpoint = "https://rozetka.com.ua/api/product-api/v4/goods/get-characteristic?front-type=xl&country=UA&lang=" + lang.ToLower() + "&goodsId=" + id;
-                                var char_client = new HttpClient();
-                                HttpRequestMessage char_request = new HttpRequestMessage(HttpMethod.Get, char_endpoint);
-
-                                var char_response = await client.SendAsync(char_request);
-                                char_responseBody = await char_response.Content.ReadAsStringAsync();
-
                                 var char_article = JsonConvert.DeserializeObject<DiplomaMarketBackend.Parser.Characteristics.Root>(char_responseBody);
-
 
 
                                 if (article == null || char_article == null) continue;
@@ -1766,6 +1821,57 @@ namespace DiplomaMarketBackend.Controllers
 
 
             return Ok($"Articles parsed ");
+        }
+
+        //[HttpPost]
+        //[Route("enableCategories")]
+        //public async Task<IActionResult> enableCategories([FromBody] List<string> names)
+        //{
+        //    var notFound = new List<string>();
+
+        //    if(names != null && names.Count > 0)
+        //    {
+        //        foreach(string name in names)
+        //        {
+        //            var category = await _context.Categories.Include(c => c.Name).FirstOrDefaultAsync(c => c.Name.OriginalText == name);
+
+        //            if(category != null)
+        //            {
+        //                category.is_active = true;
+        //            }
+        //            else
+        //            {
+        //                notFound.Add(name); 
+        //            }
+        //        }
+
+
+        //    }
+
+        //    return new JsonResult(new { notFound });
+
+        //}
+
+        [HttpGet]
+        [Route("randrate")]
+        public async Task<IActionResult> RandRate()
+        {
+            var rand = new Random();
+
+            var articles = _context.Articles.ToList();
+
+            foreach(var article in articles ) {
+
+
+                article.RatingCalculated = ((decimal)rand.Next(2000, 5000)) / 1000;
+                article.SellerId = 1;
+                
+                _context.SaveChanges();
+            
+            }
+
+
+            return Ok();
         }
 
     }

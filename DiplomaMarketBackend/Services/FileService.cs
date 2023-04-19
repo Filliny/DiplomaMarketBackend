@@ -29,6 +29,7 @@ namespace DiplomaMarketBackend.Services
             catch (Exception e)
             {
                 _logger.LogWarning(e.Message);
+                throw;
             }
 
         }
@@ -38,12 +39,21 @@ namespace DiplomaMarketBackend.Services
         /// </summary>
         /// <param name="fileId"></param>
         /// <param name="bucketName"></param>
-        /// <returns>Returns byte[] represents file requested</returns>
+        /// <returns>Returns byte[] represents file requested or null if </returns>
         public async Task<byte[]> GetFile(string fileId, string bucketName)
         {
-            var gridFS = getBucket(bucketName);
+            try
+            {
+                var gridFS = getBucket(bucketName);
 
-            return await gridFS.DownloadAsBytesAsync(new ObjectId(fileId));
+                return await gridFS.DownloadAsBytesAsync(new ObjectId(fileId));
+            }
+            catch (Exception)
+            {
+
+                return new byte[] { };
+            }
+
         }
 
 

@@ -19,7 +19,7 @@ namespace DiplomaMarketBackend.Controllers
         }
 
         /// <summary>
-        /// Autentificates user
+        /// Authenticates user
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>

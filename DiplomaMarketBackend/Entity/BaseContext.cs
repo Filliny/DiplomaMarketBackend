@@ -27,6 +27,12 @@ namespace DiplomaMarketBackend.Entity
         public DbSet<VideoTypeModel> VideoTypes { get; set; }
         public DbSet<WarningModel> Warnings { get; set; }
         public DbSet<CharacteristicGroupModel> CharacteristicGroups { get; set; }
+        public DbSet<OrderModel> Orders { get; set; }
+        public DbSet<OrderItemModel> OrderItems { get; set; }
+        public DbSet<ReviewModel> Reviews { get; set; }
+        public DbSet<SellerModel> Sellers { get; set; }
+
+
 
         //Translations
         public DbSet<Language> Languages { get; set; }

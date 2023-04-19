@@ -4,9 +4,9 @@ using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using DiplomaMarketBackend.Services;
+using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
@@ -58,9 +58,9 @@ namespace DiplomaMarketBackend
                 options.AddDefaultPolicy(builder =>
                 {
                     builder.AllowAnyOrigin()
-                                 .AllowAnyMethod()
-                                 .AllowAnyHeader();
-                                 
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+
                 });
             });
 
@@ -83,7 +83,7 @@ namespace DiplomaMarketBackend
 
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment()|| app.Environment.IsProduction())
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
@@ -98,14 +98,17 @@ namespace DiplomaMarketBackend
             });
 
             app.UseHttpsRedirection();
+
+            app.UseCors();//CORS with default policy
+
             app.UseResponseCaching();
 
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors();//CORS with default policy
+
+            TypeAdapterConfig.GlobalSettings.Default.NameMatchingStrategy(NameMatchingStrategy.Flexible);
 
             app.MapControllers();
-           
 
             app.Run();
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230415203506_review_model_name")]
+    partial class review_model_name
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,9 +155,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<string>("SellStatus")
                         .HasColumnType("text");
 
-                    b.Property<int?>("SellerId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Status")
                         .HasColumnType("text");
 
@@ -179,8 +179,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("DescriptionId");
 
                     b.HasIndex("DocketId");
-
-                    b.HasIndex("SellerId");
 
                     b.HasIndex("TitleId");
 
@@ -526,19 +524,8 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<int>("Dislikes")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("GetEmailOnAnswers")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("Likes")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("Pros")
                         .IsRequired()
@@ -547,13 +534,14 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<short>("Rate")
                         .HasColumnType("smallint");
 
-                    b.Property<bool>("ReviewApproved")
-                        .HasColumnType("boolean");
-
                     b.Property<int?>("ReviewId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Type")
+                    b.Property<string>("ReviewName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Reviewtype")
                         .HasColumnType("integer");
 
                     b.Property<int?>("UserId")
@@ -576,30 +564,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Reviews");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.SellerModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("Rate")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sellers");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.TagModel", b =>
@@ -868,10 +832,6 @@ namespace DiplomaMarketBackend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.SellerModel", "Seller")
-                        .WithMany("Articles")
-                        .HasForeignKey("SellerId");
-
                     b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Title")
                         .WithMany()
                         .HasForeignKey("TitleId")
@@ -889,8 +849,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Navigation("Description");
 
                     b.Navigation("Docket");
-
-                    b.Navigation("Seller");
 
                     b.Navigation("Title");
 
@@ -1193,11 +1151,6 @@ namespace DiplomaMarketBackend.Migrations
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ReviewModel", b =>
                 {
                     b.Navigation("Answers");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.SellerModel", b =>
-                {
-                    b.Navigation("Articles");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.TextContent", b =>

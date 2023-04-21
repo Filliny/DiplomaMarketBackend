@@ -34,7 +34,5 @@ namespace DiplomaMarketBackend.Entity.Models
             Items = new();
         }
 
-
-
     }
 }

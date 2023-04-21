@@ -27,13 +27,15 @@ namespace DiplomaMarketBackend.Controllers
         ICloudStorageService _storageService;
         BaseContext _context;
         IFileService _fileService;
+        IDeliveryCasher _casher;
 
-        public WorkController(ILogger<WorkController> logger, ICloudStorageService cloudStorageService, BaseContext context, IFileService fileService)
+        public WorkController(ILogger<WorkController> logger, ICloudStorageService cloudStorageService, BaseContext context, IFileService fileService, IDeliveryCasher casher)
         {
             _logger = logger;
             _storageService = cloudStorageService;
             _context = context;
             _fileService = fileService;
+            _casher = casher;
         }
 
         [HttpPost]
@@ -935,44 +937,44 @@ namespace DiplomaMarketBackend.Controllers
         //}
 
 
-        [HttpGet]
-        [Route("uploadIcons")]
-        public async Task<IActionResult> uploadIcons(string pass)
-        {
-            if (pass != "pass123") return Ok("pass is wrong");
+        //[HttpGet]
+        //[Route("uploadIcons")]
+        //public async Task<IActionResult> uploadIcons(string pass)
+        //{
+        //    if (pass != "pass123") return Ok("pass is wrong");
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons");
+        //    var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons");
 
-            foreach (string file in Directory.GetFiles(path))
-            {
-                var category =  file.Substring(file.LastIndexOf("\\")+1).Split('.')[0];
+        //    foreach (string file in Directory.GetFiles(path))
+        //    {
+        //        var category =  file.Substring(file.LastIndexOf("\\")+1).Split('.')[0];
 
-                var content = _context.translations.FirstOrDefault(t=>t.TranslationString == category);
+        //        var content = _context.translations.FirstOrDefault(t=>t.TranslationString == category);
 
-                if(content == null)
-                {
-                    _logger.LogWarning("Category not found " + category);
-                    continue;
-                }
+        //        if(content == null)
+        //        {
+        //            _logger.LogWarning("Category not found " + category);
+        //            continue;
+        //        }
 
-                var cat = _context.Categories.FirstOrDefault(c => c.NameId == content.TextContentId);
+        //        var cat = _context.Categories.FirstOrDefault(c => c.NameId == content.TextContentId);
 
-                if(cat != null)
-                {
-                    cat.ImgData = System.IO.File.ReadAllBytes(file);
-
-
-                    _logger.LogInformation("Category " + category + " added");
-                }
+        //        if(cat != null)
+        //        {
+        //            cat.ImgData = System.IO.File.ReadAllBytes(file);
 
 
-            }
+        //            _logger.LogInformation("Category " + category + " added");
+        //        }
 
-            _context.SaveChanges();
 
-                return Ok();
+        //    }
 
-        }
+        //    _context.SaveChanges();
+
+        //        return Ok();
+
+        //}
 
 
         [HttpGet]
@@ -1823,56 +1825,64 @@ namespace DiplomaMarketBackend.Controllers
             return Ok($"Articles parsed ");
         }
 
-        //[HttpPost]
-        //[Route("enableCategories")]
-        //public async Task<IActionResult> enableCategories([FromBody] List<string> names)
+        ////[HttpPost]
+        ////[Route("enableCategories")]
+        ////public async Task<IActionResult> enableCategories([FromBody] List<string> names)
+        ////{
+        ////    var notFound = new List<string>();
+
+        ////    if(names != null && names.Count > 0)
+        ////    {
+        ////        foreach(string name in names)
+        ////        {
+        ////            var category = await _context.Categories.Include(c => c.Name).FirstOrDefaultAsync(c => c.Name.OriginalText == name);
+
+        ////            if(category != null)
+        ////            {
+        ////                category.is_active = true;
+        ////            }
+        ////            else
+        ////            {
+        ////                notFound.Add(name); 
+        ////            }
+        ////        }
+
+
+        ////    }
+
+        ////    return new JsonResult(new { notFound });
+
+        ////}
+
+        //[HttpGet]
+        //[Route("randrate")]
+        //public async Task<IActionResult> RandRate()
         //{
-        //    var notFound = new List<string>();
+        //    var rand = new Random();
 
-        //    if(names != null && names.Count > 0)
-        //    {
-        //        foreach(string name in names)
-        //        {
-        //            var category = await _context.Categories.Include(c => c.Name).FirstOrDefaultAsync(c => c.Name.OriginalText == name);
+        //    var articles = _context.Articles.ToList();
 
-        //            if(category != null)
-        //            {
-        //                category.is_active = true;
-        //            }
-        //            else
-        //            {
-        //                notFound.Add(name); 
-        //            }
-        //        }
+        //    foreach(var article in articles ) {
 
+
+        //        article.RatingCalculated = ((decimal)rand.Next(2000, 5000)) / 1000;
+        //        article.SellerId = 1;
+
+        //        _context.SaveChanges();
 
         //    }
 
-        //    return new JsonResult(new { notFound });
 
+        //    return Ok();
         //}
 
         [HttpGet]
-        [Route("randrate")]
-        public async Task<IActionResult> RandRate()
+        [Route("getNpAreas")]
+        public async Task<IActionResult> getAreas()
         {
-            var rand = new Random();
-
-            var articles = _context.Articles.ToList();
-
-            foreach(var article in articles ) {
-
-
-                article.RatingCalculated = ((decimal)rand.Next(2000, 5000)) / 1000;
-                article.SellerId = 1;
-                
-                _context.SaveChanges();
-            
-            }
-
+             _casher.Run();
 
             return Ok();
         }
-
     }
 }

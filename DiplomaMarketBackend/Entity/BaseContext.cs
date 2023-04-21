@@ -1,4 +1,5 @@
 ﻿using DiplomaMarketBackend.Entity.Models;
+using DiplomaMarketBackend.Entity.Models.Delivery;
 using Lessons3.Entity.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,7 +42,11 @@ namespace DiplomaMarketBackend.Entity
 
 
 
-
+        //deliveries
+        public DbSet<AreaModel> Areas { get; set; }
+        public DbSet<CityModel> Cities { get; set; }
+        public DbSet<DeliveryModel> Deliveries { get; set; }
+        public DbSet<BranchModel> Branches { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

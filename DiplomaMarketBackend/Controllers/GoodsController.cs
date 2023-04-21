@@ -32,7 +32,7 @@ namespace DiplomaMarketBackend.Controllers
         /// </summary>
         /// <param name="lang">language (e.g. uk\ru)</param>
         /// <param name="category_Id">id of category</param>
-        /// <returns>json result with list of ids on key "ids"</returns>
+        /// <returns>Json result with list of ids on key "ids"</returns>
         /// <response code="400">If the request values is bad</response>
         [HttpGet]
         [Route("get")]

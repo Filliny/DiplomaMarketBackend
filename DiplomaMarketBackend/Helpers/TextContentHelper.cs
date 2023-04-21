@@ -74,5 +74,49 @@ namespace DiplomaMarketBackend.Helpers
             return textContent;
 
         }
+
+        /// <summary>
+        /// Creates and Saves text content for uk and ru locales with UK main locale
+        /// </summary>
+        /// <param name="_db"></param>
+        /// <param name="text_ua"></param>
+        /// <param name="text_ru"></param>
+        /// <returns></returns>
+        public static TextContent? CreateFull(BaseContext _db, string text_ua, string text_ru)
+        {
+
+            var translation_ua = new Translation()
+            {
+                LanguageId = "UK",
+                TranslationString = text_ua,
+            };
+
+            _db.translations.Add(translation_ua);
+
+            var translation_ru = new Translation()
+            {
+                LanguageId = "RU",
+                TranslationString = text_ru,
+            };
+
+            _db.translations.Add(translation_ru);
+
+
+            var textContent = new TextContent()
+            {
+                OriginalLanguageId = "UK",
+                OriginalText = text_ua,
+            };
+
+            textContent.Translations.Add(translation_ua);
+            textContent.Translations.Add(translation_ru);
+
+            _db.textContents.Add(textContent);
+
+            _db.SaveChanges();
+
+            return textContent;
+
+        }
     }
 }

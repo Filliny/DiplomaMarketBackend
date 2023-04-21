@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230421094956_deliveries_branches_add")]
+    partial class deliveries_branches_add
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -414,9 +417,6 @@ namespace DiplomaMarketBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<string>("WorkHours")
                         .IsRequired()
                         .HasColumnType("text");
@@ -493,12 +493,11 @@ namespace DiplomaMarketBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("NameId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("NameId");
 
                     b.ToTable("Deliveries");
                 });
@@ -1174,15 +1173,6 @@ namespace DiplomaMarketBackend.Migrations
                         .HasForeignKey("NameId");
 
                     b.Navigation("Area");
-
-                    b.Navigation("Name");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.DeliveryModel", b =>
-                {
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Name")
-                        .WithMany()
-                        .HasForeignKey("NameId");
 
                     b.Navigation("Name");
                 });

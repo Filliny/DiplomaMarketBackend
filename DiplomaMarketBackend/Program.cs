@@ -1,6 +1,7 @@
 
 using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
+using DiplomaMarketBackend.Entity.Seeder;
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using DiplomaMarketBackend.Services;
@@ -10,12 +11,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
+using System.Text;
 
 namespace DiplomaMarketBackend
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +50,7 @@ namespace DiplomaMarketBackend
 
             builder.Services.Configure<GCSConfigOptions>(builder.Configuration);
             builder.Services.AddSingleton<ICloudStorageService, CloudStorageService>();
+            builder.Services.AddSingleton<IDeliveryCasher, DeliveryCasher>();
 
             builder.Services.AddResponseCaching();
 
@@ -78,7 +81,7 @@ namespace DiplomaMarketBackend
 
                 var testUserPw = builder.Configuration.GetValue<string>("SeedUserPW");
 
-                //await DbInitializer.Initialize(services);
+                await DbInitializer.Initialize(services);
             }
 
 
@@ -107,6 +110,7 @@ namespace DiplomaMarketBackend
             app.UseAuthorization();
 
             TypeAdapterConfig.GlobalSettings.Default.NameMatchingStrategy(NameMatchingStrategy.Flexible);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             app.MapControllers();
 

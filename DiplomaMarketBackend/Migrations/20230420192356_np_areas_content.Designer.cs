@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230420192356_np_areas_content")]
+    partial class np_areas_content
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -379,61 +382,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.ToTable("Areas");
                 });
 
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.BranchModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AddressId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("BranchCityId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("DeliveryBranchId")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("DeliveryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("DescriptionId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Lat")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("LocalBranchNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Long")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("WorkHours")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("BranchCityId");
-
-                    b.HasIndex("DeliveryId");
-
-                    b.HasIndex("DescriptionId");
-
-                    b.ToTable("Branches");
-                });
-
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.CityModel", b =>
                 {
                     b.Property<int>("Id")
@@ -479,28 +427,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("NameId");
 
                     b.ToTable("Cities");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.DeliveryModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int?>("NameId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NameId");
-
-                    b.ToTable("Deliveries");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ImageModel", b =>
@@ -1136,33 +1062,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Navigation("Name");
                 });
 
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.BranchModel", b =>
-                {
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
-
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.Delivery.CityModel", "BranchCity")
-                        .WithMany()
-                        .HasForeignKey("BranchCityId");
-
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.Delivery.DeliveryModel", "Delivery")
-                        .WithMany("Branches")
-                        .HasForeignKey("DeliveryId");
-
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Description")
-                        .WithMany()
-                        .HasForeignKey("DescriptionId");
-
-                    b.Navigation("Address");
-
-                    b.Navigation("BranchCity");
-
-                    b.Navigation("Delivery");
-
-                    b.Navigation("Description");
-                });
-
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.CityModel", b =>
                 {
                     b.HasOne("DiplomaMarketBackend.Entity.Models.Delivery.AreaModel", "Area")
@@ -1174,15 +1073,6 @@ namespace DiplomaMarketBackend.Migrations
                         .HasForeignKey("NameId");
 
                     b.Navigation("Area");
-
-                    b.Navigation("Name");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.DeliveryModel", b =>
-                {
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Name")
-                        .WithMany()
-                        .HasForeignKey("NameId");
 
                     b.Navigation("Name");
                 });
@@ -1405,11 +1295,6 @@ namespace DiplomaMarketBackend.Migrations
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CharacteristicGroupModel", b =>
                 {
                     b.Navigation("options");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.DeliveryModel", b =>
-                {
-                    b.Navigation("Branches");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.OrderModel", b =>

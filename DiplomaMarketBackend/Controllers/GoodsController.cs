@@ -2,7 +2,6 @@
 using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
-using DiplomaMarketBackend.Parser.Article;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Dynamic;
@@ -108,7 +107,7 @@ namespace DiplomaMarketBackend.Controllers
             //var all_cat_list = category.ChildCategories.SelectMany(x => x.ChildCategories).Concat(category.ChildCategories.SelectMany(x => x.ChildCategories).SelectMany(x => x.ChildCategories)).ToList();
             //all_cat_list.Add(category);
 
-            var flat =  category.ChildCategories.Flatten(c => c.ChildCategories).ToList();
+            var flat = category.ChildCategories.Flatten(c => c.ChildCategories).ToList();
             flat.Add(category);
             flat.AddRange(_context.Categories.Where(c => c.ShowInCategoryId == cat_id).ToList());
 
@@ -124,10 +123,10 @@ namespace DiplomaMarketBackend.Controllers
                     //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
                     Include(a => a.Title).ThenInclude(t => t.Translations).
                     //Include(a => a.Description).ThenInclude(t => t.Translations).
-                   // Include(a => a.Docket).ThenInclude(t => t.Translations).
+                    // Include(a => a.Docket).ThenInclude(t => t.Translations).
                     Include(a => a.Category).
                     //Include(a => a.Brand).
-                   //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
                     //Include(a => a.Video).
                     //Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
                     Where(a => flat.Contains(a.Category)).ToListAsync();
@@ -182,7 +181,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("category-articles-paged")]
-        public async Task<IActionResult> GetCategoryArticlesPagination([FromQuery] string category_Id, string goods_on_page, string lang,[FromBody] int [] pages)
+        public async Task<IActionResult> GetCategoryArticlesPagination([FromQuery] string category_Id, string goods_on_page, string lang, [FromBody] int[] pages)
         {
             lang = lang.NormalizeLang();
 
@@ -203,7 +202,7 @@ namespace DiplomaMarketBackend.Controllers
 
             var articles = new List<dynamic>();
 
-            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) )
+            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity))
             {
 
                 var category_goods = await _context.Articles.
@@ -226,7 +225,7 @@ namespace DiplomaMarketBackend.Controllers
                 var pages_arr = new List<int>();
                 foreach (int page in pages)
                 {
-                   
+
                     if (page > total_pages) continue;
                     if (page == 0) continue;
 
@@ -237,7 +236,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 var paged_goods = new List<ArticleModel>();
 
-                foreach( int page in pages_arr)
+                foreach (int page in pages_arr)
                 {
                     int skip = (page) * quantity;
                     paged_goods.AddRange(category_goods.Skip(skip).Take(quantity).ToList());
@@ -265,7 +264,7 @@ namespace DiplomaMarketBackend.Controllers
             }
             else
             {
-                var res =  int.TryParse("112",out int result)?result:0;
+                var res = int.TryParse("112", out int result) ? result : 0;
                 return BadRequest("Check  parameters!");
             }
 
@@ -575,18 +574,18 @@ namespace DiplomaMarketBackend.Controllers
 
             if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
             {
-                var rand= new Random();
+                var rand = new Random();
 
                 var action_goods = await _context.Articles.
                     //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
                     Include(a => a.Title).ThenInclude(t => t.Translations).
-                    //Include(a => a.Description).ThenInclude(t => t.Translations).
+                   //Include(a => a.Description).ThenInclude(t => t.Translations).
                    // Include(a => a.Docket).ThenInclude(t => t.Translations).
                    // Include(a => a.Brand).
-                   Include(a=>a.Category).
-                  //  Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                  //  Include(a => a.Video).
-                  //  Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                   Include(a => a.Category).
+                    //  Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    //  Include(a => a.Video).
+                    //  Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
                     OrderByDescending(a => a.Id).Skip(rand.Next(1000)).Take(100).ToListAsync();
 
 
@@ -731,10 +730,10 @@ namespace DiplomaMarketBackend.Controllers
 
             if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
             {
-                var rand= new Random();
+                var rand = new Random();
 
                 var action_goods = await _context.Articles.
-                   // Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+                    // Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
                     Include(a => a.Title).ThenInclude(t => t.Translations).
                    //Include(a => a.Description).ThenInclude(t => t.Translations).
                    // Include(a => a.Docket).ThenInclude(t => t.Translations).
@@ -1071,7 +1070,7 @@ namespace DiplomaMarketBackend.Controllers
             response.Add("seller", seller);
             response.Add("comments_amount", 0);
             response.Add("category_id", article.CategoryId);
-            response.Add("top_category_id", article.TopCategoryId??0);
+            response.Add("top_category_id", article.TopCategoryId ?? 0);
             response.Add("docket", article.Docket.Content(lang));
             response.Add("brand_id", article.Brand.Id);
             response.Add("brand", article.Brand.Name ?? "");
@@ -1101,16 +1100,16 @@ namespace DiplomaMarketBackend.Controllers
             var baseUrl = Request.Scheme + "://" + Request.Host + "/api/Goods/";
 
             var art_images = _context.Images.
-                //Include(i => i.original).
-                // Include(i => i.base_action).
+                  //Include(i => i.original).
+                  // Include(i => i.base_action).
                   Include(i => i.preview).
-                   //Include(i => i.small).
-                   // Include(i => i.medium).
-                   //  Include(i => i.large).
-                   //   Include(i => i.big_tile).
-                   //    Include(i => i.big).
-                   //     Include(i => i.mobile_large).
-                   //      Include(i => i.mobile_medium).
+                            //Include(i => i.small).
+                            // Include(i => i.medium).
+                            //  Include(i => i.large).
+                            //   Include(i => i.big_tile).
+                            //    Include(i => i.big).
+                            //     Include(i => i.mobile_large).
+                            //      Include(i => i.mobile_medium).
                             Where(i => i.ArticleModelId == article.Id).ToList();
 
             var preview = art_images.First();

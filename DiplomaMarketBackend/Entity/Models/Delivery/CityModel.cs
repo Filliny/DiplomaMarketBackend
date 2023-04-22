@@ -13,5 +13,11 @@
         public string CoatsuCode { get; set; } = string.Empty;
         public string Index1 { get; set; } = string.Empty;
         public string Index2 { get; set; } = string.Empty;
+        public List<BranchModel> Branches { get; set; }
+
+        public CityModel()
+        {
+            Branches = new();
+        }
     }
 }

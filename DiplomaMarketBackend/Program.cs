@@ -50,7 +50,10 @@ namespace DiplomaMarketBackend
 
             builder.Services.Configure<GCSConfigOptions>(builder.Configuration);
             builder.Services.AddSingleton<ICloudStorageService, CloudStorageService>();
+
             builder.Services.AddSingleton<IDeliveryCasher, DeliveryCasher>();
+            //or start as service 
+            builder.Services.AddHostedService<DeliveryCasher>();
 
             builder.Services.AddResponseCaching();
 

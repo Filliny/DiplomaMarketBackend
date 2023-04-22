@@ -5,11 +5,14 @@ using DiplomaMarketBackend.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using OpenQA.Selenium.DevTools.V109.Network;
 
 namespace DiplomaMarketBackend.Services
 {
-    public class DeliveryCasher : IDeliveryCasher
+    public class DeliveryCasher : BackgroundService, IDeliveryCasher
     {
+        private const int generalDelay = 24 * 60 * 60 * 1000; // 30 days seconds
+        private const int daysDelay = 30;
         private readonly IServiceScopeFactory scopeFactory;
         private readonly BaseContext _context;
         private readonly IConfiguration _configuration;
@@ -36,9 +39,34 @@ namespace DiplomaMarketBackend.Services
             _mist_api_url = _configuration.GetValue("MistApiUrl", "");
         }
 
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                if (!_context.Cities.Any())
+                {
+                    Run();
+                }
 
+                for (int i = 0; i < daysDelay; i++)
+                {
+                    _logger.LogInformation($"{30 - i} days left to update branches");
+                    await Task.Delay(generalDelay);
+                }
+
+                Run();
+
+            }
+
+        }
+
+        /// <summary>
+        /// For manual or automated run delivery branches updating task.
+        /// </summary>
+        /// <exception cref="Exception">throws exception if no api keys in configuration</exception>
         public void Run()
         {
+
             if (_np_api_key.IsNullOrEmpty() || _np_api_url.IsNullOrEmpty())
             {
                 throw new Exception("Configuration value 'NpApiKey' or 'NpApiUrl' not found - please specify your api key and url");
@@ -51,20 +79,25 @@ namespace DiplomaMarketBackend.Services
 
             }
 
-
             if (task == null || task.IsCompleted)
             {
 
                 task = Task.Factory.StartNew(() =>
                 {
 
-                    _logger.LogWarning("Delivery Casher started");
+                    _logger.LogInformation("Delivery Casher started");
 
-                    //updateAreas();
-                    //updateNpCities();
+                    updateAreas();
+                    updateNpCities();
                     UpdateMistBranches();
+                    updateNpBranches();
+                    //updateUkrpost();
 
                 });
+            }
+            else
+            {
+                _logger.LogWarning("Delivery Casher already started - check where its stuck!");
             }
 
         }
@@ -83,7 +116,7 @@ namespace DiplomaMarketBackend.Services
 
                     foreach (var branch in branches.result)
                     {
-                       //if (_context.Branches.Any(b => b.DeliveryBranchId == branch.br_id)) continue;
+                        //if (_context.Branches.Any(b => b.DeliveryBranchId == branch.br_id)) continue;
 
                         var resp_branch = await GetMistResponseAsync(branch.br_id);
 
@@ -100,7 +133,7 @@ namespace DiplomaMarketBackend.Services
                                 Include(c => c.Name).
                                 FirstOrDefault(c => c.Name.OriginalText.ToUpper().Equals(br.city.ua.ToUpper()) && c.Area.Description.ToUpper().Equals(br.region.ua));
 
-                            if(city == null)
+                            if (city == null)
                             {
                                 city = _context.Cities.FirstOrDefault(c => c.NpCityRef == br.city_id);
                             }
@@ -363,7 +396,198 @@ namespace DiplomaMarketBackend.Services
 
         private async void updateNpBranches()
         {
-            //var settlements = _context.
+            var cities = await _context.Cities.ToListAsync();
+            string response = "";
+
+            try
+            {
+                foreach (var city in cities)
+                {
+
+                    var data = new
+                    {
+                        apiKey = _np_api_key,
+                        modelName = "Address",
+                        calledMethod = "getWarehouses",
+                        methodProperties = new
+                        {
+                            SettlementRef = city.NpCityRef
+                        }
+                    };
+
+                    do
+                    {
+                        response = await GetNpResponseAsync(data);
+
+                        if (response.Contains("\"success\":false"))
+                        {
+                            _logger.LogInformation(response);
+                            Thread.Sleep(1000);
+                        }
+
+                    } while (response.Contains("\"success\":false"));
+
+
+                    if (response.Contains("\"info\":{\"totalCount\":0}"))
+                    {
+                        Thread.Sleep(500);
+                        continue;
+                    }
+
+
+                    if (response != null)
+                    {
+
+                        var responce_data = JsonConvert.DeserializeObject<Parser.NewPost.Branches.Root>(response);
+
+                        if (responce_data != null && responce_data.success && responce_data.data.Count > 0)
+                        {
+                            foreach (var branch in responce_data.data)
+                            {
+                                var new_branch = _context.Branches.FirstOrDefault(b => b.DeliveryBranchId == branch.Ref);
+
+                                if (new_branch != null)
+                                {
+                                    _context.Branches.Update(new_branch);
+                                    new_branch.Updated = DateTime.Now;
+                                }
+                                else
+                                {
+                                    new_branch = new BranchModel();
+                                    _context.Branches.Add(new_branch);
+
+                                    var desc_content = TextContentHelper.CreateFull(_context, branch.Description, branch.DescriptionRu);
+
+                                    var street_content = TextContentHelper.CreateFull(_context, branch.ShortAddress, branch.ShortAddressRu);
+                                    new_branch.Address = street_content;
+                                    new_branch.Description = desc_content;
+                                    new_branch.Updated = DateTime.Now;
+                                }
+
+                                new_branch.DeliveryBranchId = branch.Ref;
+                                new_branch.DeliveryId = 1;
+                                new_branch.LocalBranchNumber = branch.Number;
+                                new_branch.BranchCity = city;
+                                new_branch.Long = branch.Longitude;
+                                new_branch.Lat = branch.Latitude;
+                                new_branch.WorkHours = $"Пн:{branch.Schedule.Monday}," +
+                                    $"Вт:{branch.Schedule.Tuesday}," +
+                                    $"Ср:{branch.Schedule.Wednesday}," +
+                                    $"Чт:{branch.Schedule.Thursday}," +
+                                    $"Пт:{branch.Schedule.Friday}," +
+                                    $"Сб:{branch.Schedule.Saturday}," +
+                                    $"Вс:{branch.Schedule.Sunday} ";
+
+                                _context.SaveChanges();
+
+
+                            }
+
+
+                        }
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+                _logger.LogWarning($"Delivery casher Updating NewPost branches error  : {e.Message}");
+
+            }
+
+
+
+        }
+
+        private async void updateUkrpost()
+        {
+
+            var kuiv_dist_uid = "333f9e71-a1fd-46cc-8f6a-371420e3e280";
+            var delengine_key = "lvh1dci28isuok92bcgrti5sjapauzzu";
+
+            try
+            {
+                using(var client = new HttpClient())
+                {
+                    var result = await client.GetAsync("https://api.delengine.com/v1.0/settlements?page=1&region_uuid=333f9e71-a1fd-46cc-8f6a-371420e3e280&token=lvh1dci28isuok92bcgrti5sjapauzzu");
+
+                    if (result != null)
+                    {
+                        var resp = await result.Content.ReadAsStringAsync();
+                        var cities = JsonConvert.DeserializeObject<Parser.Delengine.Cities.Root>(resp);
+
+                        if (cities != null)
+                        {
+                            foreach (var city in cities.data)
+                            {
+
+                                var city_base = _context.Cities.Include(c=>c.Area).Include(c=>c.Name).
+                                    FirstOrDefault(c => c.Name.OriginalText.ToUpper().Equals(city.name_uk.ToUpper()) && c.Area.Description.ToUpper().Equals(city.region.name_uk.ToUpper()));
+
+                                if(city_base != null)
+                                {
+                                    var url = $"https://api.delengine.com/v1.0/departments?page=1&settlement_uuid=" + city.uuid + "&company_uuid=64054fa0-8584-4492-8425-142156ce3110&token=lvh1dci28isuok92bcgrti5sjapauzzu";
+
+                                    var city_res = await client.GetAsync(url);
+                                    var city_str = await city_res.Content.ReadAsStringAsync();
+
+                                    var branches = JsonConvert.DeserializeObject<Parser.Delengine.Branches.Root>(city_str);
+
+                                    if(branches != null)
+                                    {
+                                        foreach(var branch in branches.data)
+                                        {
+                                            var new_branch = _context.Branches.FirstOrDefault(b => b.DeliveryBranchId == branch.uuid);
+
+                                            if (new_branch != null)
+                                            {
+                                                new_branch.Updated = DateTime.Now;
+                                                _context.Branches.Update(new_branch);
+
+                                            }
+                                            else
+                                            {
+                                                new_branch = new BranchModel();
+                                                _context.Branches.Add(new_branch);
+                                                var desc_content = TextContentHelper.CreateFull(_context, branch.department_type.name_uk, branch.department_type.name_uk);
+                                                var street_content = TextContentHelper.CreateFull(_context, branch.address_uk, branch.address_uk);
+                                                new_branch.Address = street_content;
+                                                new_branch.Description = desc_content;
+                                                new_branch.Updated = DateTime.Now;
+                                            }
+
+                                            new_branch.DeliveryBranchId = branch.uuid;
+                                            new_branch.DeliveryId = 3;
+                                            new_branch.LocalBranchNumber = branch.number.ToString();
+                                            new_branch.BranchCity = city_base;
+                                            new_branch.Long = (branch.longitude??(double)0).ToString();
+                                            new_branch.Lat = (branch.latitude??(double)0).ToString();
+                                            new_branch.WorkHours =branch.schedules??"";
+
+                                            _context.SaveChanges();
+                                        }
+                                    }
+                                }
+
+
+
+                            }
+
+                        }
+
+
+                    }
+
+
+
+                }
+            }
+            catch(Exception e)
+            {
+                _logger.LogWarning($"Delivery casher Updating Ukrpost branches error  : {e.Message}");
+            }
+
         }
 
 
@@ -440,6 +664,7 @@ namespace DiplomaMarketBackend.Services
 
             return response;
         }
+
 
     }
 }

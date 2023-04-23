@@ -504,13 +504,13 @@ namespace DiplomaMarketBackend.Services
         {
 
             var kuiv_dist_uid = "333f9e71-a1fd-46cc-8f6a-371420e3e280";
-            var delengine_key = "lvh1dci28isuok92bcgrti5sjapauzzu";
+            var delengine_key = "4fcih5kffnwoobpjeel83t73vvj5a0wq";
 
             try
             {
                 using(var client = new HttpClient())
                 {
-                    var result = await client.GetAsync("https://api.delengine.com/v1.0/settlements?page=1&region_uuid=333f9e71-a1fd-46cc-8f6a-371420e3e280&token=lvh1dci28isuok92bcgrti5sjapauzzu");
+                    var result = await client.GetAsync("https://api.delengine.com/v1.0/settlements?page=1&region_uuid=333f9e71-a1fd-46cc-8f6a-371420e3e280&token="+delengine_key);
 
                     if (result != null)
                     {
@@ -527,7 +527,7 @@ namespace DiplomaMarketBackend.Services
 
                                 if(city_base != null)
                                 {
-                                    var url = $"https://api.delengine.com/v1.0/departments?page=1&settlement_uuid=" + city.uuid + "&company_uuid=64054fa0-8584-4492-8425-142156ce3110&token=lvh1dci28isuok92bcgrti5sjapauzzu";
+                                    var url = $"https://api.delengine.com/v1.0/departments?page=1&settlement_uuid=" + city.uuid + "&company_uuid=64054fa0-8584-4492-8425-142156ce3110&token="+delengine_key;
 
                                     var city_res = await client.GetAsync(url);
                                     var city_str = await city_res.Content.ReadAsStringAsync();

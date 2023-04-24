@@ -363,4 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 /DiplomaMarketBackend/files/icons
 /DiplomaMarketBackend/synthetic-keel-381920-292ea9f4af88.json
-/DiplomaMarketBackend/mongo/Someclass.cs
+
+/DiplomaMarketBackend/mongo/someclass.cs
+

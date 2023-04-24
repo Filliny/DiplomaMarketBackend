@@ -22,6 +22,33 @@ namespace DiplomaMarketBackend.Controllers
         }
 
         /// <summary>
+        /// To request list of delivery companies with id and name
+        /// </summary>
+        /// <param name="lang">language</param>
+        /// <returns>list of delivery companies with id and name</returns>
+        [HttpGet]
+        [Route("deliveries")]
+        [ResponseCache(VaryByQueryKeys = new[] { "lang" }, Duration = 3600)]
+        public async Task<IActionResult> DeliveriesIndex([FromQuery] string lang) 
+        { 
+            lang = lang.NormalizeLang();
+
+            var deliveries = await _context.Deliveries.Include(d=>d.Name).ThenInclude(n=>n.Translations).ToListAsync();
+
+            var result = new List<dynamic>();
+            foreach ( var deliver in deliveries)
+            {
+                result.Add(new
+                {
+                    id = deliver.Id,
+                    name = deliver.Name.Content(lang),
+                });
+            }
+            return new JsonResult(new {data=result});
+
+        }
+
+        /// <summary>
         /// Search city for city selection on order page
         /// </summary>
         /// <param name="search">Search string - search from start of string</param>

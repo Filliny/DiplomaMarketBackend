@@ -1,6 +1,8 @@
 ﻿using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
+using Lessons3.Entity.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiplomaMarketBackend.Controllers
@@ -26,19 +28,30 @@ namespace DiplomaMarketBackend.Controllers
         [HttpPost]
         public IActionResult MakeAuth([FromBody] RequestAuthModel model)
         {
-            var user = _db.Users.FirstOrDefault(u => u.Username == model.Username && u.Password == model.Password);
+            var user = _db.Users.FirstOrDefault(u => u.Email == model.Email.ToLower());
 
-            if (user is null) return BadRequest(new { authError = "Error credentials" });
-
-            var getJwt = JwtTokenGenerator.GetToken(user);
-            user.Password = null;
-            var response = new
+            if(user != null)
             {
-                jwt = getJwt,
-                userModel = user
-            };
+                PasswordHasher<UserModel> hasher = new PasswordHasher<UserModel>();
 
-            return new JsonResult(response);
+                if(hasher.VerifyHashedPassword(user,user.Password,model.Password) == PasswordVerificationResult.Success)
+                {
+                    var getJwt = JwtTokenGenerator.GetToken(user);
+                    user.Password = null;
+                    var response = new
+                    {
+                        jwt = getJwt,
+                        userModel = user
+                    };
+
+                    return new JsonResult(response);
+                }
+
+                return BadRequest(new { authError = "Error credentials" });
+
+            }
+
+            return BadRequest(new { authError = "User not found" });
         }
     }
 }

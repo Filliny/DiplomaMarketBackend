@@ -1,5 +1,4 @@
-﻿using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
-using DiplomaMarketBackend.Abstract;
+﻿using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
@@ -12,15 +11,12 @@ using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
-using System;
-using System.ComponentModel;
-using System.IO;
-using System.Runtime.InteropServices;
 
 namespace DiplomaMarketBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi=true)]
     public class WorkController : ControllerBase
     {
         ILogger<WorkController> _logger;
@@ -40,23 +36,23 @@ namespace DiplomaMarketBackend.Controllers
 
         [HttpPost]
         [Route("testSave")]
-        public async Task<IActionResult> AddTopCategory( string pass)
+        public async Task<IActionResult> AddTopCategory(string pass)
         {
             if (pass != "pass123") return Ok();
 
-            var articles = _context.Articles.Include(a=>a.Category).ToList();
+            var articles = _context.Articles.Include(a => a.Category).ToList();
 
-            foreach(var article in articles)
+            foreach (var article in articles)
             {
-                if(article.Category.ParentCategoryId == null)
+                if (article.Category.ParentCategoryId == null)
                 {
                     article.TopCategory = article.Category;
                 }
-                else if(article.Category.ParentCategoryId != null)
+                else if (article.Category.ParentCategoryId != null)
                 {
-                    var parent_category_ofart = _context.Categories.Include(c=>c.ParentCategory).FirstOrDefault(c=>c.Id == article.Category.ParentCategoryId); 
+                    var parent_category_ofart = _context.Categories.Include(c => c.ParentCategory).FirstOrDefault(c => c.Id == article.Category.ParentCategoryId);
 
-                    if(parent_category_ofart != null)
+                    if (parent_category_ofart != null)
                     {
                         if (parent_category_ofart.ParentCategoryId == null)
                         {
@@ -67,7 +63,7 @@ namespace DiplomaMarketBackend.Controllers
                             article.TopCategory = parent_category_ofart.ParentCategory;
                         }
                     }
-                  
+
                 }
                 _context.SaveChanges();
             }
@@ -80,7 +76,7 @@ namespace DiplomaMarketBackend.Controllers
 
         [HttpPost]
         [Route("uploadFile")]
-        public async Task<IActionResult> uploadFile(IFormFile file,string bucket)
+        public async Task<IActionResult> uploadFile(IFormFile file, string bucket)
         {
             if (file.Length > 0)
             {
@@ -88,7 +84,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 var baseUrl = Request.Scheme + "://" + Request.Host + $"/api/Goods/{bucket}/";
 
-                return Ok($"Received file {file.FileName} with size in bytes {file.Length} and url is {baseUrl+id}.jpg");
+                return Ok($"Received file {file.FileName} with size in bytes {file.Length} and url is {baseUrl + id}.jpg");
 
             }
 
@@ -102,11 +98,11 @@ namespace DiplomaMarketBackend.Controllers
         {
             if (password != "pass123") return BadRequest("Pass not pass!");
 
-            if (file.Length > 0 && int.TryParse(category_id,out int cid))
+            if (file.Length > 0 && int.TryParse(category_id, out int cid))
             {
-               
 
-                var category = _context.Categories.Include(c=>c.Name).FirstOrDefault(c=>c.Id == cid);
+
+                var category = _context.Categories.Include(c => c.Name).FirstOrDefault(c => c.Id == cid);
 
                 if (category != null)
                 {
@@ -358,8 +354,8 @@ namespace DiplomaMarketBackend.Controllers
                                 if (article == null || char_article == null) continue;
 
                                 new_article = _context.Articles.
-                                    Include(a=>a.Values).ThenInclude(c=>c.CharacteristicType).ThenInclude(t=>t.Group).
-                                    Include(a=>a.Warning).ThenInclude(w=>w.Message).
+                                    Include(a => a.Values).ThenInclude(c => c.CharacteristicType).ThenInclude(t => t.Group).
+                                    Include(a => a.Warning).ThenInclude(w => w.Message).
                                     FirstOrDefault(a => a.rztk_art_id == id);
 
                                 if (new_article == null)
@@ -379,10 +375,11 @@ namespace DiplomaMarketBackend.Controllers
                                     var top = category.ParentCategoryId;
                                     if (category.ParentCategoryId != null)
                                     {
-                                        var parent = _context.Categories.FirstOrDefault(c=>c.Id == category.ParentCategoryId);
-                                        if(parent != null)
+                                        var parent = _context.Categories.FirstOrDefault(c => c.Id == category.ParentCategoryId);
+                                        if (parent != null)
                                         {
-                                            if(parent.ParentCategoryId != null) {
+                                            if (parent.ParentCategoryId != null)
+                                            {
 
                                                 top = parent.ParentCategoryId;
                                             }
@@ -620,7 +617,7 @@ namespace DiplomaMarketBackend.Controllers
                                                 {
                                                     var new_charakt = _context.ArticleCharacteristics.FirstOrDefault(c => c.roz_har_id == harakt.id);
 
-                                                    if(new_charakt == null)
+                                                    if (new_charakt == null)
                                                     {
                                                         new_charakt = new ArticleCharacteristic()
                                                         {
@@ -632,7 +629,7 @@ namespace DiplomaMarketBackend.Controllers
                                                             Group = exst_gpr,
                                                             roz_har_id = harakt.id,
                                                             Comparable = harakt.comparable
-                       
+
 
                                                         };
 
@@ -650,11 +647,11 @@ namespace DiplomaMarketBackend.Controllers
                                                         {
                                                             Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
                                                             CharacteristicType = new_charakt
-                                                            
+
                                                         };
 
                                                         _context.Values.Add(new_value);
-                                                        new_article.Values.Add(new_value);  
+                                                        new_article.Values.Add(new_value);
                                                     }
 
 
@@ -669,7 +666,7 @@ namespace DiplomaMarketBackend.Controllers
                                             {
                                                 var new_charakt = _context.ArticleCharacteristics.FirstOrDefault(c => c.roz_har_id == harakt.id);
 
-                                                if(new_charakt == null)
+                                                if (new_charakt == null)
                                                 {
                                                     new_charakt = new ArticleCharacteristic()
                                                     {
@@ -702,7 +699,7 @@ namespace DiplomaMarketBackend.Controllers
                                                     _context.Values.Add(new_value);
                                                     new_article.Values.Add(new_value);
                                                 }
-                                                
+
 
 
                                             }
@@ -791,7 +788,7 @@ namespace DiplomaMarketBackend.Controllers
                                                     }
 
 
-                                                   
+
 
 
 
@@ -897,10 +894,10 @@ namespace DiplomaMarketBackend.Controllers
                 {
                     continue;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     _logger.LogWarning(e.Message + "\n\nResponse : " + responseBody);
-                   throw;
+                    throw;
                 }
             }
 
@@ -1024,7 +1021,7 @@ namespace DiplomaMarketBackend.Controllers
                         action.Perform();
                     }
                     catch (Exception)
-                    {}
+                    { }
 
 
 
@@ -1032,27 +1029,27 @@ namespace DiplomaMarketBackend.Controllers
 
 
                 //((IJavaScriptExecutor)_driver).ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
-                
+
 
                 var doc = new HtmlDocument();
                 doc.LoadHtml(_driver.PageSource);
-                
+
                 var nodes = doc.DocumentNode.SelectNodes("//a/img");
 
                 foreach (var node in nodes)
                 {
                     var src = node.Attributes["src"] != null ? node.Attributes["src"].Value : "";
-                    var alt = node.Attributes["alt"]!= null? node.Attributes["alt"].Value:"";
+                    var alt = node.Attributes["alt"] != null ? node.Attributes["alt"].Value : "";
 
                     if (alt != null && alt != "" && src != null && src != "")
                     {
                         var translate = _context.translations.FirstOrDefault(t => t.TranslationString == alt);
 
-                        if(translate != null)
+                        if (translate != null)
                         {
                             var base_category = _context.Categories.FirstOrDefault(c => c.NameId == translate.TextContentId);
 
-                            if(base_category != null)
+                            if (base_category != null)
                             {
 
                                 if (base_category.ImgUrl == "" || base_category.ImgUrl == null)
@@ -1066,26 +1063,26 @@ namespace DiplomaMarketBackend.Controllers
                             }
 
                         }
- 
+
 
 
                     }
                 }
 
-                
+
                 //process subcategories
 
-                if(category.children != null)
+                if (category.children != null)
                 {
-                    if(category.children.one != null)
+                    if (category.children.one != null)
                     {
-                        foreach(var cat_one in category.children.one)
+                        foreach (var cat_one in category.children.one)
                         {
                             GetSubcategoryPictures(_driver, cat_one.manual_url);
                         }
                     }
 
-                    if(category.children.two  != null)
+                    if (category.children.two != null)
                     {
                         foreach (var cat_two in category.children.two)
                         {
@@ -1110,7 +1107,7 @@ namespace DiplomaMarketBackend.Controllers
 
         private void GetSubcategoryPictures(IWebDriver _driver, string url)
         {
-            
+
 
             _driver.Navigate().GoToUrl(url);
 
@@ -1150,13 +1147,13 @@ namespace DiplomaMarketBackend.Controllers
 
             var nodes = doc.DocumentNode.SelectNodes("//span/img");
 
-            if (nodes == null) 
+            if (nodes == null)
                 return;
 
             foreach (var node in nodes)
             {
-                var src = node.Attributes["src"] != null? node.Attributes["src"].Value:"";
-                var alt = node.Attributes["alt"] != null? node.Attributes["alt"].Value:"";
+                var src = node.Attributes["src"] != null ? node.Attributes["src"].Value : "";
+                var alt = node.Attributes["alt"] != null ? node.Attributes["alt"].Value : "";
 
                 if (alt != null && alt != "" && src != null && src != "")
                 {
@@ -1201,13 +1198,13 @@ namespace DiplomaMarketBackend.Controllers
         {
             if (password != "pass123") return Ok("pass not pass");
 
-            if(!int.TryParse(quantity,out int how_many)) { return Ok("Check parameters"); }
+            if (!int.TryParse(quantity, out int how_many)) { return Ok("Check parameters"); }
             if (!int.TryParse(quantity, out int cat_id)) { return Ok("Check parameters"); }
 
             var categoryes = new List<CategoryModel>();
 
 
-            var our_category_by_name = _context.Categories.FirstOrDefault(c => c.Id == cat_id) ;
+            var our_category_by_name = _context.Categories.FirstOrDefault(c => c.Id == cat_id);
             if (our_category_by_name == null) { return Ok("No such category"); }
 
             categoryes.Add(our_category_by_name);
@@ -1275,17 +1272,17 @@ namespace DiplomaMarketBackend.Controllers
 
                                         not_received = false;
                                     }
-                                    catch(HttpRequestException)
+                                    catch (HttpRequestException)
                                     {
                                         _logger.LogWarning("Connection failure - retrying");
                                     }
                                     catch (Exception)
                                     {
 
-                                        
+
                                     }
 
-                                }while(not_received);
+                                } while (not_received);
 
 
                                 var article = JsonConvert.DeserializeObject<DiplomaMarketBackend.Parser.Article.Root>(aresponseBody);
@@ -1882,7 +1879,7 @@ namespace DiplomaMarketBackend.Controllers
         [Route("getNpAreas")]
         public async Task<IActionResult> getAreas()
         {
-             _casher.Run();
+            _casher.Run();
 
             return Ok();
         }

@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using SendGrid.Helpers.Mail;
 using System.Reflection;
 using System.Text;
+using WebShopApp.Abstract;
 
 namespace DiplomaMarketBackend
 {
@@ -20,6 +22,9 @@ namespace DiplomaMarketBackend
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.Configure<EmailSettings>
+                                (options => builder.Configuration.GetSection("EmailSettings").Bind(options));
 
             string currConnectionString = "DMarketNpgsql";
 
@@ -50,6 +55,7 @@ namespace DiplomaMarketBackend
 
             builder.Services.Configure<GCSConfigOptions>(builder.Configuration);
             builder.Services.AddSingleton<ICloudStorageService, CloudStorageService>();
+            builder.Services.AddSingleton<IEmailService, EmailService>();
 
             builder.Services.AddSingleton<IDeliveryCasher, DeliveryCasher>();
             //or start as service 

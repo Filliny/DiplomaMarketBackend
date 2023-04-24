@@ -1,7 +1,9 @@
 ﻿using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Helpers;
 using Lessons3.Entity.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WebShopApp.Abstract;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -11,11 +13,13 @@ namespace DiplomaMarketBackend.Controllers
     {
         private readonly ILogger<RegController> _logger;
         private readonly BaseContext _db;
+        private readonly IEmailService _emailService;
 
-        public RegController(BaseContext db, ILogger<RegController> logger)
+        public RegController(BaseContext db, ILogger<RegController> logger, IEmailService emailService)
         {
             _db = db;
             _logger = logger;
+            _emailService = emailService;
         }
 
         [HttpPost]
@@ -24,26 +28,54 @@ namespace DiplomaMarketBackend.Controllers
             if (model.Username is null || model.Email is null || model.Password is null || model.Role is null)
                 return BadRequest(new { registerError = "Some values is null" });
 
+            if (_db.Users.Any(u => u.Email == model.Email.ToLower())) return BadRequest(new { registerError = "User email already exist!" });
+
             var user = new UserModel
             {
                 Username = model.Username,
-                Password = model.Password,
-                Email = model.Email,
+                Email = model.Email.ToLower(),
                 RegDate = DateTime.Now,
                 Role = model.Role
             };
+
+            PasswordHasher<UserModel> hasher = new PasswordHasher<UserModel>();
+            user.Password = hasher.HashPassword(user, model.Password);
+
 
             _db.Users.Add(user);
             _db.SaveChanges();
 
             var newUserRecord = _db.Users.FirstOrDefault(u => u.Username == user.Username);
-            newUserRecord.Password = null;
-            var response = new
+
+            if (newUserRecord != null)
             {
-                jwt = JwtTokenGenerator.GetToken(newUserRecord),
-                userModel = newUserRecord
-            };
-            return new JsonResult(response);
+                newUserRecord.Password = null;
+                var response = new
+                {
+                    jwt = JwtTokenGenerator.GetToken(newUserRecord),
+                    userModel = newUserRecord
+                };
+
+                _emailService.SendEmailAsync(user.Email, "New registration", $"<p>Your password is {model.Password}</p>");
+                return new JsonResult(response);
+            }
+
+            return BadRequest(new { authError = "User create error" });
+
+
+        }
+
+        [HttpPost]
+        public IActionResult PasswordRecovery([FromQuery] string email)
+        {
+            var  user  = _db.Users.FirstOrDefault(u => u.Email == email); 
+
+            if (user != null)
+            {
+                
+            }
+
+            return Ok();
         }
     }
 }

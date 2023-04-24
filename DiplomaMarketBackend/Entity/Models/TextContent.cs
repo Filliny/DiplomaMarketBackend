@@ -17,6 +17,7 @@
         {
             var translation = Translations.FirstOrDefault(t=>t.LanguageId == language.ToUpper());
 
+
             if(translation == null) {
 
                 return OriginalText??"";

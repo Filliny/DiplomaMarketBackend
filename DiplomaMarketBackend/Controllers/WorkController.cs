@@ -1876,6 +1876,8 @@ namespace DiplomaMarketBackend.Controllers
         //    return Ok();
         //}
 
+
+
         [HttpGet]
         [Route("getNpAreas")]
         public async Task<IActionResult> getAreas()

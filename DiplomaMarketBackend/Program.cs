@@ -5,8 +5,11 @@ using DiplomaMarketBackend.Entity.Seeder;
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using DiplomaMarketBackend.Services;
+using Google;
+using Lessons3.Entity.Models;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -37,7 +40,7 @@ namespace DiplomaMarketBackend
 
             // Add services to the container.
             builder.Services.AddDbContext<BaseContext>(options =>
-               options.UseNpgsql(connectionString));//, new MySqlServerVersion(new Version(8, 0, 32))));
+               options.UseNpgsql(connectionString));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -48,7 +51,22 @@ namespace DiplomaMarketBackend
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(JwtBearerHandler);
+            // For Identity
+            builder.Services.AddIdentity<UserModel, IdentityRole>()
+                .AddEntityFrameworkStores<BaseContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireNonAlphanumeric = false;
+            });
+           
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(JwtBearerHandler);
 
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
             builder.Services.AddSingleton<IFileService, FileService>();

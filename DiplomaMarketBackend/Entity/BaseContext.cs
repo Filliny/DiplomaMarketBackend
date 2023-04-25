@@ -1,11 +1,12 @@
 ﻿using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Entity.Models.Delivery;
 using Lessons3.Entity.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaMarketBackend.Entity
 {
-    public sealed class BaseContext : DbContext
+    public partial class BaseContext : IdentityDbContext<UserModel>
     {
         public BaseContext(DbContextOptions<BaseContext> options)
              : base(options)
@@ -14,7 +15,7 @@ namespace DiplomaMarketBackend.Entity
             //Database.EnsureCreated();
         }
 
-        public DbSet<UserModel> Users { get; set; }
+
         public DbSet<ArticleModel> Articles { get; set; }
         public DbSet<CategoryModel> Categories { get; set; }
         public DbSet<TagModel> Tags { get; set; }

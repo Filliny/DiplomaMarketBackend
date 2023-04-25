@@ -1,14 +1,17 @@
-﻿using System;
+﻿using DiplomaMarketBackend.Entity.Models;
+using Microsoft.AspNetCore.Identity;
+using System;
 
 namespace Lessons3.Entity.Models
 {
-    public class UserModel
+    public class UserModel: IdentityUser
     {
-        public int Id { get; set; }
-        public string Email { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Role { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? MiddleName { get; set; }
+        public string? PreferredLanguageId { get; set; }
+        public Language? PreferredLanguage { get; set; }
         public DateTime RegDate { get; set; }
+        public DateTime BirthDay { get; set;}
     }
 }

@@ -41,7 +41,8 @@ namespace DiplomaMarketBackend.Controllers
         {
             var article = _context.Articles.FirstOrDefault(a=>a.Id == review.article_id);
 
-            var user = _context.Users.FirstOrDefault(u => u.Username == User.Identity.Name);
+            //todo test this
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
 
             if (article != null)
             {
@@ -49,10 +50,10 @@ namespace DiplomaMarketBackend.Controllers
                 review_model.ReviewApproved = false;
                 review_model.DateTime = DateTime.Now;
 
-                if(user != null)
-                {
-                    review_model.User = user;
-                }
+                //if(user != null)
+                //{
+                //    review_model.User = user;
+                //}
 
                 if(review.images.Count > 0)
                 {
@@ -170,13 +171,14 @@ namespace DiplomaMarketBackend.Controllers
         {
             var review = _context.Reviews.FirstOrDefault(r => r.Id == answer.review_id);
 
-            var user = _context.Users.FirstOrDefault(u => u.Username == User.Identity.Name);
+            
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
 
             if (review != null)
             {
                 var new_answer = answer.Adapt<ReviewModel>();
                 new_answer.Type = ReviewType.answer;
-                new_answer.User = user;
+                //new_answer.User = user;
 
                 _context.Reviews.Add(new_answer);
                 _context.SaveChanges();
@@ -260,7 +262,8 @@ namespace DiplomaMarketBackend.Controllers
 
                 if(reviewSort == ReviewSort.from_buyer)
                 {
-                    var byers = _context.OrderItems.Include(r => r.Order).Where(i=>i.ArticleId == id).GroupBy(i=>i.Order.UserId).Select(g=>g.Key).ToList();
+
+                    var byers = _context.OrderItems.Include(r => r.Order).Where(i => i.ArticleId == id).GroupBy(i => i.Order.UserId).Select(g => g.Key).ToList();
 
                     reviews = reviews.Where(r => byers.Contains(r.UserId));
 

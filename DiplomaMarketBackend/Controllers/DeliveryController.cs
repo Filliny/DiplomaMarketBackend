@@ -1,6 +1,7 @@
 ﻿using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +28,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <param name="lang">language</param>
         /// <returns>list of delivery companies with id and name</returns>
         [HttpGet]
+        //[Authorize(Roles = "User")]
         [Route("deliveries")]
         [ResponseCache(VaryByQueryKeys = new[] { "lang" }, Duration = 3600)]
         public async Task<IActionResult> DeliveriesIndex([FromQuery] string lang) 

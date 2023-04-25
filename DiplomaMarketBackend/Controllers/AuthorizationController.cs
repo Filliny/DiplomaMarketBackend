@@ -13,11 +13,13 @@ namespace DiplomaMarketBackend.Controllers
     {
         private readonly ILogger<AuthController> _logger;
         private readonly BaseContext _db;
+        private readonly UserManager<UserModel> _userManager;
 
-        public AuthController(BaseContext db, ILogger<AuthController> logger)
+        public AuthController(BaseContext db, ILogger<AuthController> logger, UserManager<UserModel> userManager)
         {
             _db = db;
             _logger = logger;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -26,32 +28,27 @@ namespace DiplomaMarketBackend.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult MakeAuth([FromBody] RequestAuthModel model)
+        public async Task<IActionResult> MakeAuth([FromBody] RequestAuthModel model)
         {
-            var user = _db.Users.FirstOrDefault(u => u.Email == model.Email.ToLower());
 
-            if(user != null)
+            var user =  _db.Users.FirstOrDefault(u => u.Email == model.Email.ToLower());
+
+            if(user != null && await _userManager.CheckPasswordAsync(user,model.Password))
             {
-                PasswordHasher<UserModel> hasher = new PasswordHasher<UserModel>();
 
-                if(hasher.VerifyHashedPassword(user,user.Password,model.Password) == PasswordVerificationResult.Success)
+                var getJwt = JwtTokenGenerator.GetToken(_userManager,user);
+                user.PasswordHash = null;
+                var response = new
                 {
-                    var getJwt = JwtTokenGenerator.GetToken(user);
-                    user.Password = null;
-                    var response = new
-                    {
-                        jwt = getJwt,
-                        userModel = user
-                    };
+                    jwt = getJwt,
+                    userModel = user
+                };
 
-                    return new JsonResult(response);
-                }
-
-                return BadRequest(new { authError = "Error credentials" });
-
+                return new JsonResult(response);
+   
             }
 
-            return BadRequest(new { authError = "User not found" });
+            return Unauthorized();
         }
     }
 }

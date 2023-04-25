@@ -19,7 +19,8 @@ namespace DiplomaMarketBackend.Entity.Models
     public class ReviewModel
     {
         public int Id { get; set; }
-        public int? UserId { get; set; }
+
+        public string? UserId { get; set; }
         public UserModel? User { get; set; }
 
         public string Name { get; set; }

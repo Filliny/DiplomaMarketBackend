@@ -50,12 +50,12 @@ namespace DiplomaMarketBackend.Controllers
                 review_model.ReviewApproved = false;
                 review_model.DateTime = DateTime.Now;
 
-                //if(user != null)
-                //{
-                //    review_model.User = user;
-                //}
+                if (user != null)
+                {
+                    review_model.User = user;
+                }
 
-                if(review.images.Count > 0)
+                if (review.images.Count > 0)
                 {
                     foreach (var image in review.images)
                     {

@@ -1,6 +1,6 @@
 ﻿namespace DiplomaMarketBackend.Entity.Models
 {
-    public class CharacteristicValueModel
+    public class ValueModel
     {
         public int Id { get; set; }
 
@@ -11,9 +11,12 @@
 
         public int CharacteristicTypeId { get; set; }
         public ArticleCharacteristic CharacteristicType { get; set; }
+        public List<ArticleModel> Articles { get; set; }
 
-        public int articleId { get; set; }
-        public ArticleModel? article { get; set; }
 
+        public ValueModel()
+        {
+            Articles = new();
+        }
     }
 }

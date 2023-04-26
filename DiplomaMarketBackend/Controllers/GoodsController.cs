@@ -332,6 +332,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="400">If the request value is bad</response>
         [HttpGet]
         [Route("get-characteristic")]
+        [ResponseCache(VaryByQueryKeys = new[] { "lang","goodsId" }, Duration = 3600)]
         public async Task<IActionResult> GetArticleCharacteristics([FromQuery] string lang, string goodsId)
         {
             lang = lang.NormalizeLang();
@@ -341,15 +342,16 @@ namespace DiplomaMarketBackend.Controllers
 
             if (int.TryParse(goodsId, out int art_id))
             {
-                var values = await _context.Values.
-                Include(v => v.Title).ThenInclude(t => t.Translations).
-                Include(v => v.CharacteristicType).ThenInclude(t => t.Group).ThenInclude(g => g.groupTitle).ThenInclude(t => t.Translations).
-                Include(v => v.CharacteristicType).ThenInclude(v => v.Name).ThenInclude(v => v.Translations).
-                Include(v => v.CharacteristicType).ThenInclude(v => v.Title).ThenInclude(v => v.Translations).
-                Where(c => c.articleId == art_id).
-                ToListAsync();
+                var article = _context.Articles.
+                    Include(a => a.CharacteristicValues).ThenInclude(v=>v.Title.Translations).
+                    Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType.Group.groupTitle.Translations).
+                    Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType.Name.Translations).
+                    Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType.Title.Translations).
+                    FirstOrDefault(a=>a.Id == art_id);
 
-                var groups = values.GroupBy(v => v.CharacteristicType).GroupBy(v => v.Key.Group).ToList();
+                if (article == null) return NotFound("No such article!");
+
+                var groups = article.CharacteristicValues.GroupBy(v => v.CharacteristicType).GroupBy(v => v.Key.Group).ToList();
 
 
                 foreach (var group in groups)
@@ -369,7 +371,7 @@ namespace DiplomaMarketBackend.Controllers
                         {
                             var list_values = new List<dynamic>();
 
-                            foreach (var val in charakterystyc_type.Key.Values)
+                            foreach (var val in charakterystyc_type)
                             {
                                 var to_list = new
                                 {

@@ -33,6 +33,7 @@ namespace DiplomaMarketBackend.Entity.Models
         public List<ImageModel> Images { get; set; }
         public List<BreadcrumbsModel> Breadcrumbs { get; set; }
         public List<CharacteristicValueModel> Values { get; set; }
+        public List<ValueModel> CharacteristicValues { get; set; }
         public List<TagModel> Tags { get; set; }
         public List<ActionModel> Actions { get; set; }
         public int rztk_art_id { get; set; }

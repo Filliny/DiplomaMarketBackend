@@ -16,7 +16,7 @@ namespace DiplomaMarketBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi=true)]
+    //[ApiExplorerSettings(IgnoreApi=true)]
     public class WorkController : ControllerBase
     {
         ILogger<WorkController> _logger;
@@ -1880,6 +1880,62 @@ namespace DiplomaMarketBackend.Controllers
         public async Task<IActionResult> getAreas()
         {
             _casher.Run();
+
+            return Ok();
+        }
+
+
+
+        [HttpGet]
+        [Route("group-values")]
+        public async Task<IActionResult> groupValues()
+        {
+
+            var groupped_by_types = _context.Values.Include(v=>v.Title).ThenInclude(t=>t.Translations).Include(v=>v.article).GroupBy(v=>v.CharacteristicTypeId).ToList();
+
+            foreach(var group in groupped_by_types)
+            {
+                var type = _context.ArticleCharacteristics.Include(c=>c.Name).FirstOrDefault(c => c.Id == group.Key);
+
+                if(_context.CharacteristicValues.Any(c=>c.CharacteristicTypeId == type.Id)) 
+
+                _logger.LogInformation($"Characteristic: {type.Name.OriginalText}");
+
+                var new_values = new List<ValueModel>();
+
+                foreach(var value in group)
+                {
+                    
+                    var next_text = value.Title.OriginalText.ToLower();
+                    var add_candidate = new_values.FirstOrDefault(v=>v.Title.OriginalText.ToLower().Equals(next_text));
+
+                    if (add_candidate != null)
+                    {
+                        add_candidate.Articles.Add(value.article);
+                        _logger.LogInformation($"............article added : {value.articleId}");
+                        _context.translations.RemoveRange(value.Title.Translations);
+                        _context.textContents.Remove(value.Title);
+
+                    }
+                    else 
+                    {
+                        _logger.LogInformation($"......Value created : {value.Title.OriginalText}");
+                        var new_value = new ValueModel();
+                        new_value.Title = value.Title;
+                        new_value.CharacteristicTypeId = value.CharacteristicTypeId;
+                        new_value.Articles.Add(value.article);
+                        new_values.Add(new_value);
+                    }
+
+                    _context.Values.Remove(value);
+                }
+
+                _context.CharacteristicValues.AddRange(new_values);
+                
+
+                _context.SaveChanges(); 
+            }
+
 
             return Ok();
         }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Globalization;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -224,7 +225,7 @@ namespace DiplomaMarketBackend.Controllers
         /// </summary>
         /// <param name="lang">language</param>
         /// <param name="article_id">id of article to get reviews</param>
-        /// <param name="sort">sorting/filtering parameter, values : from_buyer,by_date,helpful,with_attach</param>
+        /// <param name="sort">sorting/filtering parameter, values : from_buyer,by_date,helpful,with_attach (can be null\absent)</param>
         /// <param name="type">type of list to get : review/answer</param>
         /// <param name="limit">number of items to get</param>
         /// <param name="page">page of items</param>
@@ -233,7 +234,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="400">If the request values is bad</response>
         [HttpGet]
         [Route("get")]
-        public async Task<IActionResult> GetArticleReviews([FromQuery]string lang,string article_id,string sort, string type,string limit, string page) {
+        public async Task<IActionResult> GetArticleReviews([FromQuery]string lang,string article_id,string? sort, string type,string limit, string page) {
 
             lang = lang.NormalizeLang();
             
@@ -242,8 +243,10 @@ namespace DiplomaMarketBackend.Controllers
                 if (!Enum.TryParse(type.ToLower(), out ReviewType reviewType))
                     reviewType = ReviewType.review;
 
+                if (sort.IsNullOrEmpty()) sort = "by_date";
+
                 if (!Enum.TryParse(sort.ToLower(), out ReviewSort reviewSort))
-                    reviewSort = ReviewSort.from_buyer;
+                    reviewSort = ReviewSort.by_date;
 
                 var article = _context.Articles.FirstOrDefault(a=>a.Id == id);
 
@@ -303,7 +306,7 @@ namespace DiplomaMarketBackend.Controllers
                     var rev_out = new
                     {
                         id = item.Id,
-                        iser_name = item.Name,
+                        user_name = item.Name,
                         review_type = item.Type.ToString(),
                         comment = item.Comment,
                         pros = item.Pros,
@@ -314,6 +317,7 @@ namespace DiplomaMarketBackend.Controllers
                         user_images = new List<string>(),
                         likes = item.Likes,
                         dislikes = item.Dislikes,
+                        post_date = item.DateTime.ToString("dd.MM.yyyy",CultureInfo.InvariantCulture),
                     };
 
                     foreach(var image in item.UserImages)

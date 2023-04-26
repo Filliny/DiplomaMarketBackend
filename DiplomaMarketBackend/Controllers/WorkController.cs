@@ -40,7 +40,7 @@ namespace DiplomaMarketBackend.Controllers
         {
             if (pass != "pass123") return Ok();
 
-            var articles = _context.Articles.Include(a => a.Category).ToList();
+            var articles = await _context.Articles.Include(a => a.Category).ToListAsync();
 
             foreach (var article in articles)
             {

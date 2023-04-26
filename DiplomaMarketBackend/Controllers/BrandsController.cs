@@ -1,8 +1,12 @@
 ﻿using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
+using DiplomaMarketBackend.Entity.Models;
+using DiplomaMarketBackend.Entity.Models.Delivery;
 using DiplomaMarketBackend.Helpers;
+using DiplomaMarketBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -110,5 +114,94 @@ namespace DiplomaMarketBackend.Controllers
 
             return BadRequest("Check parameters!");
         }
+
+        [HttpPost]
+        [Route("create")]
+        public async Task<IActionResult> CreateBrand([FromForm] Brand brand)
+        {
+            if (brand == null) return BadRequest("Fill form!");
+
+            var new_brand = new BrandModel()
+            {
+                Name = brand.name,
+
+            };
+
+            if (brand.logo != null)
+                new_brand.LogoURL = await _fileService.SaveFileFromStream(BucketNames.logo.ToString(), brand.logo.FileName, brand.logo.OpenReadStream());
+
+            _context.Brands.Add(new_brand);
+            _context.SaveChanges();
+            brand.id = new_brand.Id;
+
+            return Ok(brand);
+        }
+
+
+        [HttpPut]
+        [Route("update")]
+        public async Task<IActionResult> UpdateBrand([FromForm] Brand brand)
+        {
+            if (brand == null) return BadRequest("Fill form!");
+
+            var  ex_brand = _context.Brands.FirstOrDefault(b=>b.Id == brand.id);
+  
+            if(ex_brand != null)
+            {
+                var old_logo = ex_brand.LogoURL;
+                ex_brand.Name = brand.name;
+
+                if(brand.logo  != null)
+                    ex_brand.LogoURL = await _fileService.SaveFileFromStream(BucketNames.logo.ToString(), brand.logo.FileName, brand.logo.OpenReadStream());
+
+                _context.Brands.Update(ex_brand);
+                _context.SaveChanges();
+
+                if(old_logo != null)
+                _fileService.DeleteFile(BucketNames.logo.ToString(), old_logo);
+
+                return Ok(brand);
+
+            }
+
+            return NotFound("No such brand !");
+
+        }
+
+        [HttpDelete]
+        [Route("delete")]
+        public async Task<IActionResult> RemoveBrand([FromQuery] string brand_id)
+        {
+            if(int.TryParse(brand_id, out var id))
+            {
+                if (_context.Articles.Any(a => a.BrandId == id)) return StatusCode(StatusCodes.Status500InternalServerError, new { Satus = "Failed", Message = "Brand have articles related - cant be removed!" });
+
+                var brand = _context.Brands.FirstOrDefault(b=>b.Id ==  id);
+                if(brand != null)
+                {
+                    try
+                    {
+                        _context.Brands.Remove(brand);
+                        _context.SaveChanges();
+                        _fileService.DeleteFile(BucketNames.logo.ToString(), brand.LogoURL);
+
+                        return Ok(brand);
+                }
+                    catch (Exception e)
+                    {
+
+                        return StatusCode(StatusCodes.Status500InternalServerError, new { Satus = "Failed", Message = e.Message });
+                    }
+                }
+
+                return NotFound("Brand not found");
+
+            }
+
+            return BadRequest("Check id!");
+
+        }
+
+
     }
 }

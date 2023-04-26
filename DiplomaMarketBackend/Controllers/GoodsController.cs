@@ -82,6 +82,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <summary>
         /// Get articles for sub-categories with single-page pagination
         /// </summary>
+        /// <param name="category_Id">Categpry id</param>
         /// <param name="goods_on_page">goods count to display</param>
         /// <param name="page">page to display starts from 1</param>
         /// <param name="lang">language</param>

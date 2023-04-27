@@ -354,7 +354,7 @@ namespace DiplomaMarketBackend.Controllers
                                 if (article == null || char_article == null) continue;
 
                                 new_article = _context.Articles.
-                                    Include(a => a.Values).ThenInclude(c => c.CharacteristicType).ThenInclude(t => t.Group).
+                                    Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType).ThenInclude(t => t.Group).
                                     Include(a => a.Warning).ThenInclude(w => w.Message).
                                     FirstOrDefault(a => a.rztk_art_id == id);
 
@@ -611,55 +611,63 @@ namespace DiplomaMarketBackend.Controllers
                                                 };
 
                                                 _context.CharacteristicGroups.Add(exst_gpr);
+                                            }
 
+                                            foreach (var harakt in char_group.options)
+                                            {
+                                                var new_charakt = _context.ArticleCharacteristics.FirstOrDefault(c => c.roz_har_id == harakt.id);
 
-                                                foreach (var harakt in char_group.options)
+                                                if (new_charakt == null)
                                                 {
-                                                    var new_charakt = _context.ArticleCharacteristics.FirstOrDefault(c => c.roz_har_id == harakt.id);
-
-                                                    if (new_charakt == null)
+                                                    new_charakt = new ArticleCharacteristic()
                                                     {
-                                                        new_charakt = new ArticleCharacteristic()
-                                                        {
-                                                            Title = TextContentHelper.CreateTextContent(_context, harakt.title, lang),
-                                                            Name = TextContentHelper.CreateTextContent(_context, harakt.name, lang),
-                                                            Status = harakt.status,
-                                                            CategoryId = category.Id,
-                                                            Order = harakt.order,
-                                                            Group = exst_gpr,
-                                                            roz_har_id = harakt.id,
-                                                            Comparable = harakt.comparable
+                                                        Title = TextContentHelper.CreateTextContent(_context, harakt.title, lang),
+                                                        Name = TextContentHelper.CreateTextContent(_context, harakt.name, lang),
+                                                        Status = harakt.status,
+                                                        CategoryId = category.Id,
+                                                        Order = harakt.order,
+                                                        Group = exst_gpr,
+                                                        roz_har_id = harakt.id,
+                                                        Comparable = harakt.comparable
 
 
-                                                        };
+                                                    };
 
-                                                        if (Enum.TryParse(typeof(CharacteristicType), harakt.type, out object? type))
-                                                        {
-                                                            new_charakt.Type = (CharacteristicType)type;
-                                                        }
-
-                                                        _context.ArticleCharacteristics.Add(new_charakt);
+                                                    if (Enum.TryParse(typeof(CharacteristicType), harakt.type, out object? type))
+                                                    {
+                                                        new_charakt.Type = (CharacteristicType)type;
                                                     }
 
-                                                    foreach (var val in harakt.values)
+                                                    _context.ArticleCharacteristics.Add(new_charakt);
+                                                }
+
+                                                foreach (var val in harakt.values)
+                                                {
+                                                    ValueModel? exist_value = null;
+
+                                                    if (new_charakt.Id != 0)
                                                     {
-                                                        var new_value = new CharacteristicValueModel()
+                                                        exist_value = _context.CharacteristicValues.Include(v => v.Title).FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
+                                                    }
+
+                                                    if (exist_value == null)
+                                                        exist_value = new ValueModel()
                                                         {
                                                             Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
                                                             CharacteristicType = new_charakt
 
                                                         };
 
-                                                        _context.Values.Add(new_value);
-                                                        new_article.Values.Add(new_value);
-                                                    }
-
-
+                                                    _context.CharacteristicValues.Add(exist_value);
+                                                    new_article.CharacteristicValues.Add(exist_value);
                                                 }
 
+
                                             }
+
+
                                         }
-                                        else
+                                        else //if group id  == 0
                                         {
 
                                             foreach (var harakt in char_group.options)
@@ -690,14 +698,23 @@ namespace DiplomaMarketBackend.Controllers
 
                                                 foreach (var val in harakt.values)
                                                 {
-                                                    var new_value = new CharacteristicValueModel()
-                                                    {
-                                                        Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
-                                                        CharacteristicType = new_charakt
-                                                    };
+                                                    ValueModel? exist_value = null;
 
-                                                    _context.Values.Add(new_value);
-                                                    new_article.Values.Add(new_value);
+                                                    if (new_charakt.Id != 0)
+                                                    {
+                                                        exist_value = _context.CharacteristicValues.Include(v => v.Title).FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
+                                                    }
+
+                                                    if (exist_value == null)
+                                                        exist_value = new ValueModel()
+                                                        {
+                                                            Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
+                                                            CharacteristicType = new_charakt
+
+                                                        };
+
+                                                    _context.CharacteristicValues.Add(exist_value);
+                                                    new_article.CharacteristicValues.Add(exist_value);
                                                 }
 
 
@@ -771,7 +788,7 @@ namespace DiplomaMarketBackend.Controllers
 
                                                         TextContentHelper.UpdateTextContent(_context, harakt.title, exst_charakt?.TitleId, lang);
 
-                                                        var exist_values_oftype = new_article.Values.Where(v => v.CharacteristicTypeId == exst_charakt.Id).ToList();
+                                                        var exist_values_oftype = new_article.CharacteristicValues.Where(v => v.CharacteristicTypeId == exst_charakt.Id ).ToList();
                                                         int i = 0;
 
                                                         if (exist_values_oftype.Count == harakt.values.Count)
@@ -808,7 +825,7 @@ namespace DiplomaMarketBackend.Controllers
 
                                                     TextContentHelper.UpdateTextContent(_context, harakt.title, exst_charakt?.TitleId, lang);
 
-                                                    var exist_values_oftype = new_article.Values.Where(v => v.CharacteristicTypeId == exst_charakt.Id).ToList();
+                                                    var exist_values_oftype = new_article.CharacteristicValues.Where(v => v.CharacteristicTypeId == exst_charakt.Id).ToList();
                                                     int i = 0;
 
                                                     if (exist_values_oftype.Count == harakt.values.Count)
@@ -1292,7 +1309,7 @@ namespace DiplomaMarketBackend.Controllers
                                 if (article == null || char_article == null) continue;
 
                                 new_article = _context.Articles.
-                                    Include(a => a.Values).ThenInclude(c => c.CharacteristicType).ThenInclude(t => t.Group).
+                                    Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType).ThenInclude(t => t.Group).
                                     Include(a => a.Warning).ThenInclude(w => w.Message).
                                     FirstOrDefault(a => a.rztk_art_id == id);
 
@@ -1309,7 +1326,28 @@ namespace DiplomaMarketBackend.Controllers
                                     new_article.Docket = TextContentHelper.CreateTextContent(_context, article.data.docket, lang);
                                     new_article.Updated = DateTime.Now;
 
+                                    //top category fill
+                                    var top = category.ParentCategoryId;
+                                    if (category.ParentCategoryId != null)
+                                    {
+                                        var parent = _context.Categories.FirstOrDefault(c => c.Id == category.ParentCategoryId);
+                                        if (parent != null)
+                                        {
+                                            if (parent.ParentCategoryId != null)
+                                            {
 
+                                                top = parent.ParentCategoryId;
+                                            }
+                                            else
+                                            {
+                                                top = parent.Id;
+                                            }
+                                        }
+                                    }
+
+                                    new_article.TopCategoryId = top;
+
+                                    //brand fill
                                     BrandModel? brand = _context.Brands.FirstOrDefault(b => b.rztk_brand_id == article.data.brand_id);
 
                                     if (brand == null && article.data.brand_id != null)
@@ -1528,55 +1566,63 @@ namespace DiplomaMarketBackend.Controllers
                                                 };
 
                                                 _context.CharacteristicGroups.Add(exst_gpr);
+                                            }
 
+                                            foreach (var harakt in char_group.options)
+                                            {
+                                                var new_charakt = _context.ArticleCharacteristics.FirstOrDefault(c => c.roz_har_id == harakt.id);
 
-                                                foreach (var harakt in char_group.options)
+                                                if (new_charakt == null)
                                                 {
-                                                    var new_charakt = _context.ArticleCharacteristics.FirstOrDefault(c => c.roz_har_id == harakt.id);
-
-                                                    if (new_charakt == null)
+                                                    new_charakt = new ArticleCharacteristic()
                                                     {
-                                                        new_charakt = new ArticleCharacteristic()
-                                                        {
-                                                            Title = TextContentHelper.CreateTextContent(_context, harakt.title, lang),
-                                                            Name = TextContentHelper.CreateTextContent(_context, harakt.name, lang),
-                                                            Status = harakt.status,
-                                                            CategoryId = category.Id,
-                                                            Order = harakt.order,
-                                                            Group = exst_gpr,
-                                                            roz_har_id = harakt.id,
-                                                            Comparable = harakt.comparable
+                                                        Title = TextContentHelper.CreateTextContent(_context, harakt.title, lang),
+                                                        Name = TextContentHelper.CreateTextContent(_context, harakt.name, lang),
+                                                        Status = harakt.status,
+                                                        CategoryId = category.Id,
+                                                        Order = harakt.order,
+                                                        Group = exst_gpr,
+                                                        roz_har_id = harakt.id,
+                                                        Comparable = harakt.comparable
 
 
-                                                        };
+                                                    };
 
-                                                        if (Enum.TryParse(typeof(CharacteristicType), harakt.type, out object? type))
-                                                        {
-                                                            new_charakt.Type = (CharacteristicType)type;
-                                                        }
-
-                                                        _context.ArticleCharacteristics.Add(new_charakt);
+                                                    if (Enum.TryParse(typeof(CharacteristicType), harakt.type, out object? type))
+                                                    {
+                                                        new_charakt.Type = (CharacteristicType)type;
                                                     }
 
-                                                    foreach (var val in harakt.values)
+                                                    _context.ArticleCharacteristics.Add(new_charakt);
+                                                }
+
+                                                foreach (var val in harakt.values)
+                                                {
+                                                    ValueModel? exist_value = null;
+
+                                                    if (new_charakt.Id != 0)
                                                     {
-                                                        var new_value = new CharacteristicValueModel()
+                                                        exist_value = _context.CharacteristicValues.Include(v => v.Title).FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
+                                                    }
+
+                                                    if (exist_value == null)
+                                                        exist_value = new ValueModel()
                                                         {
                                                             Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
                                                             CharacteristicType = new_charakt
 
                                                         };
 
-                                                        _context.Values.Add(new_value);
-                                                        new_article.Values.Add(new_value);
-                                                    }
-
-
+                                                    _context.CharacteristicValues.Add(exist_value);
+                                                    new_article.CharacteristicValues.Add(exist_value);
                                                 }
 
+
                                             }
+
+
                                         }
-                                        else
+                                        else //if group id  == 0
                                         {
 
                                             foreach (var harakt in char_group.options)
@@ -1607,14 +1653,23 @@ namespace DiplomaMarketBackend.Controllers
 
                                                 foreach (var val in harakt.values)
                                                 {
-                                                    var new_value = new CharacteristicValueModel()
-                                                    {
-                                                        Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
-                                                        CharacteristicType = new_charakt
-                                                    };
+                                                    ValueModel? exist_value = null;
 
-                                                    _context.Values.Add(new_value);
-                                                    new_article.Values.Add(new_value);
+                                                    if (new_charakt.Id != 0)
+                                                    {
+                                                        exist_value = _context.CharacteristicValues.Include(v => v.Title).FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
+                                                    }
+
+                                                    if (exist_value == null)
+                                                        exist_value = new ValueModel()
+                                                        {
+                                                            Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
+                                                            CharacteristicType = new_charakt
+
+                                                        };
+
+                                                    _context.CharacteristicValues.Add(exist_value);
+                                                    new_article.CharacteristicValues.Add(exist_value);
                                                 }
 
 
@@ -1688,7 +1743,7 @@ namespace DiplomaMarketBackend.Controllers
 
                                                         TextContentHelper.UpdateTextContent(_context, harakt.title, exst_charakt?.TitleId, lang);
 
-                                                        var exist_values_oftype = new_article.Values.Where(v => v.CharacteristicTypeId == exst_charakt.Id).ToList();
+                                                        var exist_values_oftype = new_article.CharacteristicValues.Where(v => v.CharacteristicTypeId == exst_charakt.Id).ToList();
                                                         int i = 0;
 
                                                         if (exist_values_oftype.Count == harakt.values.Count)
@@ -1725,7 +1780,7 @@ namespace DiplomaMarketBackend.Controllers
 
                                                     TextContentHelper.UpdateTextContent(_context, harakt.title, exst_charakt?.TitleId, lang);
 
-                                                    var exist_values_oftype = new_article.Values.Where(v => v.CharacteristicTypeId == exst_charakt.Id).ToList();
+                                                    var exist_values_oftype = new_article.CharacteristicValues.Where(v => v.CharacteristicTypeId == exst_charakt.Id).ToList();
                                                     int i = 0;
 
                                                     if (exist_values_oftype.Count == harakt.values.Count)
@@ -1886,58 +1941,6 @@ namespace DiplomaMarketBackend.Controllers
 
 
 
-        [HttpGet]
-        [Route("group-values")]
-        public async Task<IActionResult> groupValues()
-        {
-
-            var groupped_by_types = _context.Values.Include(v=>v.Title).ThenInclude(t=>t.Translations).Include(v=>v.article).GroupBy(v=>v.CharacteristicTypeId).ToList();
-
-            foreach(var group in groupped_by_types)
-            {
-                var type = _context.ArticleCharacteristics.Include(c=>c.Name).FirstOrDefault(c => c.Id == group.Key);
-
-                if(_context.CharacteristicValues.Any(c=>c.CharacteristicTypeId == type.Id)) 
-
-                _logger.LogInformation($"Characteristic: {type.Name.OriginalText}");
-
-                var new_values = new List<ValueModel>();
-
-                foreach(var value in group)
-                {
-                    
-                    var next_text = value.Title.OriginalText.ToLower();
-                    var add_candidate = new_values.FirstOrDefault(v=>v.Title.OriginalText.ToLower().Equals(next_text));
-
-                    if (add_candidate != null)
-                    {
-                        add_candidate.Articles.Add(value.article);
-                        _logger.LogInformation($"............article added : {value.articleId}");
-                        _context.translations.RemoveRange(value.Title.Translations);
-                        _context.textContents.Remove(value.Title);
-
-                    }
-                    else 
-                    {
-                        _logger.LogInformation($"......Value created : {value.Title.OriginalText}");
-                        var new_value = new ValueModel();
-                        new_value.Title = value.Title;
-                        new_value.CharacteristicTypeId = value.CharacteristicTypeId;
-                        new_value.Articles.Add(value.article);
-                        new_values.Add(new_value);
-                    }
-
-                    _context.Values.Remove(value);
-                }
-
-                _context.CharacteristicValues.AddRange(new_values);
-                
-
-                _context.SaveChanges(); 
-            }
-
-
-            return Ok();
-        }
+      
     }
 }

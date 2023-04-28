@@ -389,6 +389,8 @@ namespace DiplomaMarketBackend.Controllers
                 if (!_context.Categories.Any(c => c.Id == category.ShowInCategoryId)) return BadRequest("Wrong additional category!");
             }
 
+            if (category.ParentId == null && category.RootIconFile == null) return BadRequest("Icon file for root category not present!");
+
             var parent = await _context.Categories.FindAsync(category.ParentId);
             if (parent == null) return BadRequest("Parent category is bad!");
 
@@ -434,6 +436,9 @@ namespace DiplomaMarketBackend.Controllers
                 ImgUrl = _fileService.SaveFileFromStream(BucketNames.category.ToString(), category.CategoryImage.FileName, category.CategoryImage.OpenReadStream()).Result,
                 ShowInCategoryId = category.ShowInCategoryId
             };
+
+            _context.Categories.Add(new_category);
+            _context.SaveChanges();
 
             return Ok(category);
         }

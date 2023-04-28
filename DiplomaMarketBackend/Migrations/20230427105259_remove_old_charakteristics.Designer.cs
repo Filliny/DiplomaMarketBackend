@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230427105259_remove_old_charakteristics")]
+    partial class remove_old_charakteristics
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +38,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("ArticlesId");
 
-                    b.ToTable("ActionModelArticleModel", (string)null);
+                    b.ToTable("ActionModelArticleModel");
                 });
 
             modelBuilder.Entity("ArticleModelValueModel", b =>
@@ -50,7 +53,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("CharacteristicValuesId");
 
-                    b.ToTable("ArticleModelValueModel", (string)null);
+                    b.ToTable("ArticleModelValueModel");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ActionModel", b =>
@@ -81,7 +84,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("NameId");
 
-                    b.ToTable("ActionModel", (string)null);
+                    b.ToTable("ActionModel");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ArticleCharacteristic", b =>
@@ -129,7 +132,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("TitleId");
 
-                    b.ToTable("ArticleCharacteristics", (string)null);
+                    b.ToTable("ArticleCharacteristics");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ArticleModel", b =>
@@ -201,7 +204,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("TopCategoryId");
 
-                    b.ToTable("Articles", (string)null);
+                    b.ToTable("Articles");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.BrandModel", b =>
@@ -226,7 +229,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.BreadcrumbsModel", b =>
@@ -255,7 +258,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("TitleId");
 
-                    b.ToTable("Breadcrumbs", (string)null);
+                    b.ToTable("Breadcrumbs");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CategoryModel", b =>
@@ -298,7 +301,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CharacteristicGroupModel", b =>
@@ -322,7 +325,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("groupTitleId");
 
-                    b.ToTable("CharacteristicGroups", (string)null);
+                    b.ToTable("CharacteristicGroups");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CharacteristicValueModel_del", b =>
@@ -353,7 +356,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("articleId");
 
-                    b.ToTable("CharacteristicValueModel_del", (string)null);
+                    b.ToTable("CharacteristicValueModel_del");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.AreaModel", b =>
@@ -391,7 +394,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("NameId");
 
-                    b.ToTable("Areas", (string)null);
+                    b.ToTable("Areas");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.BranchModel", b =>
@@ -446,7 +449,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("DescriptionId");
 
-                    b.ToTable("Branches", (string)null);
+                    b.ToTable("Branches");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.CityModel", b =>
@@ -493,7 +496,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("NameId");
 
-                    b.ToTable("Cities", (string)null);
+                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.DeliveryModel", b =>
@@ -515,7 +518,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("NameId");
 
-                    b.ToTable("Deliveries", (string)null);
+                    b.ToTable("Deliveries");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ImageModel", b =>
@@ -583,7 +586,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("smallId");
 
-                    b.ToTable("Images", (string)null);
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Language", b =>
@@ -597,7 +600,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Languages", (string)null);
+                    b.ToTable("Languages");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.OrderItemModel", b =>
@@ -623,7 +626,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.OrderModel", b =>
@@ -653,7 +656,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.PictureModel", b =>
@@ -675,7 +678,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Pictures", (string)null);
+                    b.ToTable("Pictures");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ReviewModel", b =>
@@ -752,7 +755,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.SellerModel", b =>
@@ -776,7 +779,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sellers", (string)null);
+                    b.ToTable("Sellers");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.TagModel", b =>
@@ -807,7 +810,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("TitleId");
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.TextContent", b =>
@@ -828,7 +831,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("OriginalLanguageId");
 
-                    b.ToTable("textContents", (string)null);
+                    b.ToTable("textContents");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Translation", b =>
@@ -854,7 +857,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("TextContentId");
 
-                    b.ToTable("translations", (string)null);
+                    b.ToTable("translations");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ValueModel", b =>
@@ -880,7 +883,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("TitleId");
 
-                    b.ToTable("CharacteristicValues", (string)null);
+                    b.ToTable("CharacteristicValues");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.VideoModel", b =>
@@ -916,7 +919,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("ArticleModelId");
 
-                    b.ToTable("Videos", (string)null);
+                    b.ToTable("Videos");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.VideoTypeModel", b =>
@@ -932,7 +935,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("VideoTypes", (string)null);
+                    b.ToTable("VideoTypes");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.WarningModel", b =>
@@ -955,7 +958,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasIndex("MessageId");
 
-                    b.ToTable("Warnings", (string)null);
+                    b.ToTable("Warnings");
                 });
 
             modelBuilder.Entity("Lessons3.Entity.Models.UserModel", b =>

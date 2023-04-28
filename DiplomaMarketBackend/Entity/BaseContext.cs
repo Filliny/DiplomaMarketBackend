@@ -22,8 +22,6 @@ namespace DiplomaMarketBackend.Entity
         public DbSet<ArticleCharacteristic> ArticleCharacteristics { get; set; }
         public DbSet<BrandModel> Brands { get; set; }
         public DbSet<BreadcrumbsModel> Breadcrumbs { get; set; }
-
-        ///public DbSet<CharacteristicValueModel> Values { get; set; }
         public DbSet<ValueModel> CharacteristicValues { get; set; }
         public DbSet<ImageModel> Images { get; set; }
         public DbSet<PictureModel> Pictures { get; set; }

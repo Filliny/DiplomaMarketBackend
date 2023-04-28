@@ -32,7 +32,6 @@ namespace DiplomaMarketBackend.Entity.Models
         public List<VideoModel> Video { get; set; }
         public List<ImageModel> Images { get; set; }
         public List<BreadcrumbsModel> Breadcrumbs { get; set; }
-        public List<CharacteristicValueModel> Values { get; set; }
         public List<ValueModel> CharacteristicValues { get; set; }
         public List<TagModel> Tags { get; set; }
         public List<ActionModel> Actions { get; set; }
@@ -47,7 +46,7 @@ namespace DiplomaMarketBackend.Entity.Models
 
         public ArticleModel()
         {
-            Values = new ();
+            CharacteristicValues = new ();
             Video = new List<VideoModel>();
             Images = new List<ImageModel>();
             Breadcrumbs = new List<BreadcrumbsModel>();

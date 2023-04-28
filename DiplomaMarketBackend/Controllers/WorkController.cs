@@ -16,7 +16,7 @@ namespace DiplomaMarketBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[ApiExplorerSettings(IgnoreApi=true)]
+    [ApiExplorerSettings(IgnoreApi=true)]
     public class WorkController : ControllerBase
     {
         ILogger<WorkController> _logger;

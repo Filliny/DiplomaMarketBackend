@@ -418,7 +418,7 @@ namespace DiplomaMarketBackend.Controllers
                         {
                             var list_values = new List<dynamic>();
 
-                            foreach (var val in charakterystyc_type.Key.Values)
+                            foreach (var val in charakterystyc_type)
                             {
                                 var to_list = new
                                 {

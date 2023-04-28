@@ -25,7 +25,7 @@
         public int? Order { get; set; }
         public string? Comparable { get; set; }
         public CharacteristicType Type { get; set;}
-        public List<CharacteristicValueModel> Values { get;}
+        public List<ValueModel> Values { get;}
 
         public int ? GroupId { get; set; }
         public CharacteristicGroupModel? Group { get; set; }

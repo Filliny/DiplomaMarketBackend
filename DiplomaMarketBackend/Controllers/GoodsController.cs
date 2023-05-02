@@ -789,7 +789,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <summary>
         /// Get articles by list of id (for example last of seen)
         /// </summary>
-        /// <param name="articlesIds">List of id</param>
+        /// <param name="articles_Ids">List of id</param>
         /// <param name="lang">language</param>
         /// <returns>Returns articles list</returns>
         /// <response code="400">If the request value is bad or list is empty</response>
@@ -846,6 +846,35 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
+        [HttpGet]
+        [Route("cart-item")]
+        public async Task<IActionResult> GetArticleForCart([FromQuery] int id, string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            if (id == 0) return BadRequest("Provide real id");
+
+            var article = await _context.Articles.Include(a => a.Title.Translations).
+                Include(a => a.Images).ThenInclude(i => i.preview).
+                AsNoTracking().FirstOrDefaultAsync(a=>a.Id == id);
+
+            if (article == null) return NotFound("No such article!");
+
+            var result = new
+            {
+                id = article.Id,
+                name = article.Title.Content(lang),
+                price = article.Price,
+                small_img = Request.GetImageURL(BucketNames.preview.ToString(), article.Images.First().preview.url)
+            };
+
+            return new JsonResult(new { data = result });
+
+
+
+
+
+        }
         private dynamic ArticleToDto(ArticleModel article, string lang)
         {
             dynamic dresponse = new ExpandoObject();

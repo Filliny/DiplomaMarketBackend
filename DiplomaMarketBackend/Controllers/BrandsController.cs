@@ -12,7 +12,7 @@ namespace DiplomaMarketBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BrandsController : Controller
+    public class BrandsController : ControllerBase
     {
         ILogger<WorkController> _logger;
         BaseContext _context;

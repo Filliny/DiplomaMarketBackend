@@ -118,5 +118,55 @@ namespace DiplomaMarketBackend.Helpers
             return textContent;
 
         }
+
+
+        public static TextContent? CreateFromDictionary(BaseContext _db, Dictionary <string,string> translations)
+        {
+            if (!translations.ContainsKey("UK")) throw new Exception("Dictionary for content creation lacks default locale 'UK' !");
+
+            var textContent = new TextContent()
+            {
+                OriginalLanguageId = "UK",
+              
+            };
+
+            foreach (var translation in translations)
+            {
+                if (!_db.Languages.Any(l => l.Id == translation.Key.ToUpper())) continue;
+
+                if(translation.Key.ToUpper() == "UK") textContent.OriginalText = translation.Value;
+
+                var new_translation = new Translation()
+                {
+                    LanguageId = translation.Key.ToUpper(),
+                    TranslationString = translation.Value,
+                };
+
+                _db.translations.Add(new_translation);
+                textContent.Translations.Add(new_translation);
+            }
+
+            _db.textContents.Add(textContent);
+
+            _db.SaveChanges();
+
+            return textContent;
+
+        }
+
+        public static void Delete(BaseContext _db, TextContent textContent)
+        {
+            if(textContent == null) return;
+            if(textContent.Translations.Count > 0) { 
+            
+                foreach(var translation in textContent.Translations)
+                {
+                    _db.translations.Remove(translation);
+                }
+            }
+
+            _db.textContents.Remove(textContent);
+            _db.SaveChanges();
+        }
     }
 }

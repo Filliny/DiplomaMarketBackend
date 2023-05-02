@@ -1,4 +1,6 @@
-﻿namespace DiplomaMarketBackend.Models
+﻿using Microsoft.AspNetCore.Components.Web;
+
+namespace DiplomaMarketBackend.Models
 {
     public class Category
     {
@@ -33,7 +35,10 @@
         /// </summary>
         public IFormFile? CategoryImage { get; set;}
 
-
+        /// <summary>
+        /// Does category active
+        /// </summary>
+        public bool? IsActive { get; set; }
 
     }
 }

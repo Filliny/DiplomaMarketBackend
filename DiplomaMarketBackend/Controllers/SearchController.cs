@@ -4,13 +4,12 @@ using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using OpenQA.Selenium.Internal;
 
 namespace DiplomaMarketBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SearchController : Controller
+    public class SearchController : ControllerBase
     {
         ILogger<WorkController> _logger;
         BaseContext _context;
@@ -33,40 +32,41 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="400">If the request values is bad</response>
         [HttpGet]
         [Route("main")]
-        public async Task<IActionResult> MainSearch([FromQuery] string search, string lang, string limit ) 
+        public async Task<IActionResult> MainSearch([FromQuery] string search, string lang, string limit)
         {
             lang = lang.NormalizeLang();
 
-            if(int.TryParse(limit,out int quantity)){
+            if (int.TryParse(limit, out int quantity))
+            {
 
                 var words = search.Split(' ');
 
                 var all_found = new List<ArticleModel>();
 
-                foreach(var word in words)
+                foreach (var word in words)
                 {
                     var found = await _context.Articles.Include(a => a.Title).ThenInclude(t => t.Translations).
-                   Where(c => c.Title.Translations.Any(t => t.TranslationString.ToLower().Contains(word.ToLower()) && t.LanguageId == lang)).ToListAsync();
+                   Where(c => c.Title.Translations.Any(t => t.TranslationString.ToLower().Contains(word.ToLower()) && t.LanguageId == lang)).AsNoTracking().ToListAsync();
 
                     all_found.AddRange(found);
                 }
 
-                var groupped = all_found.GroupBy(a=>a.Id).OrderByDescending(g => g.Count()).Take(quantity);
+                var groupped = all_found.GroupBy(a => a.Id).OrderByDescending(g => g.Count()).Take(quantity);
 
                 var result = new List<dynamic>();
 
-                foreach(var item in groupped) 
+                foreach (var item in groupped)
                 {
                     result.Add(new
                     {
-                        id= item.First().Id,
+                        id = item.First().Id,
                         title = item.First().Title.Content(lang),
 
                     });
                 }
 
-                return new JsonResult(new {data= result});
-                
+                return new JsonResult(new { data = result });
+
             }
 
             return BadRequest("Check parameters!");

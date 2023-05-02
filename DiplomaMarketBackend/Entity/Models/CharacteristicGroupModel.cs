@@ -4,6 +4,8 @@
     {
         public int Id { get; set; }
         public int group_order { get; set; }
+
+        public int? groupTitleId { get; set; }
         public TextContent? groupTitle { get; set; }
         public List<ArticleCharacteristic> options { get; set; }
 

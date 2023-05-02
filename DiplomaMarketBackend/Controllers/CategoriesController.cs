@@ -49,87 +49,164 @@ namespace DiplomaMarketBackend.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ResponseCache(VaryByQueryKeys = new[] { "lang" }, Duration = 3600)]
-        public IActionResult GetFullTree([FromQuery] string lang)
+        public async Task<IActionResult> GetFullTree([FromQuery] string lang)
         {
             lang = lang.NormalizeLang();
 
-            var top_categories = _context.Categories
-                 .Include(c => c.Name)
-                 .ThenInclude(n => n.Translations)
-                 .Where(c => c.ParentCategoryId == null)
-                 .ToList();
+            var start = DateTime.Now;
 
-            var result = new List<Models.OutCategory>();
+            var stop_categories = await _context.Categories.AsNoTracking().
+                Include(c=>c.Name.Translations).
+                Include(c => c.ChildCategories).ThenInclude(cl=>cl.Name.Translations).
+                Include(c=>c.ChildCategories).ThenInclude(child=>child.ChildCategories).
+                ThenInclude(lc=>lc.Name.Translations)
+                .Where(c => c.ParentCategoryId == null)
+                .ToListAsync();
 
-            string loge = "\n\n\nCategory tree\n\n\n";
-            var baseUrl = Request.Scheme + "://" + Request.Host + "/api/Goods/category/";
+            var new_result = new List<Models.OutCategory>();
 
-            foreach (var category in top_categories)
+            foreach (var category in stop_categories)
             {
-                var output_cat = new Models.OutCategory();
+                if (category.is_active == false) continue;
 
-                if (category.Name != null)
+                var get_childs = await _context.Categories.AsNoTracking().
+                    Include(c => c.Name.Translations).
+                    Include(c => c.ChildCategories).ThenInclude(c => c.Name.Translations).
+                    Where(c => c.ShowInCategoryId == category.Id).ToListAsync();
+
+                var out_cat = new Models.OutCategory()
                 {
-                    output_cat.Name = category.Name.Content(lang);
-                    output_cat.Id = category.Id;
-                    output_cat.SmallIcon = category.ImgData != null ? Convert.ToBase64String(category.ImgData) : null;
-                    output_cat.BigPicture = category.ImgUrl != "" ? baseUrl + category.ImgUrl + ".jpg" : null;
-                    loge += "\n" + category.Name.Content(lang);
-                }
+                    Name = category.Name.Content(lang),
+                    Id = category.Id,
+                    SmallIcon = category.ImgData != null ? Convert.ToBase64String(category.ImgData) : null,
+                    BigPicture = Request.GetImageURL(BucketNames.category.ToString(), category.ImgUrl)
 
-                var mid_childs = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ParentCategoryId == category.Id).ToList();
+                };
 
-                //categories adittionally showed in parent
-                var additions = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ShowInCategoryId == category.Id).ToList();
+                //adding show_in
+                category.ChildCategories.AddRange(get_childs);
 
-                mid_childs.AddRange(additions);
-
-
-                foreach (var child in mid_childs)
+                foreach(var mid_cat in category.ChildCategories)
                 {
-                    var output_mchild = new Models.OutCategory();
-                    if (child.Name != null)
+                    if (mid_cat.is_active == false) continue;
+
+                    var get_mchilds = await _context.Categories.AsNoTracking().
+                    Include(c => c.Name.Translations).
+                    Include(c => c.ChildCategories).ThenInclude(c => c.Name.Translations).
+                    Where(c => c.ShowInCategoryId == mid_cat.Id).ToListAsync();
+
+                    var omid_cat = new Models.OutCategory()
                     {
-                        output_mchild.Name = child.Name.Content(lang);
-                        output_mchild.Id = child.Id;
-                        output_mchild.SmallIcon = child.ImgData != null ? Convert.ToBase64String(child.ImgData) : null;
-                        output_mchild.BigPicture = child.ImgUrl != "" ? baseUrl + child.ImgUrl + ".jpg" : null;
-                        loge += "\n--" + child.Name.Content(lang);
-                    }
+                        Name = mid_cat.Name.Content(lang),
+                        Id = mid_cat.Id,
+                        SmallIcon = mid_cat.ImgData != null ? Convert.ToBase64String(mid_cat.ImgData) : null,
+                        BigPicture = Request.GetImageURL(BucketNames.category.ToString(), mid_cat.ImgUrl)
+                    };
 
-                    var low_childs = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ParentCategoryId == child.Id).ToList();
+                    mid_cat.ChildCategories.AddRange(get_childs);
 
-                    //categories adittionally showed in parent
-                    var additions_l = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ShowInCategoryId == child.Id).ToList();
-
-                    low_childs.AddRange(additions_l);
-
-                    foreach (var lowchild in low_childs)
+                    foreach(var low_cat in mid_cat.ChildCategories)
                     {
-                        var output_lchild = new Models.OutCategory();
-                        if (child.Name != null)
+                        if (low_cat.is_active == false) continue;
+
+                        var olow_cat = new Models.OutCategory()
                         {
-                            output_lchild.Name = lowchild.Name.Content(lang);
-                            output_lchild.Id = lowchild.Id;
-                            output_lchild.SmallIcon = lowchild.ImgData != null ? Convert.ToBase64String(lowchild.ImgData) : null;
-                            output_lchild.BigPicture = lowchild.ImgUrl != "" ? baseUrl + lowchild.ImgUrl + ".jpg" : null;
-                            loge += "\n----" + lowchild.Name.Content(lang);
-                        }
+                            Name = low_cat.Name.Content(lang),
+                            Id = low_cat.Id,
+                            SmallIcon = low_cat.ImgData != null ? Convert.ToBase64String(low_cat.ImgData) : null,
+                            BigPicture = Request.GetImageURL(BucketNames.category.ToString(), low_cat.ImgUrl)
+                        };
 
-                        output_mchild.Children.Add(output_lchild);
+                        omid_cat.Children.Add(olow_cat);
                     }
-
-                    output_cat.Children.Add(output_mchild);
+                    out_cat.Children.Add(omid_cat);
                 }
 
-                //_logger.LogInformation(loge);
-
-                result.Add(output_cat);
+                new_result.Add(out_cat);
             }
 
-            return new JsonResult(new { data = result });
-        }
 
+
+            //var top_categories = _context.Categories
+            //     .Include(c => c.Name)
+            //     .ThenInclude(n => n.Translations)
+            //     .Where(c => c.ParentCategoryId == null && c.is_active != false)
+            //     .ToList();
+
+            //var result = new List<Models.OutCategory>();
+
+            //string loge = "\n\n\nCategory tree\n\n\n";
+            //var baseUrl = Request.Scheme + "://" + Request.Host + "/api/Goods/category/";
+
+            //foreach (var category in top_categories)
+            //{
+            //    var output_cat = new Models.OutCategory();
+
+            //    if (category.Name != null)
+            //    {
+            //        output_cat.Name = category.Name.Content(lang);
+            //        output_cat.Id = category.Id;
+            //        output_cat.SmallIcon = category.ImgData != null ? Convert.ToBase64String(category.ImgData) : null;
+            //        output_cat.BigPicture = category.ImgUrl != "" ? baseUrl + category.ImgUrl + ".jpg" : null;
+            //        loge += "\n" + category.Name.Content(lang);
+            //    }
+
+            //    var mid_childs = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ParentCategoryId == category.Id && c.is_active != false).ToList();
+
+            //    //categories adittionally showed in parent
+            //    var additions = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ShowInCategoryId == category.Id && c.is_active != false).ToList();
+
+            //    mid_childs.AddRange(additions);
+
+
+            //    foreach (var child in mid_childs)
+            //    {
+            //        var output_mchild = new Models.OutCategory();
+            //        if (child.Name != null)
+            //        {
+            //            output_mchild.Name = child.Name.Content(lang);
+            //            output_mchild.Id = child.Id;
+            //            output_mchild.SmallIcon = child.ImgData != null ? Convert.ToBase64String(child.ImgData) : null;
+            //            output_mchild.BigPicture = child.ImgUrl != "" ? baseUrl + child.ImgUrl + ".jpg" : null;
+            //            loge += "\n--" + child.Name.Content(lang);
+            //        }
+
+            //        var low_childs = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ParentCategoryId == child.Id && c.is_active != false).ToList();
+
+            //        //categories adittionally showed in parent
+            //        var additions_l = _context.Categories.Include(c => c.Name).ThenInclude(n => n.Translations).Where(c => c.ShowInCategoryId == child.Id && c.is_active != false).ToList();
+
+            //        low_childs.AddRange(additions_l);
+
+            //        foreach (var lowchild in low_childs)
+            //        {
+            //            var output_lchild = new Models.OutCategory();
+            //            if (child.Name != null)
+            //            {
+            //                output_lchild.Name = lowchild.Name.Content(lang);
+            //                output_lchild.Id = lowchild.Id;
+            //                output_lchild.SmallIcon = lowchild.ImgData != null ? Convert.ToBase64String(lowchild.ImgData) : null;
+            //                output_lchild.BigPicture = lowchild.ImgUrl != "" ? baseUrl + lowchild.ImgUrl + ".jpg" : null;
+            //                loge += "\n----" + lowchild.Name.Content(lang);
+            //            }
+
+            //            output_mchild.Children.Add(output_lchild);
+            //        }
+
+            //        output_cat.Children.Add(output_mchild);
+            //    }
+
+            //    //_logger.LogInformation(loge);
+
+            //    result.Add(output_cat);
+            //}
+            var end = DateTime.Now;
+
+            _logger.LogInformation("Query time: "+(end - start).ToString());
+
+            return new JsonResult(new { data = new_result });
+
+        }
 
 
         /// <summary>
@@ -149,12 +226,12 @@ namespace DiplomaMarketBackend.Controllers
 
             if (int.TryParse(category_Id, out int id))
             {
-                var output_cat = await _context.Categories.
+                var output_cat = await _context.Categories.AsNoTracking().
                     Include(c => c.ChildCategories).ThenInclude(c => c.Name).ThenInclude(c => c.Translations).
                     Include(c => c.Name).ThenInclude(n => n.Translations).
                     Where(c => c.ParentCategoryId == id).ToListAsync();
 
-                var add_cat = await _context.Categories.
+                var add_cat = await _context.Categories.AsNoTracking().
                     Include(c => c.ChildCategories).ThenInclude(c => c.Name).ThenInclude(c => c.Translations).
                     Include(c => c.Name).ThenInclude(n => n.Translations).
                     Where(c => c.ShowInCategoryId == id).ToListAsync();
@@ -224,12 +301,19 @@ namespace DiplomaMarketBackend.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Get all categories list in plain format (for admin page)
+        /// </summary>
+        /// <param name="search">search string (can be null)</param>
+        /// <param name="lang">language</param>
+        /// <param name="limit">limit results on page</param>
+        /// <param name="page">page number</param>
+        /// <returns>List of all categories or filtered list</returns>
         [HttpGet]
         [Route("flat")]
         public async Task<IActionResult> GetFlatList([FromQuery] string? search, string lang, string limit, string page)
         {
             lang = lang.NormalizeLang();
-            //List<CategoryModel> categories;
 
             if (int.TryParse(limit, out int quantity) && int.TryParse(page, out int page_num))
             {
@@ -237,11 +321,11 @@ namespace DiplomaMarketBackend.Controllers
 
                 if (search != null)
                 {
-                    categories = _context.Categories.Include(c => c.Name.Translations).Where(c => c.Name.Translations.Any(t => t.TranslationString.ToLower().Contains(search.ToLower()) && t.LanguageId == lang)).ToList();
+                    categories = await _context.Categories.Include(c => c.Name.Translations).Where(c => c.Name.Translations.Any(t => t.TranslationString.ToLower().Contains(search.ToLower()) && t.LanguageId == lang)).ToListAsync();
                 }
                 else
                 {
-                    categories = _context.Categories.Include(c => c.Name.Translations).ToList();
+                    categories = await _context.Categories.Include(c => c.Name.Translations).ToListAsync();
                 }
 
                 var found = categories.Count();
@@ -285,6 +369,12 @@ namespace DiplomaMarketBackend.Controllers
         }
 
 
+        /// <summary>
+        /// Get one category data (for admin page)
+        /// </summary>
+        /// <param name="category_Id">Category id</param>
+        /// <param name="lang">language</param>
+        /// <returns>One category data</returns>
         [HttpGet]
         [Route("category")]
         public async Task<IActionResult> GetOneCategory([FromQuery] string category_Id, string lang)
@@ -308,8 +398,16 @@ namespace DiplomaMarketBackend.Controllers
                         id = category.ParentCategory.Id,
                         name = category.ParentCategory.Name.Content(lang),
                     },
+
+                    is_active = category.is_active,
+
+                    names = new Dictionary<string, string>(),
+
                     children = new List<dynamic>()
                 };
+
+                foreach(var name in category.Name.Translations)
+                     result.names.Add(name.LanguageId??"",name.TranslationString?? ""); 
 
                 foreach (var subcategory in category.ChildCategories)
                 {
@@ -378,7 +476,11 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
-
+        /// <summary>
+        /// Create new category
+        /// </summary>
+        /// <param name="category">Category data from form</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("create")]
         public async Task<IActionResult> CreateCategory([FromForm] Category category)
@@ -392,7 +494,7 @@ namespace DiplomaMarketBackend.Controllers
             if (category.ParentId == null && category.RootIconFile == null) return BadRequest("Icon file for root category not present!");
 
             var parent = await _context.Categories.FindAsync(category.ParentId);
-            if (parent == null) return BadRequest("Parent category is bad!");
+            //if (parent == null) return BadRequest("Parent category is bad!");
 
             TextContent? CategoryName = new TextContent();
 
@@ -433,7 +535,8 @@ namespace DiplomaMarketBackend.Controllers
                 Name = CategoryName,
                 ParentCategory = parent,
                 ImgData = category.RootIconFile == null ? null : category.RootIconFile.OpenReadStream().ToByteArray(),
-                ImgUrl = _fileService.SaveFileFromStream(BucketNames.category.ToString(), category.CategoryImage.FileName, category.CategoryImage.OpenReadStream()).Result,
+                ImgUrl = category.CategoryImage == null?null: _fileService.SaveFileFromStream(BucketNames.category.ToString(), category.CategoryImage.FileName, category.CategoryImage.OpenReadStream()).Result,
+                is_active = category.IsActive,
                 ShowInCategoryId = category.ShowInCategoryId
             };
 
@@ -442,5 +545,124 @@ namespace DiplomaMarketBackend.Controllers
 
             return Ok(category);
         }
+
+        /// <summary>
+        /// Update category
+        /// </summary>
+        /// <param name="category">Category data from form</param>
+        /// <returns>Inbound category</returns>
+        [HttpPut]
+        [Route("update")]
+        public async Task<IActionResult> UpdateCategory([FromForm] Category category)
+        {
+            var edit_category = _context.Categories.Include(c=>c.Name.Translations).FirstOrDefault(c=>c.Id == category.Id);
+
+            if (edit_category == null) return NotFound("Category id is wrong!");
+
+            if (category.ShowInCategoryId != null)
+            {
+                if (!_context.Categories.Any(c => c.Id == category.ShowInCategoryId)) return BadRequest("Wrong additional category!");
+            }
+
+            if (category.ParentId == null && category.RootIconFile == null) return BadRequest("Icon file for root category not present!");
+
+            var parent = await _context.Categories.FindAsync(category.ParentId);
+
+            var NameContent = edit_category.Name;
+
+            try
+            {
+                if (category.Names != null)
+                {
+                    Dictionary<string, string>? names = JsonConvert.DeserializeObject<Dictionary<string, string>>(category.Names);
+
+                    if (names != null)
+                    {
+                        if (names.ContainsKey("UK"))
+                        {
+
+                            if (!NameContent.OriginalText.Equals(names["UK"]))
+                            {
+  
+                                NameContent.OriginalText = names["UK"];
+
+                            }
+                        }
+
+                        foreach (var name in names)
+                        {
+                            TextContentHelper.UpdateTextContent(_context, name.Value, NameContent.Id, name.Key.ToUpper());
+                        }
+
+                    }
+                }
+
+                _context.textContents.Update(NameContent);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest("Categories names value is malformed! : " + e.Message);
+            }
+
+            edit_category.ParentCategory = parent;
+            edit_category.ShowInCategoryId = category.ShowInCategoryId;
+            edit_category.is_active = category.IsActive;
+            edit_category.ImgData = category.RootIconFile == null ? null : category.RootIconFile.OpenReadStream().ToByteArray();
+
+            if(category.CategoryImage != null && edit_category.ImgUrl != null)
+            {
+                _fileService.DeleteFile(BucketNames.category.ToString(), edit_category.ImgUrl);
+
+            }
+
+            edit_category.ImgUrl = category.CategoryImage == null ? null : _fileService.SaveFileFromStream(BucketNames.category.ToString(), category.CategoryImage.FileName, category.CategoryImage.OpenReadStream()).Result;
+
+            _context.Categories.Update(edit_category);
+            _context.SaveChanges();
+
+            return Ok(category);
+        }
+
+        /// <summary>
+        /// Delete category by id
+        /// </summary>
+        /// <param name="category_id"></param>
+        /// <returns>Nothing if delete success</returns>
+        /// <response code="500">If the request value is bad or category is not empty/have childs</response>
+        /// <response code="404">If the category is not found</response>
+        [HttpDelete]
+        [Route("delete")]
+        public async Task<IActionResult> DeleteCategory([FromQuery] string category_id)
+        {
+            if(int.TryParse(category_id, out var id))
+            {
+
+                var category = await _context.Categories.FindAsync(id);
+                if(category != null)
+                {
+                    if (_context.Categories.Any(c => c.ParentCategoryId == id) && _context.Articles.Any(a => a.CategoryId == id))
+                        return StatusCode(StatusCodes.Status500InternalServerError, 
+                            new
+                            {
+                                Status = "Error",
+                                Message = "Category is not empty or have child categories",
+                                child_count = _context.Categories.Count(a=>a.ParentCategoryId == id),
+                                articles_related = _context.Articles.Count(a=>a.CategoryId == id)
+                            });
+
+                    _context.Categories.Remove(category);
+                    _context.SaveChanges();
+
+                    return Ok();
+
+                }
+
+                return NotFound("No such category!");
+            }
+
+            return BadRequest("Check parameters!");
+        }
     }
+
 }

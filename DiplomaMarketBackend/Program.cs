@@ -17,6 +17,9 @@ using SendGrid.Helpers.Mail;
 using System.Reflection;
 using System.Text;
 using WebShopApp.Abstract;
+using AutoMapper;
+using DiplomaMarketBackend.Mappings;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DiplomaMarketBackend
 {
@@ -30,11 +33,15 @@ namespace DiplomaMarketBackend
                                 (options => builder.Configuration.GetSection("EmailSettings").Bind(options));
 
             string currConnectionString = "DMarketNpgsql";
-
+            var varb = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
             {
                 currConnectionString = "DMarketNpgsqlLocal";
+            }else if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing")
+            {
+                currConnectionString = "DMarketNpgsqlTesting";
             }
+
 
             var connectionString = builder.Configuration.GetConnectionString(currConnectionString) ?? throw new InvalidOperationException("Connection string  not found.");
 
@@ -81,6 +88,15 @@ namespace DiplomaMarketBackend
 
             builder.Services.AddResponseCaching();
 
+            builder.Services.AddAutoMapper(config =>
+            {
+                config.AddProfile(new AssemblyMappingProfile(Assembly.GetExecutingAssembly()));
+                //config.AddProfile(new AssemblyMappingProfile(typeof(INotesDbContext).Assembly));
+                
+            });
+
+            builder.Services.AddTransient(typeof(SetImgFullURL));
+
 
             //Allow CORS default policy
             builder.Services.AddCors(options =>
@@ -113,7 +129,7 @@ namespace DiplomaMarketBackend
 
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction()||app.Environment.EnvironmentName.Equals("Testing"))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
@@ -143,7 +159,11 @@ namespace DiplomaMarketBackend
 
             app.Run();
 
+
+
         }
+
+
 
         private static void JwtBearerHandler(JwtBearerOptions option)
         {
@@ -161,4 +181,6 @@ namespace DiplomaMarketBackend
             };
         }
     }
+
+
 }

@@ -83,9 +83,9 @@ namespace DiplomaMarketBackend.Entity.Seeder
 
         private static DeliveryModel CreateDelivery(BaseContext context, string name_uk, string name_ru)
         {
-            var content = TextContentHelper.CreateTextContent(context, name_uk, "UK");
-            context.SaveChanges();
-            TextContentHelper.UpdateTextContent(context, name_ru, content.Id, "RU");
+            var content = TextContentHelper.CreateFull(context, name_uk, name_ru);
+            //context.SaveChanges();
+            //TextContentHelper.UpdateTextContent(context, name_ru, content.Id, "RU");
 
             var delivery = new DeliveryModel()
             {

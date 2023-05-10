@@ -16,7 +16,7 @@
         public string lng { get; set; }
         public string num { get; set; }
         public int num_showcase { get; set; }
-        public int parcel_max_kg { get; set; }
+        public float parcel_max_kg { get; set; }
         public string type_id { get; set; }
         public TypePublic type_public { get; set; }
     }

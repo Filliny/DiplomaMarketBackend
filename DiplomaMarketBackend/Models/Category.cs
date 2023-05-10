@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Web;
+using Newtonsoft.Json;
 
 namespace DiplomaMarketBackend.Models
 {
@@ -7,38 +8,54 @@ namespace DiplomaMarketBackend.Models
         /// <summary>
         /// Category id (can be null)
         /// </summary>
-        public int? Id { get; set; }
+        public int? id { get; set; }
 
         /// <summary>
         /// Category names as serialized dictionary {"LanguageId":"CategoryNameLocalization"} (required)
         /// E.g. {'UK':'Газонокосарки'}
         /// </summary>
-        public string Names { get; set; } = string.Empty;
+        public string names { get; set; } = string.Empty;
 
         /// <summary>
         /// Parent category id (can be null)
         /// </summary>
-        public int? ParentId { get; set; }
+        public int? parent_id { get; set; }
 
         /// <summary>
         /// Show in additional category id
         /// </summary>
-        public int? ShowInCategoryId { get; set; }
+        public int? showin_category_id { get; set; }
 
         /// <summary>
-        /// Icon file for root category (null /required if parent Id null)
+        /// Icon file for root category (FormFile - null /required if parent Id null)
         /// </summary>
-        public IFormFile? RootIconFile { get; set; }
+        [JsonIgnore]
+        public IFormFile? root_icon { get; set; }
 
         /// <summary>
-        /// Category image to show in subcategories
+        /// Icon url for root category (null /required if parent Id null)
         /// </summary>
-        public IFormFile? CategoryImage { get; set;}
+        public string? existing_icon { get; set; }
+
+        /// <summary>
+        /// Category image to show in subcategories (FormFile)
+        /// </summary>
+        [JsonIgnore]
+        public IFormFile? category_image { get; set;}
+
+        /// <summary>
+        /// Category image url to show in subcategories
+        /// </summary>
+        public string? existing_image { get; set; }
 
         /// <summary>
         /// Does category active
         /// </summary>
-        public bool? IsActive { get; set; }
+        public bool? is_active { get; set; }
 
+        /// <summary>
+        /// Cildren categories for reference - can be null for create\update
+        /// </summary>
+        public List<dynamic>? children { get; set; }
     }
 }

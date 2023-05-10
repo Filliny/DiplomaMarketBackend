@@ -9,6 +9,12 @@
         List
     }
 
+    public enum FilterType
+    {
+        checkbox,
+        slider
+    }
+
     public class ArticleCharacteristic
     {
         public int Id { get; set; }
@@ -29,7 +35,8 @@
 
         public int ? GroupId { get; set; }
         public CharacteristicGroupModel? Group { get; set; }
-
+        public FilterType filterType { get; set; }
+        public bool show_in_filter { get; set; } = true;
         public int roz_har_id { get; set; }
 
         public ArticleCharacteristic()

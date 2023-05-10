@@ -2,6 +2,7 @@
 using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
+using DiplomaMarketBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Dynamic;
@@ -13,14 +14,12 @@ namespace DiplomaMarketBackend.Controllers
     public class GoodsController : Controller
     {
         ILogger<WorkController> _logger;
-        ICloudStorageService _storageService;
         BaseContext _context;
         IFileService _fileService;
 
-        public GoodsController(ILogger<WorkController> logger, ICloudStorageService cloudStorageService, BaseContext context, IFileService fileService)
+        public GoodsController(ILogger<WorkController> logger, BaseContext context, IFileService fileService)
         {
             _logger = logger;
-            _storageService = cloudStorageService;
             _context = context;
             _fileService = fileService;
         }
@@ -91,83 +90,194 @@ namespace DiplomaMarketBackend.Controllers
         [HttpGet]
         [Route("category-articles")]
         [ResponseCache(VaryByQueryKeys = new[] { "category_Id", "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
-        public async Task<IActionResult> GetCategoryArticlesPages([FromQuery] string category_Id, string goods_on_page, string page, string lang)
+        public async Task<IActionResult> GetCategoryArticlesPages([FromQuery] int category_Id, int goods_on_page, int page, string lang)
         {
             lang = lang.NormalizeLang();
 
-            int cat_id;
-            if (!int.TryParse(category_Id, out cat_id)) return BadRequest("No such category!");
-
-            var category = await _context.Categories.Include(c => c.ChildCategories).ThenInclude(c => c.ChildCategories).FirstOrDefaultAsync(c => c.Id == cat_id);
+            var category = await _context.Categories.Include(c => c.ChildCategories).ThenInclude(c => c.ChildCategories).FirstOrDefaultAsync(c => c.Id == category_Id);
 
             if (category == null)
             {
                 return NotFound("No such category");
             }
 
-            //var all_cat_list = category.ChildCategories.SelectMany(x => x.ChildCategories).Concat(category.ChildCategories.SelectMany(x => x.ChildCategories).SelectMany(x => x.ChildCategories)).ToList();
-            //all_cat_list.Add(category);
-
             var flat = category.ChildCategories.Flatten(c => c.ChildCategories).ToList();
             flat.Add(category);
-            flat.AddRange(_context.Categories.Where(c => c.ShowInCategoryId == cat_id).ToList());
+            flat.AddRange(_context.Categories.Where(c => c.ShowInCategoryId == category_Id).ToList());
 
 
-            if (string.IsNullOrEmpty(page)) page = "1";
+            if (page == 0) page = 1;
 
             var articles = new List<dynamic>();
 
-            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
+
+            var action_goods = await _context.Articles.
+            //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+            Include(a => a.Title).ThenInclude(t => t.Translations).
+            //Include(a => a.Description).ThenInclude(t => t.Translations).
+            // Include(a => a.Docket).ThenInclude(t => t.Translations).
+            Include(a => a.Category).
+            //Include(a => a.Brand).
+            //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+            //Include(a => a.Video).
+            //Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+            Where(a => flat.Contains(a.Category)).ToListAsync();
+
+
+            int total_goods = action_goods.Count;
+            int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
+
+            if (page == 0) page = 1;
+            if (page > total_pages) page = total_pages;
+
+            int skip = (page - 1) * goods_on_page;
+
+            action_goods = action_goods.Skip(skip).Take(goods_on_page).ToList();
+
+            foreach (var article in action_goods)
             {
 
-                var action_goods = await _context.Articles.
-                    //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
-                    Include(a => a.Title).ThenInclude(t => t.Translations).
-                    //Include(a => a.Description).ThenInclude(t => t.Translations).
-                    // Include(a => a.Docket).ThenInclude(t => t.Translations).
-                    Include(a => a.Category).
-                    //Include(a => a.Brand).
-                    //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                    //Include(a => a.Video).
-                    //Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
-                    Where(a => flat.Contains(a.Category)).ToListAsync();
+                articles.Add(ArticleToDtoLight(article, lang));
 
+            }
 
-                int total_goods = action_goods.Count;
-                int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
-
-                if (page_num == 0) page_num = 1;
-                if (page_num > total_pages) page_num = total_pages;
-
-                int skip = (page_num - 1) * quantity;
-
-                action_goods = action_goods.Skip(skip).Take(quantity).ToList();
-
-                foreach (var article in action_goods)
+            var result = new
+            {
+                data = new
                 {
+                    articles,
+                    total_goods,
+                    total_pages,
+                    displayed_page = page
+                }
+            };
 
-                    articles.Add(ArticleToDtoLight(article, lang));
+            return new JsonResult(result);
 
+        }
+
+
+        /// <summary>
+        /// Get articles for sub-categories with single-page pagination
+        /// </summary>
+        /// <param name="category_Id">Categpry id</param>
+        /// <param name="goods_on_page">goods count to display</param>
+        /// <param name="page">page to display starts from 1</param>
+        /// <param name="lang">language</param>
+        /// <param name="values">List of filter values for filtering</param>
+        /// <returns>List of articles taken in any action sell</returns>
+        /// <response code="400">If the request value is bad</response>
+        [HttpPost]
+        [Route("category-articles")]
+        [ResponseCache(VaryByQueryKeys = new[] { "category_Id", "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
+        public async Task<IActionResult> GetCategoryArticlesPages([FromQuery] int category_Id, int goods_on_page, int page, string lang,
+            [FromBody] Filter? filter)
+        {
+
+
+            lang = lang.NormalizeLang();
+
+
+            var category = await _context.Categories.Include(c => c.ChildCategories).ThenInclude(c => c.ChildCategories).FirstOrDefaultAsync(c => c.Id == category_Id);
+
+            if (category == null)
+            {
+                return NotFound("No such category");
+            }
+
+            //to include shown in category
+            var flat = category.ChildCategories.Flatten(c => c.ChildCategories).ToList();
+            flat.Add(category);
+            flat.AddRange(_context.Categories.Where(c => c.ShowInCategoryId == category_Id).ToList());
+
+
+            if (page == 0) page = 0;
+
+            var articles = new List<dynamic>();
+
+            var action_goods = await _context.Articles.
+                //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+                Include(a => a.Title).ThenInclude(t => t.Translations).
+                //Include(a => a.Description).ThenInclude(t => t.Translations).
+                // Include(a => a.Docket).ThenInclude(t => t.Translations).
+                Include(a => a.Category).
+                //Include(a => a.Brand).
+                //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                //Include(a => a.Video).
+                //Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                Include(a => a.CharacteristicValues).
+                Where(a => flat.Contains(a.Category)).ToListAsync();
+
+
+            //filter section
+            if (filter != null )
+            {
+                
+                //parsing filter diapason list to real values ids
+                if (filter.slider_values != null && filter.slider_values.Count() > 0)
+                {
+                    var add_search_ids = new List<int>();
+
+                    foreach (var value in filter.slider_values)
+                    {
+                        var select_list = _context.CharacteristicValues.Include(v => v.Title).
+                            Where(v => v.CharacteristicTypeId == value.characteristic_id).ToList();
+
+                        foreach (var select in select_list)
+                        {
+                            if (int.TryParse(select.Title.OriginalText,out int val)){
+
+                                if (val >= value.lower_value && val <= value.upper_value) add_search_ids.Add(select.Id);
+                            }
+                        }
+                    }
+
+                    filter.values_id.AddRange(add_search_ids);
                 }
 
-                var result = new
-                {
-                    data = new
-                    {
-                        articles,
-                        total_goods,
-                        total_pages,
-                        displayed_page = page_num
-                    }
-                };
 
-                return new JsonResult(result);
+                if (filter.values_id.Count() > 0)
+                action_goods = action_goods.Where(a => a.CharacteristicValues.Any(v => filter.values_id.Contains(v.Id))).ToList();
+
+                if(filter.price_low != 0)
+                action_goods = action_goods.Where(a=>a.Price >= filter.price_low).ToList();
+
+                if(filter.price_high != 0)
+                action_goods = action_goods.Where(a => a.Price <= filter.price_high).ToList();
+
+
             }
-            else
+
+
+            int total_goods = action_goods.Count;
+            int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
+
+            if (page == 0) page = 1;
+            if (page > total_pages) page = total_pages;
+
+            int skip = (page - 1) * goods_on_page;
+
+            action_goods = action_goods.Skip(skip).Take(goods_on_page).ToList();
+
+            foreach (var article in action_goods)
             {
-                return BadRequest("Check  parameters!");
+
+                articles.Add(ArticleToDtoLight(article, lang));
+
             }
 
+            var result = new
+            {
+                data = new
+                {
+                    articles,
+                    total_goods,
+                    total_pages,
+                    displayed_page = page
+                }
+            };
+
+            return new JsonResult(result);
 
         }
 
@@ -332,7 +442,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="400">If the request value is bad</response>
         [HttpGet]
         [Route("get-characteristic")]
-        [ResponseCache(VaryByQueryKeys = new[] { "lang","goodsId" }, Duration = 3600)]
+        [ResponseCache(VaryByQueryKeys = new[] { "lang", "goodsId" }, Duration = 3600)]
         public async Task<IActionResult> GetArticleCharacteristics([FromQuery] string lang, string goodsId)
         {
             lang = lang.NormalizeLang();
@@ -343,11 +453,11 @@ namespace DiplomaMarketBackend.Controllers
             if (int.TryParse(goodsId, out int art_id))
             {
                 var article = _context.Articles.
-                    Include(a => a.CharacteristicValues).ThenInclude(v=>v.Title.Translations).
+                    Include(a => a.CharacteristicValues).ThenInclude(v => v.Title.Translations).
                     Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType.Group.groupTitle.Translations).
                     Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType.Name.Translations).
                     Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType.Title.Translations).
-                    FirstOrDefault(a=>a.Id == art_id);
+                    FirstOrDefault(a => a.Id == art_id);
 
                 if (article == null) return NotFound("No such article!");
 
@@ -486,15 +596,15 @@ namespace DiplomaMarketBackend.Controllers
             {
 
                 var action_goods = await _context.Articles.
-                    Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
-                    Include(a => a.Title).ThenInclude(t => t.Translations).
+
+                    Include(a => a.Title.Translations).
                     Include(a => a.Description).ThenInclude(t => t.Translations).
-                    Include(a => a.Docket).ThenInclude(t => t.Translations).
-                    Include(a => a.Brand).
-                    Include(a => a.Seller).
-                    Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                    Include(a => a.Video).
-                    Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                    //Include(a => a.Docket).ThenInclude(t => t.Translations).
+                    Include(a => a.Category).
+                    //Include(a => a.Seller).
+                    //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    //Include(a => a.Video).
+                    Include(a => a.Actions).ThenInclude(a => a.Name.Translations).
                     Where(a => a.Actions.Count > 0).ToListAsync();
 
 
@@ -511,7 +621,7 @@ namespace DiplomaMarketBackend.Controllers
                 foreach (var article in action_goods)
                 {
 
-                    articles.Add(ArticleToDto(article, lang));
+                    articles.Add(ArticleToDtoLight(article, lang));
 
                 }
 
@@ -856,7 +966,7 @@ namespace DiplomaMarketBackend.Controllers
 
             var article = await _context.Articles.Include(a => a.Title.Translations).
                 Include(a => a.Images).ThenInclude(i => i.preview).
-                AsNoTracking().FirstOrDefaultAsync(a=>a.Id == id);
+                AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
 
             if (article == null) return NotFound("No such article!");
 
@@ -875,6 +985,7 @@ namespace DiplomaMarketBackend.Controllers
 
 
         }
+
         private dynamic ArticleToDto(ArticleModel article, string lang)
         {
             dynamic dresponse = new ExpandoObject();
@@ -1018,22 +1129,6 @@ namespace DiplomaMarketBackend.Controllers
             } while (curr_id != null);
 
 
-
-            //old existing breadcrumbs 
-            //foreach (var item in article.Breadcrumbs)
-            //{
-            //    var piece = new
-            //    {
-            //        id = item.Id,
-            //        title = item.Title.Content(lang),
-            //        href = "todo"
-            //    };
-
-            //    out_breadcrumbs.Add(piece);
-            //}
-
-            //warnings collect
-
             var out_warnings = new List<dynamic>();
 
             foreach (var item in article.Warning)
@@ -1154,160 +1249,20 @@ namespace DiplomaMarketBackend.Controllers
             };
 
 
-            //foreach (var image in art_images)
-            //{
-            //    dynamic out_image_entity = new ExpandoObject();
-            //    ((IDictionary<string, object>)out_image_entity).Add("id", image.Id);
+            //actions collect
+            var actions = new List<dynamic>();
+            if (article.Actions.Count > 0)
+            {
+                foreach (var action in article.Actions)
+                {
+                    var act = new
+                    {
+                        Name = action.Name.Content(lang),
 
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.original),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.original) + "/" + image.original.url + ".jpg",
-            //         width = image.original.width,
-            //         height = image.original.height,
-            //     });
-
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.base_action),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.base_action) + "/" + image.base_action.url + ".jpg",
-            //         width = image.base_action.width,
-            //         height = image.base_action.height,
-            //     });
-
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.preview),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.preview) + "/" + image.preview.url + ".jpg",
-            //         width = image.preview.width,
-            //         height = image.preview.height,
-            //     });
-
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.small),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.small) + "/" + image.small.url + ".jpg",
-            //         width = image.small.width,
-            //         height = image.small.height,
-            //     });
-
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.medium),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.medium) + "/" + image.medium.url + ".jpg",
-            //         width = image.medium.width,
-            //         height = image.medium.height,
-            //     });
-
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.large),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.large) + "/" + image.large.url + ".jpg",
-            //         width = image.large.width,
-            //         height = image.large.height,
-            //     });
-
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.big_tile),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.big_tile) + "/" + image.big_tile.url + ".jpg",
-            //         width = image.big_tile.width,
-            //         height = image.big_tile.height,
-            //     });
-
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.big),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.big) + "/" + image.big.url + ".jpg",
-            //         width = image.big.width,
-            //         height = image.big.height,
-            //     });
-
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.mobile_large),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.mobile_large) + "/" + image.mobile_large.url + ".jpg",
-            //         width = image.mobile_large.width,
-            //         height = image.mobile_large.height,
-            //     });
-
-            //    ((IDictionary<string, object>)out_image_entity).Add(nameof(image.mobile_medium),
-            //     new
-            //     {
-            //         url = baseUrl + nameof(image.mobile_medium) + "/" + image.mobile_medium.url + ".jpg",
-            //         width = image.mobile_medium.width,
-            //         height = image.mobile_medium.height,
-            //     });
-
-            //    out_images.Add(out_image_entity);
-            //}
-
-            ////breadcrumbs collect
-            //var out_breadcrumbs = new List<dynamic>();
-
-            //foreach (var item in article.Breadcrumbs)
-            //{
-            //    var piece = new
-            //    {
-            //        id = item.Id,
-            //        title = item.Title.Content(lang),
-            //        href = "todo"
-            //    };
-
-            //    out_breadcrumbs.Add(piece);
-            //}
-
-            ////warnings collect
-
-            //var out_warnings = new List<dynamic>();
-
-            //foreach (var item in article.Warning)
-            //{
-            //    var piece = new
-            //    {
-            //        title = item.Message.Translations.First(t => t.LanguageId == lang).TranslationString ?? item.Message.OriginalText ?? "",
-            //    };
-
-            //    out_warnings.Add(piece);
-            //}
-
-            //videos collect
-
-            //var out_videos = new List<dynamic>();
-
-            //foreach (var item in article.Video)
-            //{
-            //    var piece = new
-            //    {
-            //        name = item.Title,
-            //        id = item.Id,
-            //        type = item.Type,
-            //        ext_video_id = item.ExternalId,
-            //        title = item.Title,
-            //        url = item.URL,
-            //        preview_url = item.PreviewURL,
-            //        order = item.Order
-            //    };
-
-            //    out_videos.Add(piece);
-            //}
-
-
-
-            ////actions collect
-            //var actions = new List<dynamic>();
-            //if (article.Actions.Count > 0)
-            //{
-            //    foreach (var action in article.Actions)
-            //    {
-            //        var act = new
-            //        {
-            //            Name = action.Name.Content(lang),
-
-            //        };
-            //        actions.Add(act);
-            //    }
-            //}
+                    };
+                    actions.Add(act);
+                }
+            }
 
 
             response.Add("id", article.Id);
@@ -1318,6 +1273,7 @@ namespace DiplomaMarketBackend.Controllers
             response.Add("category_id", article.CategoryId);
             //response.Add("images", out_images);
             response.Add("preview_img", preview_img);
+            response.Add("actions", actions);
 
             return response;
         }

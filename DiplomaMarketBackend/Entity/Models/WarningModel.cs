@@ -3,8 +3,6 @@
     public class WarningModel
     {
         public int Id { get; set; }
-
-
-        public TextContent? Message { get; set; } 
+        public TextContent Message { get; set; } = new TextContent();
     }
 }

@@ -21,6 +21,10 @@ namespace DiplomaMarketBackend.Services
                 {
                     currConnectionString = "FileServerMongoLocal";
                 }
+                else if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing")
+                {
+                    currConnectionString = "FileServerMongoTesting";
+                }
 
                 var _mogoConnection = configuration.GetConnectionString(currConnectionString);
                 var _mongoDatabase = configuration.GetValue<String>("FileServerDbName");
@@ -125,5 +129,8 @@ namespace DiplomaMarketBackend.Services
             return new GridFSBucket(_database);
 
         }
+         
+
+       
     }
 }

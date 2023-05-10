@@ -11,12 +11,13 @@ using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace DiplomaMarketBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi=true)]
+    //[ApiExplorerSettings(IgnoreApi = true)]
     public class WorkController : ControllerBase
     {
         ILogger<WorkController> _logger;
@@ -788,7 +789,7 @@ namespace DiplomaMarketBackend.Controllers
 
                                                         TextContentHelper.UpdateTextContent(_context, harakt.title, exst_charakt?.TitleId, lang);
 
-                                                        var exist_values_oftype = new_article.CharacteristicValues.Where(v => v.CharacteristicTypeId == exst_charakt.Id ).ToList();
+                                                        var exist_values_oftype = new_article.CharacteristicValues.Where(v => v.CharacteristicTypeId == exst_charakt.Id).ToList();
                                                         int i = 0;
 
                                                         if (exist_values_oftype.Count == harakt.values.Count)
@@ -951,44 +952,44 @@ namespace DiplomaMarketBackend.Controllers
         //}
 
 
-        //[HttpGet]
-        //[Route("uploadIcons")]
-        //public async Task<IActionResult> uploadIcons(string pass)
-        //{
-        //    if (pass != "pass123") return Ok("pass is wrong");
+        [HttpGet]
+        [Route("uploadIcons")]
+        public async Task<IActionResult> uploadIcons(string pass)
+        {
+            if (pass != "pass123") return Ok("pass is wrong");
 
-        //    var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons");
 
-        //    foreach (string file in Directory.GetFiles(path))
-        //    {
-        //        var category =  file.Substring(file.LastIndexOf("\\")+1).Split('.')[0];
+            foreach (string file in Directory.GetFiles(path))
+            {
+                var category = file.Substring(file.LastIndexOf("\\") + 1).Split('.')[0];
 
-        //        var content = _context.translations.FirstOrDefault(t=>t.TranslationString == category);
+                var content = _context.translations.FirstOrDefault(t => t.TranslationString == category);
 
-        //        if(content == null)
-        //        {
-        //            _logger.LogWarning("Category not found " + category);
-        //            continue;
-        //        }
+                if (content == null)
+                {
+                    _logger.LogWarning("Category not found " + category);
+                    continue;
+                }
 
-        //        var cat = _context.Categories.FirstOrDefault(c => c.NameId == content.TextContentId);
+                var cat = _context.Categories.FirstOrDefault(c => c.NameId == content.TextContentId);
 
-        //        if(cat != null)
-        //        {
-        //            cat.ImgData = System.IO.File.ReadAllBytes(file);
-
-
-        //            _logger.LogInformation("Category " + category + " added");
-        //        }
+                if (cat != null)
+                {
+                    cat.ImgData = System.IO.File.ReadAllBytes(file);
 
 
-        //    }
+                    _logger.LogInformation("Category " + category + " added");
+                }
 
-        //    _context.SaveChanges();
 
-        //        return Ok();
+            }
 
-        //}
+            _context.SaveChanges();
+
+            return Ok();
+
+        }
 
 
         [HttpGet]
@@ -1154,6 +1155,8 @@ namespace DiplomaMarketBackend.Controllers
 
 
             }
+
+
 
 
             //((IJavaScriptExecutor)_driver).ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
@@ -1940,7 +1943,97 @@ namespace DiplomaMarketBackend.Controllers
         }
 
 
+        [HttpPost]
+        [Route("resize")]
+        public async Task<IActionResult> ResizeImage(IFormFile file)
+        {
 
-      
+            var transl = new Translation()
+            {
+                LanguageId = "UK",
+                TranslationString = "Example_test"
+            };
+
+            var text = new TextContent()
+            {
+                OriginalText = "OriginalText",
+                OriginalLanguageId = "UK"
+
+            };
+
+            text.Translations.Add(transl);
+
+            _context.textContents.Add(text);
+            _context.SaveChanges();
+
+            using var image = SixLabors.ImageSharp.Image.Load(file.OpenReadStream());
+
+            image.Mutate(x => x.Resize(104, 0));
+
+            using var stream = new MemoryStream();
+
+            await image.SaveAsync(stream, new JpegEncoder());
+
+            //image.SaveAsJpeg("test.jpg");
+            stream.Position = 0;
+
+            var link = _fileService.SaveFileFromStream("test", file.FileName, stream).Result;
+
+
+            return Ok(Request.GetImageURL("test", link));
+        }
+
+
+        [HttpGet]
+        [Route("process-discrete")]
+        public async Task<IActionResult> getDiscrete()
+        {
+            var result = new List<dynamic>();
+
+            var categoryes = _context.Categories.Include(c=>c.Name).ToList();
+
+            foreach(var category in categoryes)
+            {
+                var cat = new
+                {
+                    name = category.Name,
+                    chars = new List<dynamic>()
+                };
+                result.Add(cat);
+
+
+                var charakteristics = await _context.ArticleCharacteristics.
+                    Include(c => c.Title).
+                    Include(c=>c.Values).ThenInclude(v=>v.Title.Translations).
+                    Where(c => c.CategoryId == category.Id).ToListAsync();
+
+                foreach(var charakter in charakteristics)
+                {
+
+                    if (charakter.Values.Any(c => !int.TryParse(c.Title.OriginalText, out int _))) continue;
+
+                    _logger.LogInformation(charakter.Title.OriginalText);
+                    var har = new
+                    {
+                        id = charakter.Id,
+                        har_name = charakter.Title.OriginalText,
+                        har_values = new List<dynamic>()
+                    };
+
+                    cat.chars.Add(har);
+
+                    foreach(var value in charakter.Values)
+                    {
+                        _logger.LogInformation("......."+value.Title.OriginalText);
+
+                        har.har_values.Add(value.Title.OriginalText);
+                    }
+                }
+
+            }
+
+            return new JsonResult(result);
+        }
+
     }
 }

@@ -32,20 +32,20 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns>List of characteristics</returns>
         [HttpGet]
         [Route("category-characteristics")]
-        public async Task<IActionResult> GetCategoryCharacteristics([FromQuery] int category_id,string? search, string lang)
+        public async Task<IActionResult> GetCategoryCharacteristics([FromQuery] int category_id, string? search, string lang)
         {
             lang = lang.NormalizeLang();
 
-            var charakteristics = await _context.ArticleCharacteristics.Include(c=>c.Title.Translations).Where(c=>c.CategoryId ==  category_id).ToListAsync();
+            var charakteristics = await _context.ArticleCharacteristics.Include(c => c.Title.Translations).Where(c => c.CategoryId == category_id).ToListAsync();
 
-            if(search  != null)
+            if (search != null)
             {
-                charakteristics = charakteristics.Where(c=>c.Title.Translations.Any(t=>t.TranslationString.ToUpper().Contains(search.ToUpper()) && t.LanguageId == lang)).ToList();
+                charakteristics = charakteristics.Where(c => c.Title.Translations.Any(t => t.TranslationString.ToUpper().Contains(search.ToUpper()) && t.LanguageId == lang)).ToList();
             }
 
             var result = new List<dynamic>();
 
-            foreach(var charakter in charakteristics)
+            foreach (var charakter in charakteristics)
             {
                 result.Add(new
                 {
@@ -54,8 +54,71 @@ namespace DiplomaMarketBackend.Controllers
 
                 });
             }
-       
-            return new JsonResult(new {data =  result});
+
+            return new JsonResult(new { data = result });
+
+        }
+
+
+        /// <summary>
+        /// Get category-related characteristics with values for filter display
+        /// </summary>
+        /// <param name="category_id">Category id</param>
+        /// <param name="lang">language</param>
+        /// <returns>List of characteristics</returns>
+        [HttpGet]
+        [Route("category-chars-values")]
+        public async Task<IActionResult> GetCategoryCharacteristics([FromQuery] int category_id, string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            var charakteristics = await _context.ArticleCharacteristics.
+                Include(c => c.Title.Translations).
+                Include(c => c.Values).ThenInclude(v => v.Title.Translations).
+                Where(c => c.CategoryId == category_id).Take(20).ToListAsync();
+
+            var result = new List<dynamic>();
+
+            foreach (var charakter in charakteristics)
+            {
+                int min = charakter.filterType == FilterType.slider ? int.MaxValue : 0;
+                int max = 0;
+                var values = new List<dynamic>();
+
+
+                foreach (var value in charakter.Values)
+                {
+                    if (charakter.filterType == FilterType.slider)
+                    {
+                        if (int.TryParse(value.Title.OriginalText, out int val))
+                        {
+                            if (val < min) min = val;
+                            if (val > max) max = val;
+                        }
+                    }
+
+                    values.Add(new
+                    {
+                        id = value.Id,
+                        name = value.Title.Content(lang)
+                    });
+                }
+
+                var charakt = new
+                {
+                    id = charakter.Id,
+                    name = charakter.Title.Content(lang),
+                    filter_type = charakter.filterType.ToString(),
+                    lower_value = min,
+                    upper_value = max,
+                    values
+
+                };
+
+                result.Add(charakt);
+            }
+
+            return new JsonResult(new { data = result });
 
         }
 
@@ -133,6 +196,50 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
+
+
+        /// <summary>
+        /// Get only values list by characteristic id 
+        /// </summary>
+        /// <param name="id">characteristic id</param>
+        /// <param name="lang">language</param>
+        /// <returns>One characteristic with values by id for editing</returns>
+        /// <response code="404">If the characteristic is not found</response>
+        [HttpGet]
+        [Route("characteristic-values")]
+        public async Task<ActionResult<Characteristic>> GetValues([FromQuery] int id, string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            var characteristic = await _context.CharacteristicValues.
+                Include(v => v.Title.Translations).
+                Where(v => v.CharacteristicTypeId == id).ToListAsync();
+
+            if (characteristic == null) return StatusCode(StatusCodes.Status404NotFound, new Result()
+            {
+                Status = "Error",
+                Message = "No such characteristic"
+            });
+
+            var result = new List<dynamic>();
+
+            if (characteristic != null && characteristic.Count != 0)
+            {
+                foreach (var value in characteristic)
+                {
+                    result.Add(new
+                    {
+                        id = value.Id,
+                        value = value.Title.Content(lang)
+                    });
+                }
+
+                return new JsonResult(new { data = result });
+            }
+
+            return NotFound("No such characteristic!");
+        }
+
         /// <summary>
         /// Creates new characteristic from json body entity
         /// </summary>
@@ -157,7 +264,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 if (!characteristic.Names.ContainsKey("UK")) return StatusCode(StatusCodes.Status400BadRequest, new Result()
                 {
-                    Status="Error",
+                    Status = "Error",
                     Message = "Name lacks default translation string locale UK",
                     Entity = characteristic,
 
@@ -193,7 +300,7 @@ namespace DiplomaMarketBackend.Controllers
                             group_order = characteristic.group.show_order
                         };
 
-                        _context.CharacteristicGroups.Add(new_group);
+                        //_context.CharacteristicGroups.Add(new_group);
                         new_characteristic.Group = new_group;
                     }
 
@@ -202,7 +309,7 @@ namespace DiplomaMarketBackend.Controllers
                 _context.ArticleCharacteristics.Add(new_characteristic);
                 await _context.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 TextContentHelper.Delete(_context, new_characteristic.Name);
                 foreach (var value in op_values)
@@ -210,17 +317,19 @@ namespace DiplomaMarketBackend.Controllers
                     TextContentHelper.Delete(_context, value.Title);
                 }
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new {
-                    Status="Error",
-                    ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Status = "Error",
+                    ex.Message
+                });
 
             }
 
 
             return StatusCode(StatusCodes.Status200OK, new Result()
             {
-                Status="Success",
-                Message="Characteristic created sucessfully!",
+                Status = "Success",
+                Message = "Characteristic created sucessfully!",
                 Entity = characteristic
             });
         }
@@ -300,23 +409,24 @@ namespace DiplomaMarketBackend.Controllers
 
                 }
 
-                if(characteristic.group != null)
+                if (characteristic.group != null)
                 {
-                    if(characteristic.group.id  != 0 )
+                    if (characteristic.group.id != 0)
                     {
-                        var group =_context.CharacteristicGroups.FirstOrDefault(g=>g.Id ==  characteristic.group.id);
+                        var group = _context.CharacteristicGroups.FirstOrDefault(g => g.Id == characteristic.group.id);
                         if (group == null) throw new Exception($"Characteruistic group id:{characteristic.group.id} not exist!");
 
-                        foreach(var transl in characteristic.group.Translations)
+                        foreach (var transl in characteristic.group.Translations)
                         {
                             TextContentHelper.UpdateTextContent(_context, transl.Value, group.groupTitleId, transl.Key);
-                        }    
+                        }
                     }
                     else
                     {
-                        var group = new CharacteristicGroupModel() { 
-                        
-                            groupTitle = TextContentHelper.CreateFromDictionary(_context,characteristic.group.Translations),
+                        var group = new CharacteristicGroupModel()
+                        {
+
+                            groupTitle = TextContentHelper.CreateFromDictionary(_context, characteristic.group.Translations),
                             group_order = characteristic.group.show_order
                         };
 
@@ -334,8 +444,8 @@ namespace DiplomaMarketBackend.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new Result()
                 {
-                    Status="Error",
-                    Message=e.Message,
+                    Status = "Error",
+                    Message = e.Message,
                     Entity = characteristic
                 });
             }
@@ -351,11 +461,11 @@ namespace DiplomaMarketBackend.Controllers
         /// Delete characteristic by id with related values
         /// </summary>
         /// <param name="id">Characteristic Id</param>
-        /// <param name="no_check">Set to True if skip related articles existence</param>
+        /// <param name="no_check">Set to True to skip related articles existence check</param>
         /// <returns>Ok of success</returns>
         [HttpDelete]
         [Route("delete")]
-        public async Task<IActionResult> DeleteCharacteristic([FromQuery] int id, bool no_check=false)
+        public async Task<IActionResult> DeleteCharacteristic([FromQuery] int id, bool no_check = false)
         {
             var characteristic = await _context.ArticleCharacteristics.FindAsync(id);
 
@@ -366,14 +476,16 @@ namespace DiplomaMarketBackend.Controllers
 
             });
 
-            if (!no_check && _context.ArticleCharacteristics.Include(c=>c.Values).ThenInclude(v=>v.Articles).Any(c=>c.Values.Any(v=>v.Articles.Count!= 0))){
+            if (!no_check && _context.ArticleCharacteristics.Include(c => c.Values).ThenInclude(v => v.Articles).Any(c => c.Values.Any(v => v.Articles.Count != 0)))
+            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError,new Result()
+                return StatusCode(StatusCodes.Status500InternalServerError, new Result()
                 {
                     Status = "Error",
                     Message = "Characteristic values still related to articles",
-                    Entity = new { 
-                        articles_related = await _context.CharacteristicValues.Include(v=>v.Articles).Where(v=>v.CharacteristicTypeId == id).SumAsync(v=>v.Articles.Count)
+                    Entity = new
+                    {
+                        articles_related = await _context.CharacteristicValues.Include(v => v.Articles).Where(v => v.CharacteristicTypeId == id).SumAsync(v => v.Articles.Count)
                     }
                 });
             }

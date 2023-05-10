@@ -26,7 +26,7 @@ namespace DiplomaMarketBackend.Entity.Models
         public CategoryModel? TopCategory { get; set; }
         public int? BrandId { get; set; }
         public BrandModel? Brand { get; set; }
-        public string? Status { get; set; } //active/inactive
+        public string? Status { get; set; } //active/inactive   
         public string? SellStatus { get; set; }//available/unavailable
         public List<WarningModel> Warning { get; set; }
         public List<VideoModel> Video { get; set; }
@@ -42,7 +42,6 @@ namespace DiplomaMarketBackend.Entity.Models
 
         public int? SellerId { get; set; }
         public SellerModel? Seller { get; set; }
-
 
         public ArticleModel()
         {

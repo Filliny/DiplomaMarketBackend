@@ -33,8 +33,8 @@ namespace DiplomaMarketBackend.Entity
         public DbSet<OrderItemModel> OrderItems { get; set; }
         public DbSet<ReviewModel> Reviews { get; set; }
         public DbSet<SellerModel> Sellers { get; set; }
-
-
+        public DbSet<ActionModel> ActionModel { get; set; }
+             
 
         //Translations
         public DbSet<Language> Languages { get; set; }

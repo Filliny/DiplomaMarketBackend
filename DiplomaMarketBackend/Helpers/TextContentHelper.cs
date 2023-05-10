@@ -1,5 +1,6 @@
 ﻿using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaMarketBackend.Helpers
 {
@@ -120,7 +121,7 @@ namespace DiplomaMarketBackend.Helpers
         }
 
 
-        public static TextContent? CreateFromDictionary(BaseContext _db, Dictionary <string,string> translations)
+        public static TextContent CreateFromDictionary(BaseContext _db, Dictionary <string,string> translations, bool save = true)
         {
             if (!translations.ContainsKey("UK")) throw new Exception("Dictionary for content creation lacks default locale 'UK' !");
 
@@ -148,25 +149,84 @@ namespace DiplomaMarketBackend.Helpers
 
             _db.textContents.Add(textContent);
 
-            _db.SaveChanges();
+            if(save) _db.SaveChanges();
 
             return textContent;
+
+        }
+
+        /// <summary>
+        /// Updates text content with translations from LanguageId:Translation dictionary
+        /// If key present in given content is absent in translations dictionary- then removed from content
+        /// </summary>
+        /// <param name="_db">Database context</param>
+        /// <param name="content">Existing text content to update</param>
+        /// <param name="translations">Translations dictionary</param>
+        /// <param name="save">Is to  save changes on method exit? default= true</param>
+        /// <exception cref="Exception"></exception>
+        public static void UpdateFromDictionary(BaseContext _db, TextContent? content, Dictionary<string, string> translations, bool save = true)
+        {
+            if(content != null && content.Translations == null)
+                content = _db.textContents.Include(c=>c.Translations).FirstOrDefault(c=>c.Id == content.Id);
+            if (content == null)
+                throw new Exception("TextContent null or not found!");
+
+            //update main string if any changes
+            if (!content.OriginalText.Equals(translations[content.OriginalLanguageId]))
+                content.OriginalText = translations[content.OriginalLanguageId];
+
+            ///update and create from incoming dictionary
+            foreach(var new_translation in translations)
+            {
+                var exist_transl = content.Translations.FirstOrDefault(t => t.LanguageId == new_translation.Key);
+
+                if (exist_transl != null)
+                {
+                    if(!exist_transl.TranslationString.Equals(new_translation.Value))
+                        exist_transl.TranslationString = new_translation.Value;
+                    _db.translations.Update(exist_transl);
+                }
+                else
+                {
+                    var new_string = new Translation
+                    {
+                        LanguageId = new_translation.Key,
+                        TranslationString = new_translation.Value,
+                    };
+                    content.Translations.Add(new_string);
+                }
+
+            }
+
+            //if existing translation key absent in income dectionary - we remove
+            foreach(var exist_transl in content.Translations)
+            {
+                if (!translations.ContainsKey(exist_transl.LanguageId))
+                {
+                    content.Translations.Remove(exist_transl);
+                    _db.translations.Remove(exist_transl);
+                }
+            }
+
+            if (save) _db.SaveChanges();
 
         }
 
         public static void Delete(BaseContext _db, TextContent textContent)
         {
             if(textContent == null) return;
-            if(textContent.Translations.Count > 0) { 
+
+            if(textContent.Translations.Count == 0) // if u forget extract translations in outer request
+                textContent.Translations  = _db.translations.Where(t=>t.TextContentId == textContent.Id).ToList();
+
+            if (textContent.Translations.Count > 0) { 
             
                 foreach(var translation in textContent.Translations)
                 {
                     _db.translations.Remove(translation);
                 }
             }
-
             _db.textContents.Remove(textContent);
-            _db.SaveChanges();
         }
     }
 }

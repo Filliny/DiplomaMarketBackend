@@ -22,8 +22,8 @@
         public int receiving_phone_reqired { get; set; }
         public int cash_pay_unavailible { get; set; }
         public int cash_terminal_availible { get; set; }
-        public int place_max_kg { get; set; }
-        public int parcel_max_kg { get; set; }
+        public float place_max_kg { get; set; }
+        public float parcel_max_kg { get; set; }
         public double parcel_max_m3 { get; set; }
         public int max_insurance { get; set; }
         public int max_places { get; set; }

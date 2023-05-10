@@ -7,15 +7,15 @@ namespace DiplomaMarketBackend.Helpers
         logo,//for brands
         category,//for categories
         original,//for pictures ...
-        base_action,
-        preview,
-        small,
-        medium,
-        large,
-        big_tile,
-        big,
-        mobile_large,
-        mobile_medium,
+        base_action =240,
+        preview=140,
+        small=40,
+        medium=80,
+        large=200,
+        big_tile=400,
+        big=720,
+        mobile_large=170,
+        mobile_medium=100,
         review
     }
 

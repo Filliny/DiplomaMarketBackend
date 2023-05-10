@@ -43,7 +43,7 @@ namespace DiplomaMarketBackend.Controllers
                     jwt = getJwt,
                     userModel = user
                 };
-
+           
                 return new JsonResult(response);
    
             }

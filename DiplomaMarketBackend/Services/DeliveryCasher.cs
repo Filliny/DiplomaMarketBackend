@@ -45,6 +45,7 @@ namespace DiplomaMarketBackend.Services
             {
                 if (!_context.Cities.Any())
                 {
+                    await Task.Delay(60 * 1000);
                     Run();
                 }
 
@@ -82,15 +83,15 @@ namespace DiplomaMarketBackend.Services
             if (task == null || task.IsCompleted)
             {
 
-                task = Task.Factory.StartNew(() =>
+                task = Task.Factory.StartNew(async() =>
                 {
 
                     _logger.LogInformation("Delivery Casher started");
 
-                    updateAreas();
-                    updateNpCities();
-                    UpdateMistBranches();
-                    updateNpBranches();
+                    //await updateAreas();
+                    //await updateNpCities();
+                    await UpdateMistBranches();
+                    await updateNpBranches();
                     //updateUkrpost();
 
                 });
@@ -103,7 +104,7 @@ namespace DiplomaMarketBackend.Services
         }
 
 
-        private async void UpdateMistBranches()
+        private async Task UpdateMistBranches()
         {
             try
             {
@@ -221,7 +222,7 @@ namespace DiplomaMarketBackend.Services
 
         }
 
-        private async void updateAreas()
+        private async Task updateAreas()
         {
             try
             {
@@ -283,7 +284,7 @@ namespace DiplomaMarketBackend.Services
 
         }
 
-        private async void updateNpCities()
+        private async Task updateNpCities()
         {
             //var areas = _context.Areas.ToList(); ///not needed - NP areas codes is corrupted
             var total = 0;
@@ -356,7 +357,7 @@ namespace DiplomaMarketBackend.Services
                         }
 
 
-                        //create city of not exist
+                        //create city if not exist
                         if (!_context.Cities.Any(c => c.NpCityRef == city.Ref))
                         {
                             var name_content = TextContentHelper.CreateTextContent(_context, city.Description, "UK");
@@ -379,22 +380,18 @@ namespace DiplomaMarketBackend.Services
                             _context.SaveChanges();
 
                         }
-
-
                     }
-
 
                 }
                 catch (Exception e)
                 {
-
                     _logger.LogWarning($"Delivery casher Updating cities error: {e.Message}");
                 }
             }
 
         }
 
-        private async void updateNpBranches()
+        private async Task updateNpBranches()
         {
             var cities = await _context.Cities.ToListAsync();
             string response = "";

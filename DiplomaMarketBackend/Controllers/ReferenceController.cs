@@ -20,7 +20,7 @@ namespace DiplomaMarketBackend.Controllers
         }
 
         /// <summary>
-        /// System langages reference list
+        /// System languages reference list
         /// </summary>
         /// <returns>List of ids:languages</returns>
         [HttpGet]

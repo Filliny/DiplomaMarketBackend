@@ -19,6 +19,10 @@ namespace DiplomaMarketBackend.Controllers
             _fileService = fileService;
         }
 
+        /// <summary>
+        /// System langages reference list
+        /// </summary>
+        /// <returns>List of ids:languages</returns>
         [HttpGet]
         [Route("languages")]
         [ResponseCache(Duration =36000)]
@@ -29,6 +33,10 @@ namespace DiplomaMarketBackend.Controllers
             return new JsonResult(languages);
         }
 
+        /// <summary>
+        /// List of comparability values
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("comparability")]
         [ResponseCache(Duration = 36000)]

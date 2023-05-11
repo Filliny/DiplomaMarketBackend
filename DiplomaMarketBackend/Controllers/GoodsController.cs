@@ -164,7 +164,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <param name="goods_on_page">goods count to display</param>
         /// <param name="page">page to display starts from 1</param>
         /// <param name="lang">language</param>
-        /// <param name="values">List of filter values for filtering</param>
+        /// <param name="filter">Filter entity with filtering parameters</param>
         /// <returns>List of articles taken in any action sell</returns>
         /// <response code="400">If the request value is bad</response>
         [HttpPost]
@@ -235,6 +235,8 @@ namespace DiplomaMarketBackend.Controllers
                     filter.values_id.AddRange(add_search_ids);
                 }
 
+                if(filter.brands_id.Count() > 0)
+                action_goods = action_goods.Where(a =>filter.brands_id.Contains(a.BrandId)).ToList();
 
                 if (filter.values_id.Count() > 0)
                 action_goods = action_goods.Where(a => a.CharacteristicValues.Any(v => filter.values_id.Contains(v.Id))).ToList();
@@ -452,12 +454,12 @@ namespace DiplomaMarketBackend.Controllers
 
             if (int.TryParse(goodsId, out int art_id))
             {
-                var article = _context.Articles.
+                var article = await _context.Articles.
                     Include(a => a.CharacteristicValues).ThenInclude(v => v.Title.Translations).
                     Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType.Group.groupTitle.Translations).
                     Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType.Name.Translations).
                     Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType.Title.Translations).
-                    FirstOrDefault(a => a.Id == art_id);
+                    FirstOrDefaultAsync(a => a.Id == art_id);
 
                 if (article == null) return NotFound("No such article!");
 
@@ -650,8 +652,8 @@ namespace DiplomaMarketBackend.Controllers
         /// <summary>
         /// Gets file by url from Mongo
         /// </summary>
-        /// <param name="bucket"></param>
-        /// <param name="id"></param>
+        /// <param name="bucket">Bucket name</param>
+        /// <param name="id">picture id</param>
         /// <returns>file to display on page</returns>
         [HttpGet]
         [Route("{bucket}/{id}")]
@@ -956,13 +958,23 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
+        /// <summary>
+        /// Get minimal article data for cart list
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="lang"></param>
+        /// <returns>Article with name, preview and price</returns>
         [HttpGet]
         [Route("cart-item")]
         public async Task<IActionResult> GetArticleForCart([FromQuery] int id, string lang)
         {
             lang = lang.NormalizeLang();
 
-            if (id == 0) return BadRequest("Provide real id");
+            if (id == 0) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Provide real id"
+            });
 
             var article = await _context.Articles.Include(a => a.Title.Translations).
                 Include(a => a.Images).ThenInclude(i => i.preview).
@@ -979,11 +991,6 @@ namespace DiplomaMarketBackend.Controllers
             };
 
             return new JsonResult(new { data = result });
-
-
-
-
-
         }
 
         private dynamic ArticleToDto(ArticleModel article, string lang)

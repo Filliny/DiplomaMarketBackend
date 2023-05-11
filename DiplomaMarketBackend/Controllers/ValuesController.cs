@@ -85,7 +85,6 @@ namespace DiplomaMarketBackend.Controllers
                 int max = 0;
                 var values = new List<dynamic>();
 
-
                 foreach (var value in charakter.Values)
                 {
                     if (charakter.filterType == FilterType.slider)
@@ -149,12 +148,13 @@ namespace DiplomaMarketBackend.Controllers
 
                 var result = new Characteristic()
                 {
-
                     id = characteristic[0].Key.Id,
                     is_active = characteristic[0].Key.Status == "active",
                     category_id = characteristic[0].Key.CategoryId,
                     show_order = characteristic[0].Key.Order,
-                    comparable = characteristic[0].Key.Comparable
+                    comparable = characteristic[0].Key.Comparable,
+                    filter_type = characteristic[0].Key.filterType.ToString(),
+                    show_in_filter = characteristic[0].Key.show_in_filter
                 };
 
                 foreach (var name in characteristic[0].Key.Title.Translations)
@@ -261,7 +261,6 @@ namespace DiplomaMarketBackend.Controllers
 
             try
             {
-
                 if (!characteristic.Names.ContainsKey("UK")) return StatusCode(StatusCodes.Status400BadRequest, new Result()
                 {
                     Status = "Error",
@@ -276,6 +275,8 @@ namespace DiplomaMarketBackend.Controllers
                 new_characteristic.CategoryId = characteristic.category_id;
                 new_characteristic.Order = characteristic.show_order;
                 new_characteristic.Comparable = characteristic.comparable;
+                new_characteristic.filterType = Enum.TryParse(typeof(FilterType), characteristic.filter_type, out object? result) ? (FilterType)result : FilterType.checkbox;
+                new_characteristic.show_in_filter = characteristic.show_in_filter;
 
                 foreach (var value in characteristic.Values)
                 {
@@ -368,6 +369,8 @@ namespace DiplomaMarketBackend.Controllers
             exist_chr.CategoryId = characteristic.category_id;
             exist_chr.Order = characteristic.show_order;
             exist_chr.Comparable = characteristic.comparable;
+            exist_chr.filterType = Enum.TryParse(typeof(FilterType), characteristic.filter_type, out object? result) ? (FilterType)result : FilterType.checkbox;
+            exist_chr.show_in_filter = characteristic.show_in_filter;
 
             try
             {

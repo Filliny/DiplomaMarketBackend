@@ -10,10 +10,10 @@ namespace DiplomaMarketBackend.Models
         /// Brand name (required)
         /// </summary>
         [Required(ErrorMessage = "Brand Name is required")]
-        public string name { get; set; }
+        public string name { get; set; } = string.Empty;
 
         /// <summary>
-        /// Brand logo
+        /// Brand logo FormFile from form
         /// </summary>
         public IFormFile? logo { get; set; }
             

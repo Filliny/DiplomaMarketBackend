@@ -75,6 +75,17 @@
         /// </summary>
         public string? comparable { get; set;}
 
+        /// <summary>
+        /// Filtering type of characteristic ("checkbox"/"slider")
+        /// In case of slider use name postfixes with dimensions and integers for values
+        /// - otherwice u will get error
+        /// </summary>
+        public string filter_type { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Does characteristic appear in filters
+        /// </summary>
+        public bool show_in_filter { get; set;}
 
     }
 }

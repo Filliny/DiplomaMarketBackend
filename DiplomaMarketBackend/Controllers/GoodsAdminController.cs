@@ -30,6 +30,12 @@ namespace DiplomaMarketBackend.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Get article by id for editing
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Article entity for editing</returns>
+        /// <response code="404">If the request article not found</response>
         [HttpGet]
         [Route("get")]
         public async Task<ActionResult<Article>> GetArticle([FromQuery] int id)
@@ -88,6 +94,13 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
+        /// <summary>
+        /// Create new article
+        /// </summary>
+        /// <param name="article_pack">Article pack: entity article stringified + FormFiles</param>
+        /// <returns>Created if success</returns>
+        /// <response code="201">If article sucesfull created</response>
+        /// <response code="400">If the request values is bad</response>
         [HttpPost]
         [Route("create")]
         public async Task<ActionResult<Article>> CreateArticle([FromForm] ArticlePack article_pack)
@@ -157,6 +170,13 @@ namespace DiplomaMarketBackend.Controllers
             });
         }
 
+        /// <summary>
+        /// Update existing article
+        /// </summary>
+        /// <param name="article_pack">Article pack: entity article stringified + FormFiles</param>
+        /// <returns>Accepted if succes</returns>
+        /// <response code="202">If the request successfull and article updated</response>
+        /// <response code="400">If the request values is bad</response>
         [HttpPut]
         [Route("update")]
         public async Task<IActionResult> UpdateArticle([FromForm] ArticlePack article_pack)
@@ -278,6 +298,13 @@ namespace DiplomaMarketBackend.Controllers
             });
         }
 
+
+        /// <summary>
+        /// Delete article and related pictures by id
+        /// </summary>
+        /// <param name="id">Article id</param>
+        /// <returns>Ok if success</returns>
+        /// <response code="500">If the request values is bad</response>
         [HttpDelete]
         [Route("delete")]
         public async Task<IActionResult> DeleteArticle([FromQuery] int id) 
@@ -373,7 +400,9 @@ namespace DiplomaMarketBackend.Controllers
         {
             var image = new ImageModel();
 
-            PropertyInfo[] pictures_prop = typeof(ImageModel).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.PropertyType == typeof(PictureModel)).ToArray();
+            PropertyInfo[] pictures_prop = typeof(ImageModel).
+                GetProperties(BindingFlags.Public | BindingFlags.Instance).
+                Where(p => p.PropertyType == typeof(PictureModel)).ToArray();
 
             foreach (var prop in pictures_prop)
             {

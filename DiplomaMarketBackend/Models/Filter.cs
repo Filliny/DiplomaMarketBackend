@@ -15,6 +15,11 @@
         public List<int> values_id {get; set;} = new List<int>();
 
         /// <summary>
+        /// List of brands id for filtering
+        /// </summary>
+        public List<int?> brands_id { get; set;} = new List<int?>();
+
+        /// <summary>
         /// List of sliders values for filtering
         /// </summary>
         public List<SliderValues> slider_values { get; set;} = new List<SliderValues>();

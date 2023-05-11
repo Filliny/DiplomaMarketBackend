@@ -3,9 +3,7 @@ using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
-using DiplomaMarketBackend.Parser.Article;
 using Mapster;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -40,9 +38,9 @@ namespace DiplomaMarketBackend.Controllers
         [RequestSizeLimit(100_000_000)]
         public async Task<ActionResult<Review>> PostReview([FromForm] Review review)
         {
-           
 
-            var article = _context.Articles.FirstOrDefault(a=>a.Id == review.article_id);
+
+            var article = _context.Articles.FirstOrDefault(a => a.Id == review.article_id);
 
             //todo test this
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
@@ -62,11 +60,12 @@ namespace DiplomaMarketBackend.Controllers
                 {
                     foreach (var image in review.images)
                     {
-                        if (image != null) {
-                            
-                            var img_id = await _fileService.SaveFileFromStream(BucketNames.review.ToString(),image.Name,image.OpenReadStream());
+                        if (image != null)
+                        {
+
+                            var img_id = await _fileService.SaveFileFromStream(BucketNames.review.ToString(), image.Name, image.OpenReadStream());
                             review_model.UserImages.Add(img_id);
-                        
+
                         }
                     }
                 }
@@ -89,11 +88,11 @@ namespace DiplomaMarketBackend.Controllers
         [Route("get-review")]
         public async Task<ActionResult<Review>> GetReview([FromQuery] string review_id)
         {
-            if(int.TryParse(review_id,out int id))
+            if (int.TryParse(review_id, out int id))
             {
-               var review = await _context.Reviews.FirstOrDefaultAsync(r=>r.Id == id);
+                var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == id);
 
-                if(review != null)
+                if (review != null)
                 {
                     var result = review.Adapt<Review>();
 
@@ -114,7 +113,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns></returns>
         [HttpPut]
         [Route("update_review")]
-        public async Task<IActionResult> UpdateReview([FromForm]Review review)
+        public async Task<IActionResult> UpdateReview([FromForm] Review review)
         {
             var exist_review = review.Adapt<ReviewModel>();
 
@@ -144,13 +143,13 @@ namespace DiplomaMarketBackend.Controllers
         [Route("delete_review")]
         public async Task<IActionResult> DeleteReview([FromQuery] string review_id)
         {
-            if(int.TryParse(review_id, out int id))
+            if (int.TryParse(review_id, out int id))
             {
                 var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == id);
 
                 if (review != null)
                 {
-                    _context.Reviews.Remove(review);    
+                    _context.Reviews.Remove(review);
                     _context.SaveChanges();
                     return Ok(review);
                 }
@@ -174,7 +173,7 @@ namespace DiplomaMarketBackend.Controllers
         {
             var review = _context.Reviews.FirstOrDefault(r => r.Id == answer.review_id);
 
-            
+
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
 
             if (review != null)
@@ -203,23 +202,20 @@ namespace DiplomaMarketBackend.Controllers
         [HttpDelete]
         //[Authorize(Roles = "Admin")]
         [Route("delete_answer")]
-        public async Task<IActionResult> DeleteAnswer([FromQuery] string answer_id)
+        public async Task<IActionResult> DeleteAnswer([FromQuery] int answer_id)
         {
-            if (int.TryParse(answer_id, out int id))
+
+            var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == answer_id);
+
+            if (review != null)
             {
-                var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == id);
-
-                if (review != null)
-                {
-                    _context.Reviews.Remove(review);
-                    _context.SaveChanges();
-                    return Ok(review);
-                }
-
-                return NotFound("No such answer or id is wrong!");
+                _context.Reviews.Remove(review);
+                _context.SaveChanges();
+                return Ok(review);
             }
 
-            return BadRequest("Check parameters!");
+            return NotFound("No such answer or id is wrong!");
+
         }
 
         /// <summary>
@@ -236,11 +232,13 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="400">If the request values is bad</response>
         [HttpGet]
         [Route("get")]
-        public async Task<IActionResult> GetArticleReviews([FromQuery]string lang,string article_id,string? sort, string type,string limit, string page) {
+        public async Task<IActionResult> GetArticleReviews([FromQuery] string lang, string article_id, string? sort, string type, string limit, string page)
+        {
 
             lang = lang.NormalizeLang();
-            
-            if(int.TryParse(article_id, out int id) && int.TryParse(limit,out int quantity) && int.TryParse(page,out int page_num) ) {
+
+            if (int.TryParse(article_id, out int id) && int.TryParse(limit, out int quantity) && int.TryParse(page, out int page_num))
+            {
 
                 if (!Enum.TryParse(type.ToLower(), out ReviewType reviewType))
                     reviewType = ReviewType.review;
@@ -250,13 +248,13 @@ namespace DiplomaMarketBackend.Controllers
                 if (!Enum.TryParse(sort.ToLower(), out ReviewSort reviewSort))
                     reviewSort = ReviewSort.by_date;
 
-                var article = _context.Articles.FirstOrDefault(a=>a.Id == id);
+                var article = _context.Articles.FirstOrDefault(a => a.Id == id);
 
-                if(article == null) return NotFound("Article not found!");
+                if (article == null) return NotFound("Article not found!");
 
                 var reviews = _context.Reviews.Where(r => r.ArticleId == id);
 
-                if(reviewType == ReviewType.review)
+                if (reviewType == ReviewType.review)
                 {
                     reviews = reviews.Where(r => r.Type == ReviewType.review);
                 }
@@ -265,7 +263,7 @@ namespace DiplomaMarketBackend.Controllers
                     reviews = reviews.Where(r => r.Type == ReviewType.answer);
                 }
 
-                if(reviewSort == ReviewSort.from_buyer)
+                if (reviewSort == ReviewSort.from_buyer)
                 {
 
                     var byers = _context.OrderItems.Include(r => r.Order).Where(i => i.ArticleId == id).GroupBy(i => i.Order.UserId).Select(g => g.Key).ToList();
@@ -273,22 +271,22 @@ namespace DiplomaMarketBackend.Controllers
                     reviews = reviews.Where(r => byers.Contains(r.UserId));
 
                 }
-                else if(reviewSort == ReviewSort.by_date)
+                else if (reviewSort == ReviewSort.by_date)
                 {
-                    reviews =  reviews.OrderBy(r => r.DateTime);
+                    reviews = reviews.OrderBy(r => r.DateTime);
                 }
-                else if(reviewSort == ReviewSort.helpful)
+                else if (reviewSort == ReviewSort.helpful)
                 {
                     reviews = reviews.OrderBy(r => r.Likes);
                 }
-                else if(reviewSort == ReviewSort.with_attach)
+                else if (reviewSort == ReviewSort.with_attach)
                 {
                     reviews = reviews.Where(r => r.UserImages.Count != 0);
                 }
 
-                var  reviews_count = reviews.Count();
+                var reviews_count = reviews.Count();
                 var pages = (int)Math.Ceiling((decimal)reviews_count / (decimal)quantity);
-                var skip = quantity * (page_num-1);
+                var skip = quantity * (page_num - 1);
 
                 var filtered = await reviews.Skip(skip).Take(quantity).ToListAsync();
 
@@ -303,7 +301,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 foreach (var item in filtered)
                 {
-                    var answers = _context.Reviews.Where(a=>a.ReviewId ==  item.Id && a.Type == ReviewType.answer).ToList();
+                    var answers = _context.Reviews.Where(a => a.ReviewId == item.Id && a.Type == ReviewType.answer).ToList();
 
                     var rev_out = new
                     {
@@ -319,19 +317,19 @@ namespace DiplomaMarketBackend.Controllers
                         user_images = new List<string>(),
                         likes = item.Likes,
                         dislikes = item.Dislikes,
-                        post_date = item.DateTime.ToString("dd.MM.yyyy",CultureInfo.InvariantCulture),
+                        post_date = item.DateTime.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture),
                     };
 
-                    foreach(var image in item.UserImages)
+                    foreach (var image in item.UserImages)
                     {
-                        rev_out.user_images.Add(Request.GetImageURL(BucketNames.review,image));
+                        rev_out.user_images.Add(Request.GetImageURL(BucketNames.review, image));
                     }
-                    
-                    foreach(var answer in answers)
+
+                    foreach (var answer in answers)
                     {
                         rev_out.answers.Add(new
                         {
-                            id= answer.Id,
+                            id = answer.Id,
                             comment = answer.Comment,
                             user_name = answer.Name
                         });
@@ -343,7 +341,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 return new JsonResult(new { data = result });
             }
-       
+
             return BadRequest("Check parameters!");
 
         }

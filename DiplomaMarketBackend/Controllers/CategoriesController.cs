@@ -286,6 +286,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <param name="category_Id">Category id</param>
         /// <param name="lang">language</param>
         /// <returns>One category data</returns>
+        /// <response code="404">If category not found</response>
         [HttpGet]
         [Route("category")]
         public async Task<ActionResult<Category>> GetOneCategory([FromQuery] int category_Id, string lang)
@@ -294,7 +295,11 @@ namespace DiplomaMarketBackend.Controllers
 
             var category = await _context.Categories.Include(c => c.ParentCategory.Name.Translations).Include(c => c.Name.Translations).Include(c => c.ChildCategories).ThenInclude(c => c.Name.Translations).FirstOrDefaultAsync(c => c.Id == category_Id);
 
-            if (category == null) return NotFound("No such category!");
+            if (category == null) return NotFound(new Result
+            {
+                Status = "Error",
+                Message = "Category not found!"
+            });
 
             var result = new Category
             {
@@ -329,6 +334,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <param name="category_id">category id for move category (excludes from result as well as childs) can be null</param>
         /// <param name="lang">language</param>
         /// <returns>Return list of categories as candidates for parent categories in create category form </returns>
+        /// <response code="404">If category not found</response>
         [HttpGet]
         [Route("parent-candidates")]
         public async Task<IActionResult> ParentCandidates([FromQuery] int? category_id, string lang)
@@ -346,7 +352,11 @@ namespace DiplomaMarketBackend.Controllers
             if (category_id != null)
             {
                 var category = await _context.Categories.Include(c => c.ChildCategories).FirstOrDefaultAsync(c => c.Id == category_id);
-                if (category == null) return NotFound("No such category!");
+                if (category == null) return NotFound(new Result
+                {
+                    Status = "Error",
+                    Message = "Category not found!"
+                });
 
                 foreach (var child in category.ChildCategories)
                 {
@@ -376,7 +386,8 @@ namespace DiplomaMarketBackend.Controllers
         /// Create new category
         /// </summary>
         /// <param name="category">Category data from form</param>
-        /// <returns></returns>
+        /// <returns>Ok if success with incoming entity and new id</returns>
+        /// <response code="400">If any data error</response>
         [HttpPost]
         [Route("create")]
         public async Task<IActionResult> CreateCategory([FromForm] Category category)
@@ -385,10 +396,20 @@ namespace DiplomaMarketBackend.Controllers
             if (category.showin_category_id != null)
             {
 
-                if (!_context.Categories.Any(c => c.Id == category.showin_category_id)) return BadRequest("Wrong additional category!");
+                if (!_context.Categories.Any(c => c.Id == category.showin_category_id)) return BadRequest(new Result
+                {
+                    Status = "Error",
+                    Message = "Wrong additional category!",
+                    Entity = category
+                });
             }
 
-            if (category.parent_id == null && category.root_icon == null) return BadRequest("Icon file for root category not present!");
+            if (category.parent_id == null && category.root_icon == null) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Icon file for root category not present!",
+                Entity = category
+            });
 
             var parent = await _context.Categories.FindAsync(category.parent_id);
             //if (parent == null) return BadRequest("Parent category is bad!");
@@ -401,30 +422,22 @@ namespace DiplomaMarketBackend.Controllers
                 {
                     Dictionary<string, string>? names = JsonConvert.DeserializeObject<Dictionary<string, string>>(category.names);
 
-                    if (names != null)
-                    {
-                        if (names.ContainsKey("UK"))
-                        {
-                            CategoryName = TextContentHelper.CreateTextContent(_context, names["UK"], "UK");
-                            names.Remove("UK");
-                            _context.textContents.Add(CategoryName);
-                            _context.SaveChanges();
-                        }
-                        else
-                            throw new Exception("No default UK localization found - check data!");
+                    if (names == null)
+                        throw new Exception("Names parsing error!");
 
-                        foreach (var name in names)
-                        {
-                            TextContentHelper.UpdateTextContent(_context, name.Value, CategoryName.Id, name.Key.ToUpper());
-                        }
-                    }
+                    CategoryName = TextContentHelper.CreateFromDictionary(_context, names, false);
                 }
 
             }
             catch (Exception e)
             {
 
-                return BadRequest("Categories names value is malformed! : " + e.Message);
+                return BadRequest(new Result
+                {
+                    Status = "Error",
+                    Message = "Categories names value is malformed! : " + e.Message,
+                    Entity = category,
+                });
             }
 
             var new_category = new CategoryModel()
@@ -441,7 +454,12 @@ namespace DiplomaMarketBackend.Controllers
             _context.SaveChanges();
             category.id = new_category.Id;
 
-            return Ok(category);
+            return Ok(new Result
+            {
+                Status="Success",
+                Message="Category successfully created!",
+                Entity = category
+            });
         }
 
         /// <summary>
@@ -449,24 +467,39 @@ namespace DiplomaMarketBackend.Controllers
         /// </summary>
         /// <param name="category">Category data from form</param>
         /// <returns>Inbound category</returns>
+        /// <response code="400">If any data error</response>
         [HttpPut]
         [Route("update")]
         public async Task<IActionResult> UpdateCategory([FromForm] Category category)
         {
             var edit_category = _context.Categories.Include(c => c.Name.Translations).FirstOrDefault(c => c.Id == category.id);
 
-            if (edit_category == null) return NotFound("Category id is wrong!");
+            if (edit_category == null) return NotFound(new Result
+            {
+                Status = "Error",
+                Message = "Category id is wrong!",
+                Entity = category
+            });
 
             if (category.showin_category_id != null)
             {
-                if (!_context.Categories.Any(c => c.Id == category.showin_category_id)) return BadRequest("Wrong additional category!");
+                if (!_context.Categories.Any(c => c.Id == category.showin_category_id)) return BadRequest(new Result
+                {
+                    Status = "Error",
+                    Message = "Wrong additional category!",
+                    Entity = category
+                });
             }
 
-            if (category.parent_id == null && category.root_icon == null) return BadRequest("Icon file for root category not present!");
+            if (category.parent_id == null && category.root_icon == null) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Icon file for root category not present!",
+                Entity = category
+            });
 
             var parent = await _context.Categories.FindAsync(category.parent_id);
-
-            var NameContent = edit_category.Name;
+            //var NameContent = edit_category.Name;
 
             try
             {
@@ -474,33 +507,22 @@ namespace DiplomaMarketBackend.Controllers
                 {
                     Dictionary<string, string>? names = JsonConvert.DeserializeObject<Dictionary<string, string>>(category.names);
 
-                    if (names != null)
-                    {
-                        if (names.ContainsKey("UK"))
-                        {
+                    if (names == null)
+                        throw new Exception("Names parsing error!");
 
-                            if (!NameContent.OriginalText.Equals(names["UK"]))
-                            {
-
-                                NameContent.OriginalText = names["UK"];
-
-                            }
-                        }
-
-                        foreach (var name in names)
-                        {
-                            TextContentHelper.UpdateTextContent(_context, name.Value, NameContent.Id, name.Key.ToUpper());
-                        }
-
-                    }
+                    TextContentHelper.UpdateFromDictionary(_context, edit_category.Name, names,false);
                 }
 
-                _context.textContents.Update(NameContent);
+                _context.textContents.Update(edit_category.Name);
             }
             catch (Exception e)
             {
-
-                return BadRequest("Categories names value is malformed! : " + e.Message);
+                return BadRequest(new Result
+                {
+                    Status="Error",
+                    Message = "Categories names value is malformed! : " + e.Message,
+                    Entity = category
+                });
             }
 
             edit_category.ParentCategory = parent;
@@ -519,7 +541,12 @@ namespace DiplomaMarketBackend.Controllers
             _context.Categories.Update(edit_category);
             _context.SaveChanges();
 
-            return Ok(category);
+            return Ok(new Result
+            {
+                Status="Success",
+                Message= "Category updated",
+                Entity = category
+            });
         }
 
         /// <summary>
@@ -561,8 +588,7 @@ namespace DiplomaMarketBackend.Controllers
 
             }
 
-            return StatusCode(StatusCodes.Status404NotFound,
-                    new
+            return NotFound(new Result
                     {
                         Status = "Error",
                         Message = "Category not found",

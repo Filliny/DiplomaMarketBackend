@@ -102,11 +102,17 @@ namespace DiplomaMarketBackend.Controllers
             return new JsonResult(new { data = result });
         }
 
+        /// <summary>
+        /// Create new brand
+        /// </summary>
+        /// <param name="brand">Brand data from form</param>
+        /// <returns>Result entity with Status, Message and Entity with id if success</returns>
+        /// <response code="400">If the request values is bad</response>
         [HttpPost]
         [Route("create")]
-        public async Task<IActionResult> CreateBrand([FromForm] Brand brand)
+        public async Task<ActionResult<Brand>> CreateBrand([FromForm] Brand brand)
         {
-            if (brand == null) return StatusCode(StatusCodes.Status400BadRequest, new Result
+            if (brand == null) return BadRequest(new Result
             {
                 Status = "Error",
                 Message = "Fill form!",
@@ -126,7 +132,7 @@ namespace DiplomaMarketBackend.Controllers
             _context.SaveChanges();
             brand.id = new_brand.Id;
 
-            return StatusCode(StatusCodes.Status200OK, new Result
+            return Ok(new Result
             {
                 Status = "Success",
                 Message = "Brand created",
@@ -134,12 +140,22 @@ namespace DiplomaMarketBackend.Controllers
             });
         }
 
-
+        /// <summary>
+        /// Update existing brand by name
+        /// </summary>
+        /// <param name="brand">Form data for brand</param>
+        /// <returns>Result entity with Status, Message and Entity with id if success</returns>
+        /// <response code="400">If the request values is bad</response>
         [HttpPut]
         [Route("update")]
         public async Task<IActionResult> UpdateBrand([FromForm] Brand brand)
         {
-            if (brand == null) return BadRequest("Fill form!");
+            if (brand == null) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Fill form!",
+                Entity = brand
+            });
 
             var ex_brand = _context.Brands.FirstOrDefault(b => b.Id == brand.id);
 
@@ -157,7 +173,7 @@ namespace DiplomaMarketBackend.Controllers
                 if (old_logo != null)
                     _fileService.DeleteFile(BucketNames.logo.ToString(), old_logo);
 
-                return StatusCode(StatusCodes.Status200OK, new Result
+                return Ok(new Result
                 {
                     Status = "Success",
                     Message = "Brand updated",
@@ -166,7 +182,7 @@ namespace DiplomaMarketBackend.Controllers
 
             }
 
-            return StatusCode(StatusCodes.Status404NotFound, new Result
+            return NotFound(new Result
             {
                 Status = "Error",
                 Message = "Brand not found!"
@@ -174,6 +190,12 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
+        /// <summary>
+        /// Delete brand by id
+        /// </summary>
+        /// <param name="brand_id">brand id</param>
+        /// <returns>Ok if removed sucessfully</returns>
+        /// <response code="400">If the request values is bad or brand cant be removed</response>
         [HttpDelete]
         [Route("delete")]
         public async Task<IActionResult> RemoveBrand([FromQuery] int brand_id)
@@ -190,16 +212,20 @@ namespace DiplomaMarketBackend.Controllers
                     _context.SaveChanges();
                     _fileService.DeleteFile(BucketNames.logo.ToString(), brand.LogoURL);
 
-                    return Ok(brand);
+                    return Ok(new Result
+                    {
+                        Status = "Sucess",
+                        Message = "Brand removed!"
+                    });
                 }
                 catch (Exception e)
                 {
 
-                    return StatusCode(StatusCodes.Status500InternalServerError, new { Satus = "Error", Message = e.Message });
+                    return BadRequest(new { Satus = "Error", Message = e.Message });
                 }
             }
 
-            return StatusCode(StatusCodes.Status404NotFound, new Result
+            return NotFound(new Result
             {
                 Status = "Error",
                 Message = "Brand not found!"

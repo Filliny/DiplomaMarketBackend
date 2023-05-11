@@ -175,7 +175,7 @@ namespace DiplomaMarketBackend.Helpers
             if (!content.OriginalText.Equals(translations[content.OriginalLanguageId]))
                 content.OriginalText = translations[content.OriginalLanguageId];
 
-            ///update and create from incoming dictionary
+            //update and create from incoming dictionary
             foreach(var new_translation in translations)
             {
                 var exist_transl = content.Translations.FirstOrDefault(t => t.LanguageId == new_translation.Key);

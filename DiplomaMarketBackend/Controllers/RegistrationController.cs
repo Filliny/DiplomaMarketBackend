@@ -35,29 +35,34 @@ namespace DiplomaMarketBackend.Controllers
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Register user from register customer form
+        /// </summary>
+        /// <param name="model">User model</param>
+        /// <returns>Ok if success with status and JWT key</returns>
         [HttpPost]
         [Route("register-user")]
         public async Task<IActionResult> UserRegister([FromBody] User model)
         {
 
-            if (model.Username is null || model.Email is null || model.Password is null)
+            if (model.user_name is null || model.email is null || model.password is null)
                 return BadRequest(new { registerError = "Some values is null" });
 
 
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(model.user_name);
 
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
 
             UserModel user = new()
             {
-                Email = model.Email,
+                Email = model.email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username,
+                UserName = model.user_name,
                 EmailConfirmed = true
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user, model.password);
             var role_result = await _userManager.AddToRoleAsync(user, "User");
 
             if (!result.Succeeded || !role_result.Succeeded)
@@ -74,41 +79,47 @@ namespace DiplomaMarketBackend.Controllers
 
             };
 
-            await _emailService.SendEmailAsync(user.Email, "New registration", $"<p>Your password is {model.Password}</p>");
+            await _emailService.SendEmailAsync(user.Email, "New registration", $"<p>Your password is {model.password}</p>");
 
             return new JsonResult(response);
 
 
         }
 
-
+        /// <summary>
+        /// Register admin users - replaced by Users controller method
+        /// </summary>
+        /// <param name="model">User model</param>
+        /// <param name="role">Role name</param>
+        /// <returns>Ok if success with status and JWT key</returns>
+        /// <response code="500">If something go wrong)</response>
         [HttpPost]
         [Authorize(Roles ="Admin")]
         [Route("register-admin")]
         public async Task<IActionResult> AdminRegister([FromBody] User model, string role)
         {
 
-            if (model.Username is null || model.Email is null || model.Password is null || role is null)
+            if (model.user_name is null || model.email is null || model.password is null || role is null)
                 return BadRequest(new { registerError = "Some values is null" });
 
 
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(model.user_name);
 
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
 
             UserModel user = new()
             {
-                Email = model.Email,
+                Email = model.email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username,
+                UserName = model.user_name,
                 EmailConfirmed = true
             };
 
             if (!await _roleManager.RoleExistsAsync(role))
                  return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Role not exist." });
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user, model.password);
             var role_result = await _userManager.AddToRoleAsync(user, role);
 
             if (!result.Succeeded || !role_result.Succeeded)
@@ -130,6 +141,13 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
+
+        /// <summary>
+        /// Password recovery send mail endpoint
+        /// </summary>
+        /// <param name="email">email to send recovery code</param>
+        /// <returns>Ok if send succesfull</returns>
+        /// <response code="400">If user with given email is not exist</response>
         [HttpPost]
         [Route("pass-recovery")]
         public async Task<IActionResult> PasswordRecovery([FromQuery] string email)
@@ -155,6 +173,13 @@ namespace DiplomaMarketBackend.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Password recovery confirm endpoint
+        /// </summary>
+        /// <param name="email">User Email</param>
+        /// <param name="new_password">New Password</param>
+        /// <param name="email_code">code from email</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("recovery_confirm")]
         public async Task<IActionResult> PasswordRecoveryConfirm([FromQuery] string email,string new_password,string email_code)
@@ -173,6 +198,7 @@ namespace DiplomaMarketBackend.Controllers
 
             return Ok();
         }
+
     }
 }
     

@@ -41,7 +41,7 @@ namespace DiplomaMarketBackend.Controllers
                 var response = new
                 {
                     jwt = getJwt,
-                    userModel = user
+                    userModel = model
                 };
            
                 return new JsonResult(response);
@@ -50,5 +50,8 @@ namespace DiplomaMarketBackend.Controllers
 
             return Unauthorized();
         }
+
+
+        
     }
 }

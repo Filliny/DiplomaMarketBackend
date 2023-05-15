@@ -31,7 +31,9 @@ namespace DiplomaMarketBackend.Controllers
         public async Task<IActionResult> MakeAuth([FromBody] RequestAuthModel model)
         {
 
-            var user =  _db.Users.FirstOrDefault(u => u.Email == model.Email.ToLower());
+            //var user =  _db.Users.FirstOrDefault(u => u.Email == model.Email.ToLower());
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
 
             if(user != null && await _userManager.CheckPasswordAsync(user,model.Password))
             {

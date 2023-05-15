@@ -73,6 +73,41 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
+
+        /// <summary>
+        /// Get user by email for editing
+        /// </summary>
+        /// <param name="email">User Id</param>
+        /// <returns>UserFull entity</returns>
+        /// <response code="400">If the request values is bad</response>
+        [HttpGet]
+        [Route("get-email")]
+        public async Task<ActionResult<UserFull>> GetUserByEmail([FromQuery] string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+
+            if (user != null)
+            {
+                var user_dto = user.Adapt<UserFull>();
+                var role = await _userManager.GetRolesAsync(user);
+
+                if (role != null)
+                {
+                    user_dto.roles = role;
+                }
+
+                return Json(user_dto);
+            }
+
+            return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "User not found"
+            });
+
+        }
+
         /// <summary>
         /// Get user by id for editing
         /// </summary>
@@ -208,8 +243,6 @@ namespace DiplomaMarketBackend.Controllers
 
                 user.user_name = user.email;
                 user.Adapt(exist_user);
-
-                if (user.password == null) throw new Exception("Password is null!");
 
                 var result = await _userManager.UpdateAsync(exist_user);
 

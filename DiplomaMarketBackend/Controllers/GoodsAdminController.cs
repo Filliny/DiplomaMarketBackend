@@ -129,6 +129,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 foreach (var value in new_article.values)
                 {
+                    //todo add ability to create new value from text input
                     var ex_value = _context.CharacteristicValues.FirstOrDefault(v => v.Id == value.value_id);
                     if (ex_value != null)
                         new_entry.CharacteristicValues.Add(ex_value);

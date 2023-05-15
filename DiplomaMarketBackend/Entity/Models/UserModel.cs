@@ -1,6 +1,6 @@
 ﻿using DiplomaMarketBackend.Entity.Models;
 using Microsoft.AspNetCore.Identity;
-using System;
+using System.Text.Json.Serialization;
 
 namespace Lessons3.Entity.Models
 {
@@ -13,5 +13,8 @@ namespace Lessons3.Entity.Models
         public Language? PreferredLanguage { get; set; }
         public DateTime RegDate { get; set; }
         public DateTime BirthDay { get; set;}
+
+        [JsonIgnore]
+        public List<ReceiverModel> receivers { get; set; }
     }
 }

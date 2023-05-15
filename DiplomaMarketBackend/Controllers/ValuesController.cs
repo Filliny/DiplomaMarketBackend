@@ -75,6 +75,7 @@ namespace DiplomaMarketBackend.Controllers
             var charakteristics = await _context.ArticleCharacteristics.
                 Include(c => c.Title.Translations).
                 Include(c => c.Values).ThenInclude(v => v.Title.Translations).
+                Where(c => c.show_in_filter == true).
                 Where(c => c.CategoryId == category_id).Take(20).ToListAsync();
 
             var result = new List<dynamic>();
@@ -261,7 +262,7 @@ namespace DiplomaMarketBackend.Controllers
 
             try
             {
-                if (!characteristic.Names.ContainsKey("UK")) return StatusCode(StatusCodes.Status400BadRequest, new Result()
+                if (!characteristic.Names.ContainsKey("UK")) return BadRequest (new Result()
                 {
                     Status = "Error",
                     Message = "Name lacks default translation string locale UK",

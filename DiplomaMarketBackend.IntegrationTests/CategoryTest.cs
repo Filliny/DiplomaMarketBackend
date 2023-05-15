@@ -22,6 +22,7 @@ namespace DiplomaMarketBackend.IntegrationTests
         [Fact]
         public async void CategoryTreeGet_Success()
         {
+            // Act
             var response = await _httpClient.GetAsync($"/api/Categories/full?lang=UK");
             var result = await response.Content.ReadAsStringAsync();
 
@@ -32,7 +33,8 @@ namespace DiplomaMarketBackend.IntegrationTests
             var data = jdata["data"];
             data = data.ToString().Trim().TrimStart('{').TrimEnd('}');
             var categories = JsonConvert.DeserializeObject<List<OutCategory>>(data);
-
+            
+            // Assert
             Assert.True(!string.IsNullOrEmpty(result));
             Assert.True(categories.Count != 0);
 
@@ -42,6 +44,7 @@ namespace DiplomaMarketBackend.IntegrationTests
         [InlineData(89)]
         public async void GetParentCandidates_Success(int? id)
         {
+            // Act
             var response = await _httpClient.GetAsync($"/api/Categories/parent-candidates?category_id={id}&lang=UK");
             var result = await response.Content.ReadAsStringAsync();
 
@@ -60,6 +63,7 @@ namespace DiplomaMarketBackend.IntegrationTests
                 var idsf = (int)category.id;
             }
 
+            // Assert
             Assert.True(!string.IsNullOrEmpty(result));
             Assert.DoesNotContain(categories, c => (int)c.id == id);//check that list does not contain given category
         }
@@ -103,18 +107,20 @@ namespace DiplomaMarketBackend.IntegrationTests
 
             var response = await _httpClient.PostAsync($"/api/Categories/create", content);
             var result = await response.Content.ReadAsStringAsync();
-            var data = new Category();
+            var data  = JsonConvert.DeserializeObject<dynamic>(result);
+            var cat_result = data["entity"].ToString();
+            Category? result_category = null;
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                data = JsonConvert.DeserializeObject<Category>(result);
+                result_category = JsonConvert.DeserializeObject<Category>(cat_result);
 
-            if (data != null) _id = data.id; //save income id to further tests
+            if (result_category != null) _id = result_category.id; //save income id to further tests
 
 
             // Assert
             Assert.True(!string.IsNullOrEmpty(result));
             Assert.NotNull(data);
-            Assert.NotEqual(0, data.id);
+            Assert.NotEqual(0, result_category.id);
 
         }
 

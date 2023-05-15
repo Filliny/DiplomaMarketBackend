@@ -160,7 +160,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <summary>
         /// Get articles for sub-categories with single-page pagination
         /// </summary>
-        /// <param name="category_Id">Categpry id</param>
+        /// <param name="category_Id">Category id</param>
         /// <param name="goods_on_page">goods count to display</param>
         /// <param name="page">page to display starts from 1</param>
         /// <param name="lang">language</param>
@@ -936,6 +936,67 @@ namespace DiplomaMarketBackend.Controllers
                 {
 
                     articles.Add(ArticleToDto(article, lang));
+
+                }
+
+                var result = new
+                {
+                    data = new
+                    {
+                        articles
+
+                    }
+                };
+
+                return new JsonResult(result);
+            }
+            else
+            {
+                return BadRequest("Check  parameters!");
+            }
+
+
+        }
+
+
+
+        /// <summary>
+        /// Get articles by list of id (for example last of seen)
+        /// </summary>
+        /// <param name="articles_Ids">List of id</param>
+        /// <param name="lang">language</param>
+        /// <returns>Returns articles list</returns>
+        /// <response code="400">If the request value is bad or list is empty</response>
+        [HttpPost]
+        [Route("from-list-light")]
+        public async Task<IActionResult> GetByIdListLight([FromBody] List<int> articles_Ids, [FromQuery] string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            var articles = new List<dynamic>();
+
+            if (articles_Ids != null && articles_Ids.Count > 0)
+            {
+
+                var action_goods = await _context.Articles.
+                    //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+                    Include(a => a.Title).ThenInclude(t => t.Translations).
+                    //Include(a => a.Description).ThenInclude(t => t.Translations).
+                    //Include(a => a.Docket).ThenInclude(t => t.Translations).
+                    //Include(a => a.Brand).
+                    Include(a =>a.Category).
+                    //Include(a => a.Seller).
+                    //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                    //Include(a => a.Video).
+                    Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                    Where(a => articles_Ids.Contains(a.Id)).ToListAsync();
+
+
+
+                foreach (var article in action_goods)
+                {
+
+                    articles.Add(ArticleToDtoLight(article, lang));
 
                 }
 

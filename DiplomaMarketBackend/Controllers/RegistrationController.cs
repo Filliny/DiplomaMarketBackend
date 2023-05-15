@@ -12,194 +12,234 @@ using WebShopApp.Abstract;
 
 namespace DiplomaMarketBackend.Controllers
 {
-    [ApiController]
-    [Route("authentication/[controller]")]
-    public class RegController : ControllerBase
-    {
-        private readonly ILogger<RegController> _logger;
-        private readonly BaseContext _db;
-        private readonly IEmailService _emailService;
-        private readonly UserManager<UserModel> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
+	[ApiController]
+	[Route("authentication/[controller]")]
+	public class RegController : ControllerBase
+	{
+		private readonly ILogger<RegController> _logger;
+		private readonly BaseContext _db;
+		private readonly IEmailService _emailService;
+		private readonly UserManager<UserModel> _userManager;
+		private readonly RoleManager<IdentityRole> _roleManager;
+		private readonly IConfiguration _configuration;
 
-        public RegController(BaseContext db, ILogger<RegController> logger, IEmailService emailService, UserManager<UserModel> userManager,
-            RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration)
-        {
-            _db = db;
-            _logger = logger;
-            _emailService = emailService;
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _configuration = configuration;
-        }
+		public RegController(BaseContext db, ILogger<RegController> logger, IEmailService emailService, UserManager<UserModel> userManager,
+			RoleManager<IdentityRole> roleManager,
+			IConfiguration configuration)
+		{
+			_db = db;
+			_logger = logger;
+			_emailService = emailService;
+			_userManager = userManager;
+			_roleManager = roleManager;
+			_configuration = configuration;
+		}
+		
+		/// <summary>
+		/// Register user from register customer form
+		/// </summary>
+		/// <param name="model">User model</param>
+		/// <returns>Ok if success with status and JWT key</returns>
+		[HttpPost]
+		[Route("register-user")]
+		public async Task<IActionResult> UserRegister([FromBody] User model)
+		{
 
-        /// <summary>
-        /// Register user from register customer form
-        /// </summary>
-        /// <param name="model">User model</param>
-        /// <returns>Ok if success with status and JWT key</returns>
-        [HttpPost]
-        [Route("register-user")]
-        public async Task<IActionResult> UserRegister([FromBody] User model)
-        {
-
-            if (model.user_name is null || model.email is null || model.password is null)
-                return BadRequest(new { registerError = "Some values is null" });
-
-
-            var userExists = await _userManager.FindByNameAsync(model.user_name);
-
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
-
-            UserModel user = new()
-            {
-                Email = model.email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.user_name,
-                EmailConfirmed = true
-            };
-
-            var result = await _userManager.CreateAsync(user, model.password);
-            var role_result = await _userManager.AddToRoleAsync(user, "User");
-
-            if (!result.Succeeded || !role_result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new  { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+			if (model.user_name is null || model.email is null || model.password is null)
+				return BadRequest(new Result { 
+					Status = "Error",
+					Message = "Some values is null",
+					Entity = model
+				});
 
 
-            user.PasswordHash = null;
-            var response = new
-            {
-                jwt = JwtTokenGenerator.GetToken(_userManager, user),
-                userModel = user,
-                Status = "Success",
-                Message = "User created successfully!"
+			var userExists = await _userManager.FindByNameAsync(model.user_name);
 
-            };
+			if (userExists != null)
+				return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
 
-            await _emailService.SendEmailAsync(user.Email, "New registration", $"<p>Your password is {model.password}</p>");
+			UserModel user = new()
+			{
+				Email = model.email,
+				SecurityStamp = Guid.NewGuid().ToString(),
+				UserName = model.user_name,
+				EmailConfirmed = true
+			};
 
-            return new JsonResult(response);
+			var result = await _userManager.CreateAsync(user, model.password);
+			var role_result = await _userManager.AddToRoleAsync(user, "User");
 
-
-        }
-
-        /// <summary>
-        /// Register admin users - replaced by Users controller method
-        /// </summary>
-        /// <param name="model">User model</param>
-        /// <param name="role">Role name</param>
-        /// <returns>Ok if success with status and JWT key</returns>
-        /// <response code="500">If something go wrong)</response>
-        [HttpPost]
-        [Authorize(Roles ="Admin")]
-        [Route("register-admin")]
-        public async Task<IActionResult> AdminRegister([FromBody] User model, string role)
-        {
-
-            if (model.user_name is null || model.email is null || model.password is null || role is null)
-                return BadRequest(new { registerError = "Some values is null" });
+			if (!result.Succeeded || !role_result.Succeeded)
+				return StatusCode(StatusCodes.Status500InternalServerError, new  { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
 
-            var userExists = await _userManager.FindByNameAsync(model.user_name);
+			user.PasswordHash = null;
+			var response = new
+			{
+				jwt = JwtTokenGenerator.GetToken(_userManager, user),
+				userModel = user,
+				Status = "Success",
+				Message = "User created successfully!"
 
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
+			};
 
-            UserModel user = new()
-            {
-                Email = model.email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.user_name,
-                EmailConfirmed = true
-            };
+			await _emailService.SendEmailAsync(user.Email, "New registration", $"<p>Your password is {model.password}</p>");
 
-            if (!await _roleManager.RoleExistsAsync(role))
-                 return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Role not exist." });
+			return new JsonResult(response);
 
-            var result = await _userManager.CreateAsync(user, model.password);
-            var role_result = await _userManager.AddToRoleAsync(user, role);
+		}
 
-            if (!result.Succeeded || !role_result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+		/// <summary>
+		/// Register admin users - replaced by Users controller method
+		/// </summary>
+		/// <param name="model">User model</param>
+		/// <param name="role">Role name</param>
+		/// <returns>Ok if success with status and JWT key</returns>
+		/// <response code="500">If something go wrong)</response>
+		[HttpPost]
+		[Authorize(Roles ="Admin")]
+		[Route("register-admin")]
+		public async Task<IActionResult> AdminRegister([FromBody] User model, string role)
+		{
 
-
-            user.PasswordHash = null;
-            var response = new
-            {
-                jwt = JwtTokenGenerator.GetToken(_userManager, user),
-                userModel = user,
-                Status = "Success",
-                Message = "User created successfully!"
-
-            };
-
-            return new JsonResult(response);
+			if (model.user_name is null || model.email is null || model.password is null || role is null)
+				return BadRequest(new { registerError = "Some values is null" });
 
 
-        }
+			var userExists = await _userManager.FindByNameAsync(model.user_name);
+
+			if (userExists != null)
+				return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
+
+			UserModel user = new()
+			{
+				Email = model.email,
+				SecurityStamp = Guid.NewGuid().ToString(),
+				UserName = model.user_name,
+				EmailConfirmed = true
+			};
+
+			if (!await _roleManager.RoleExistsAsync(role))
+				 return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Role not exist." });
+
+			var result = await _userManager.CreateAsync(user, model.password);
+			var role_result = await _userManager.AddToRoleAsync(user, role);
+
+			if (!result.Succeeded || !role_result.Succeeded)
+				return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
 
-        /// <summary>
-        /// Password recovery send mail endpoint
-        /// </summary>
-        /// <param name="email">email to send recovery code</param>
-        /// <returns>Ok if send succesfull</returns>
-        /// <response code="400">If user with given email is not exist</response>
-        [HttpPost]
-        [Route("pass-recovery")]
-        public async Task<IActionResult> PasswordRecovery([FromQuery] string email)
-        {
-            var user = await _userManager.FindByEmailAsync(email.ToLower());
+			user.PasswordHash = null;
+			var response = new
+			{
+				jwt = JwtTokenGenerator.GetToken(_userManager, user),
+				userModel = user,
+				Status = "Success",
+				Message = "User created successfully!"
 
-            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-            {
-                return BadRequest("User is not exist or email not confirmed!");
-            }
+			};
 
-            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var callbackUrl = Url.Page(
-                    "/Account/ResetPassword", //todo set right callback
-                    pageHandler: null,
-                    values: new { area = "Identity", code },
-                    protocol: Request.Scheme);
+			return new JsonResult(response);
 
-            await _emailService.SendEmailAsync(email,"Reset Password",
-                 $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl??"")}'>clicking here</a>.");
+		}
 
-            return Ok();
-        }
 
-        /// <summary>
-        /// Password recovery confirm endpoint
-        /// </summary>
-        /// <param name="email">User Email</param>
-        /// <param name="new_password">New Password</param>
-        /// <param name="email_code">code from email</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("recovery_confirm")]
-        public async Task<IActionResult> PasswordRecoveryConfirm([FromQuery] string email,string new_password,string email_code)
-        {
-            var user = await _userManager.FindByEmailAsync(email.ToLower());
+		/// <summary>
+		/// Password recovery send mail endpoint
+		/// </summary>
+		/// <param name="email">email to send recovery code</param>
+		/// <returns>Ok if send succesfull</returns>
+		/// <response code="400">If user with given email is not exist</response>
+		[HttpPost]
+		[Route("pass-recovery")]
+		public async Task<IActionResult> PasswordRecovery([FromQuery] string email)
+		{
+			var user = await _userManager.FindByEmailAsync(email.ToLower());
 
-            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-            {
-                return BadRequest("User is not exist or email not confirmed!");
-            }
+			if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+			{
+				return BadRequest("User is not exist or email not confirmed!");
+			}
 
-            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(email_code));
-            var result = await _userManager.ResetPasswordAsync(user, code, new_password);
+			var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+			code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+			var callbackUrl = Url.Page(
+					"/Account/ResetPassword", //todo set right callback
+					pageHandler: null,
+					values: new { area = "Identity", code },
+					protocol: Request.Scheme);
 
-            if (!result.Succeeded) return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "Password change error: " + result.ToString() });
+			await _emailService.SendEmailAsync(email,"Reset Password",
+				 $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl??"")}'>clicking here</a>.");
 
-            return Ok();
-        }
+			return Ok();
+		}
 
-    }
+		/// <summary>
+		/// Password recovery confirm endpoint
+		/// </summary>
+		/// <param name="email">User Email</param>
+		/// <param name="new_password">New Password</param>
+		/// <param name="email_code">code from email</param>
+		/// <returns></returns>
+		[HttpPost]
+		[Route("recovery_confirm")]
+		public async Task<IActionResult> PasswordRecoveryConfirm([FromForm] string email, [FromForm]  string new_password, [FromForm]  string email_code)
+		{
+			var user = await _userManager.FindByEmailAsync(email.ToLower());
+
+			if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+			{
+				return BadRequest("User is not exist or email not confirmed!");
+			}
+
+			var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(email_code));
+			var result = await _userManager.ResetPasswordAsync(user, code, new_password);
+
+			if (!result.Succeeded) return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "Password change error: " + result.ToString() });
+
+			return Ok();
+		}
+
+		/// <summary>
+		/// Update user password
+		/// </summary>
+		/// <param name="old_password">Old (current) user password</param>
+		/// <param name="new_password">New password</param>
+		/// <returns>Ok if success</returns>
+		[Authorize]
+		[HttpPost]
+		[Route("pass-update")]
+		public async Task<IActionResult> PasswordUpdate([FromForm] string old_password, [FromForm] string new_password)
+		{
+			try
+			{
+				var user = await _userManager.GetUserAsync(User);
+
+				if (user ==  null || !(await _userManager.HasPasswordAsync(user)))
+				{
+					throw new Exception("User not found or havent password set!");
+				}
+					 
+				await _userManager.ChangePasswordAsync(user,old_password,new_password);
+
+				return Ok(new Result
+				{
+					Status="Success",
+					Message ="Update password success"
+				});
+			}
+			catch( Exception ex)
+			{
+				return BadRequest(new Result
+				{
+					Status = "Error",
+					Message = "Update password error: " + ex.Message
+				});
+			}
+		}
+
+	}
 }
-    
+	
 

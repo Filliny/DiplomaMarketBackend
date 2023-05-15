@@ -17,7 +17,7 @@ namespace DiplomaMarketBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[ApiExplorerSettings(IgnoreApi = true)]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class WorkController : ControllerBase
     {
         ILogger<WorkController> _logger;
@@ -1985,54 +1985,65 @@ namespace DiplomaMarketBackend.Controllers
 
 
         [HttpGet]
-        [Route("process-discrete")]
-        public async Task<IActionResult> getDiscrete()
+        [Route("process-long")]
+        public async Task<IActionResult> DisableLong()
         {
-            var result = new List<dynamic>();
 
-            var categoryes = _context.Categories.Include(c=>c.Name).ToList();
+            var charakteristics = await _context.ArticleCharacteristics.
+                Include(c => c.Title).
+                Include(c => c.Values).ThenInclude(v => v.Title.Translations).
+                Where(c => c.show_in_filter == true).
+                ToListAsync();
 
-            foreach(var category in categoryes)
+            var left = charakteristics.Count;
+
+            foreach (var charakter in charakteristics)
             {
-                var cat = new
+                long length = 0;
+                _logger.LogInformation($"Characteristic: {charakter.Title.OriginalText}");
+
+                foreach (var value in charakter.Values)
                 {
-                    name = category.Name,
-                    chars = new List<dynamic>()
-                };
-                result.Add(cat);
+                    if (value.Title.OriginalText.Length > length)
+                        length = value.Title.OriginalText.Length;
 
-
-                var charakteristics = await _context.ArticleCharacteristics.
-                    Include(c => c.Title).
-                    Include(c=>c.Values).ThenInclude(v=>v.Title.Translations).
-                    Where(c => c.CategoryId == category.Id).ToListAsync();
-
-                foreach(var charakter in charakteristics)
-                {
-
-                    if (charakter.Values.Any(c => !int.TryParse(c.Title.OriginalText, out int _))) continue;
-
-                    _logger.LogInformation(charakter.Title.OriginalText);
-                    var har = new
-                    {
-                        id = charakter.Id,
-                        har_name = charakter.Title.OriginalText,
-                        har_values = new List<dynamic>()
-                    };
-
-                    cat.chars.Add(har);
-
-                    foreach(var value in charakter.Values)
-                    {
-                        _logger.LogInformation("......."+value.Title.OriginalText);
-
-                        har.har_values.Add(value.Title.OriginalText);
-                    }
+                    _logger.LogInformation($"{value.Title.OriginalText}");
                 }
 
+
+                _logger.LogInformation($"Max: {length}");
+
+                if (length > 20)
+                {
+
+                    charakter.show_in_filter = false;
+                    _context.ArticleCharacteristics.Update(charakter);
+                }
+
+                bool saveFailed;
+
+                do
+                {
+                    saveFailed = false;
+
+                    try
+                    {
+                        _context.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        saveFailed = true;
+                        Thread.Sleep(1000);
+                    }
+
+                } while (saveFailed);
+
+
+                left--;
+                _logger.LogInformation($"Left: {left}");
             }
 
-            return new JsonResult(result);
+            return Ok();
         }
 
     }

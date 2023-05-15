@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230513160854_recivers_payments_add")]
+    partial class recivers_payments_add
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -319,7 +322,7 @@ namespace DiplomaMarketBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("Closed")
+                    b.Property<DateTime>("Closed")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("Issued")
@@ -653,19 +656,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int?>("DeliveryBranchId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("PaymentData")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int?>("PaymentTypeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ReceiverId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -679,12 +669,6 @@ namespace DiplomaMarketBackend.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DeliveryBranchId");
-
-                    b.HasIndex("PaymentTypeId");
-
-                    b.HasIndex("ReceiverId");
 
                     b.HasIndex("UserId");
 
@@ -703,13 +687,11 @@ namespace DiplomaMarketBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("DescriptionId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int?>("NameId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ParentId")
+                    b.Property<int>("ParentId")
                         .HasColumnType("integer");
 
                     b.Property<string>("URL")
@@ -717,10 +699,6 @@ namespace DiplomaMarketBackend.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DescriptionId");
-
-                    b.HasIndex("NameId");
 
                     b.HasIndex("ParentId");
 
@@ -757,7 +735,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("Closed")
+                    b.Property<DateTime>("Closed")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("Issued")
@@ -1661,48 +1639,20 @@ namespace DiplomaMarketBackend.Migrations
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.OrderModel", b =>
                 {
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.Delivery.BranchModel", "DeliveryBranch")
-                        .WithMany()
-                        .HasForeignKey("DeliveryBranchId");
-
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.PaymentTypesModel", "PaymentType")
-                        .WithMany()
-                        .HasForeignKey("PaymentTypeId");
-
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.ReceiverModel", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("ReceiverId");
-
                     b.HasOne("Lessons3.Entity.Models.UserModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
-
-                    b.Navigation("DeliveryBranch");
-
-                    b.Navigation("PaymentType");
-
-                    b.Navigation("Receiver");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.PaymentTypesModel", b =>
                 {
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Description")
-                        .WithMany()
-                        .HasForeignKey("DescriptionId");
-
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "Name")
-                        .WithMany()
-                        .HasForeignKey("NameId");
-
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PaymentTypesModel", "Parent")
-                        .WithMany("Childs")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Description");
-
-                    b.Navigation("Name");
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Parent");
                 });
@@ -1946,11 +1896,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Navigation("Certificates");
 
                     b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.PaymentTypesModel", b =>
-                {
-                    b.Navigation("Childs");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ReviewModel", b =>

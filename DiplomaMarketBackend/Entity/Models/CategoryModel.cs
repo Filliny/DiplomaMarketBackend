@@ -24,6 +24,7 @@
         public CategoryModel() { 
         
             ChildCategories = new List<CategoryModel>();
+
         }
     }
 }

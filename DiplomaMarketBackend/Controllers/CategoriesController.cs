@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using System;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -53,7 +54,7 @@ namespace DiplomaMarketBackend.Controllers
         {
             lang = lang.NormalizeLang();
 
-            var stop_categories = await _context.Categories.AsNoTracking().
+            var stop_categories = await _context.Categories.AsNoTracking().AsSplitQuery().
                 Include(c => c.Name.Translations).
                 Include(c => c.ChildCategories).ThenInclude(cl => cl.Name.Translations).
                 Include(c => c.ChildCategories).ThenInclude(child => child.ChildCategories).
@@ -61,74 +62,118 @@ namespace DiplomaMarketBackend.Controllers
                 .Where(c => c.ParentCategoryId == null)
                 .ToListAsync();
 
-            var new_result = new List<Models.OutCategory>();
+            var doubled = SearchDoubled(stop_categories);
 
-            foreach (var category in stop_categories)
+            var response = new List<Models.OutCategory>();
+
+            foreach(var category in stop_categories)
             {
-                if (category.is_active == false) continue;
+                response.Add(getInnerTree(category, lang, doubled));
+            }   
 
-                var get_childs = await _context.Categories.AsNoTracking().
-                    Include(c => c.Name.Translations).
-                    Include(c => c.ChildCategories).ThenInclude(c => c.Name.Translations).
-                    Where(c => c.ShowInCategoryId == category.Id).ToListAsync();
 
-                var out_cat = new Models.OutCategory()
-                {
-                    Name = category.Name.Content(lang),
-                    Id = category.Id,
-                    SmallIcon = category.ImgData != null ? Convert.ToBase64String(category.ImgData) : null,
-                    BigPicture = Request.GetImageURL(BucketNames.category.ToString(), category.ImgUrl)
+            //var new_result = new List<Models.OutCategory>();
 
-                };
+            //foreach (var category in stop_categories)
+            //{
+            //    if (category.is_active == false) continue;
 
-                //adding show_in
-                category.ChildCategories.AddRange(get_childs);
+            //    var get_childs = await _context.Categories.AsNoTracking().
+            //        Include(c => c.Name.Translations).
+            //        Include(c => c.ChildCategories).ThenInclude(c => c.Name.Translations).
+            //        Where(c => c.ShowInCategoryId == category.Id).ToListAsync();
 
-                foreach (var mid_cat in category.ChildCategories)
-                {
-                    if (mid_cat.is_active == false) continue;
+            //    var out_cat = new Models.OutCategory()
+            //    {
+            //        Name = category.Name.Content(lang),
+            //        Id = category.Id,
+            //        SmallIcon = category.ImgData != null ? Convert.ToBase64String(category.ImgData) : null,
+            //        BigPicture = Request.GetImageURL(BucketNames.category.ToString(), category.ImgUrl)
 
-                    var get_mchilds = await _context.Categories.AsNoTracking().
-                    Include(c => c.Name.Translations).
-                    Include(c => c.ChildCategories).ThenInclude(c => c.Name.Translations).
-                    Where(c => c.ShowInCategoryId == mid_cat.Id).ToListAsync();
+            //    };
 
-                    var omid_cat = new Models.OutCategory()
-                    {
-                        Name = mid_cat.Name.Content(lang),
-                        Id = mid_cat.Id,
-                        SmallIcon = mid_cat.ImgData != null ? Convert.ToBase64String(mid_cat.ImgData) : null,
-                        BigPicture = Request.GetImageURL(BucketNames.category.ToString(), mid_cat.ImgUrl),
-                        ParentId = category.Id,
+            //    //adding show_in
+            //    category.ChildCategories.AddRange(get_childs);
 
-                    };
+            //    foreach (var mid_cat in category.ChildCategories)
+            //    {
+            //        if (mid_cat.is_active == false) continue;
 
-                    mid_cat.ChildCategories.AddRange(get_childs);
+            //        var get_mchilds = await _context.Categories.AsNoTracking().
+            //        Include(c => c.Name.Translations).
+            //        Include(c => c.ChildCategories).ThenInclude(c => c.Name.Translations).
+            //        Where(c => c.ShowInCategoryId == mid_cat.Id).ToListAsync();
 
-                    foreach (var low_cat in mid_cat.ChildCategories)
-                    {
-                        if (low_cat.is_active == false) continue;
+            //        var omid_cat = new Models.OutCategory()
+            //        {
+            //            Name = mid_cat.Name.Content(lang),
+            //            Id = mid_cat.Id,
+            //            SmallIcon = mid_cat.ImgData != null ? Convert.ToBase64String(mid_cat.ImgData) : null,
+            //            BigPicture = Request.GetImageURL(BucketNames.category.ToString(), mid_cat.ImgUrl),
+            //            ParentId = category.Id,
 
-                        var olow_cat = new Models.OutCategory()
-                        {
-                            Name = low_cat.Name.Content(lang),
-                            Id = low_cat.Id,
-                            SmallIcon = low_cat.ImgData != null ? Convert.ToBase64String(low_cat.ImgData) : null,
-                            BigPicture = Request.GetImageURL(BucketNames.category.ToString(), low_cat.ImgUrl),
-                            ParentId = mid_cat.Id,
+            //        };
 
-                        };
+            //        mid_cat.ChildCategories.AddRange(get_childs);
 
-                        omid_cat.Children.Add(olow_cat);
-                    }
-                    out_cat.Children.Add(omid_cat);
-                }
+            //        foreach (var low_cat in mid_cat.ChildCategories)
+            //        {
+            //            if (low_cat.is_active == false) continue;
 
-                new_result.Add(out_cat);
+            //            var olow_cat = new Models.OutCategory()
+            //            {
+            //                Name = low_cat.Name.Content(lang),
+            //                Id = low_cat.Id,
+            //                SmallIcon = low_cat.ImgData != null ? Convert.ToBase64String(low_cat.ImgData) : null,
+            //                BigPicture = Request.GetImageURL(BucketNames.category.ToString(), low_cat.ImgUrl),
+            //                ParentId = mid_cat.Id,
+
+            //            };
+
+            //            omid_cat.Children.Add(olow_cat);
+            //        }
+            //        out_cat.Children.Add(omid_cat);
+            //    }
+
+            //    new_result.Add(out_cat);
+            //}
+
+            return new JsonResult(new { data = response });
+
+        }
+
+        private List<CategoryModel> SearchDoubled(List<CategoryModel> list)
+        {
+            var result = new List<CategoryModel>();
+
+            foreach (var category in list)
+            {
+                result.AddRange(SearchDoubled(category.ChildCategories));
+
+                if (category.ShowInCategoryId != null)
+                    result.Add(category);
             }
+            return result;
+        }
 
-            return new JsonResult(new { data = new_result });
+        private OutCategory getInnerTree(CategoryModel category,string lang, List<CategoryModel> added)
+        {
+            if (added.Any(c => c.ShowInCategoryId == category.Id))
+                category.ChildCategories.Add(added.First(c => c.ShowInCategoryId == category.Id));
 
+            OutCategory out_cat = new OutCategory() {
+
+                Name = category.Name.Content(lang),
+                Id = category.Id,
+                SmallIcon = category.ImgData != null ? Convert.ToBase64String(category.ImgData) : null,
+                BigPicture = Request.GetImageURL(BucketNames.category.ToString(), category.ImgUrl)
+
+            };
+
+            foreach (var child in category.ChildCategories)
+                out_cat.Children.Add(getInnerTree(child, lang, added));
+
+            return out_cat;
         }
 
 

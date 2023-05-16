@@ -17,7 +17,7 @@ namespace DiplomaMarketBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    //[ApiExplorerSettings(IgnoreApi = true)]
     public class WorkController : ControllerBase
     {
         ILogger<WorkController> _logger;
@@ -320,6 +320,7 @@ namespace DiplomaMarketBackend.Controllers
 
                     foreach (var id in ids)
                     {
+                        if (_context.Articles.Any(a => a.rztk_art_id == id)) continue;
                         ArticleModel? new_article = null;
                         string aresponseBody = "";
                         string char_responseBody = "";
@@ -353,6 +354,7 @@ namespace DiplomaMarketBackend.Controllers
 
 
                                 if (article == null || char_article == null) continue;
+                               
 
                                 new_article = _context.Articles.
                                     Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType).ThenInclude(t => t.Group).
@@ -648,10 +650,13 @@ namespace DiplomaMarketBackend.Controllers
 
                                                     if (new_charakt.Id != 0)
                                                     {
-                                                        exist_value = _context.CharacteristicValues.Include(v => v.Title).FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
+                                                        exist_value = _context.CharacteristicValues.
+                                                            Include(v => v.Title).
+                                                            FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
                                                     }
 
-                                                    if (exist_value == null)
+                                                    if (exist_value == null) {
+
                                                         exist_value = new ValueModel()
                                                         {
                                                             Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
@@ -659,7 +664,13 @@ namespace DiplomaMarketBackend.Controllers
 
                                                         };
 
-                                                    _context.CharacteristicValues.Add(exist_value);
+
+                                                        _context.CharacteristicValues.Add(exist_value);
+
+                                                    }
+ 
+                                                
+
                                                     new_article.CharacteristicValues.Add(exist_value);
                                                 }
 
@@ -703,18 +714,27 @@ namespace DiplomaMarketBackend.Controllers
 
                                                     if (new_charakt.Id != 0)
                                                     {
-                                                        exist_value = _context.CharacteristicValues.Include(v => v.Title).FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
+                                                        exist_value = _context.CharacteristicValues.
+                                                            Include(v => v.Title).
+                                                            FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
                                                     }
 
                                                     if (exist_value == null)
+                                                    {
                                                         exist_value = new ValueModel()
                                                         {
                                                             Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
                                                             CharacteristicType = new_charakt
 
                                                         };
+                                                        _context.CharacteristicValues.Add(exist_value);
+
+                                                    }
+                                   
 
                                                     _context.CharacteristicValues.Add(exist_value);
+
+
                                                     new_article.CharacteristicValues.Add(exist_value);
                                                 }
 
@@ -1214,30 +1234,33 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("parseCategory")]
-        public async Task<IActionResult> ParseCategory([FromHeader] string password, string category_id, string quantity)
+        public async Task<IActionResult> ParseCategory([FromHeader] string password, int category_id, int quantity)
         {
             if (password != "pass123") return Ok("pass not pass");
 
-            if (!int.TryParse(quantity, out int how_many)) { return Ok("Check parameters"); }
-            if (!int.TryParse(quantity, out int cat_id)) { return Ok("Check parameters"); }
-
             var categoryes = new List<CategoryModel>();
 
-
-            var our_category_by_name = _context.Categories.FirstOrDefault(c => c.Id == cat_id);
+            var our_category_by_name = _context.Categories.FirstOrDefault(c => c.Id == category_id);
             if (our_category_by_name == null) { return Ok("No such category"); }
 
             categoryes.Add(our_category_by_name);
 
             var languages = new string[] { "UK", "RU" };
 
-            if (how_many > 60) how_many = 60;
+            if (quantity > 200) quantity = 200;
 
             string responseBody = "";
+            string page_query = "";
 
-            foreach (var category in categoryes)
+            List <int> pages = new List<int>();
+            int maxpage = quantity / 60; 
+
+            for(int page=1; page <= maxpage; page++)
             {
-                string cat_point = "https://xl-catalog-api.rozetka.com.ua/v4/goods/get?front-type=xl&country=UA&lang=ru&category_id=" + category.rztk_cat_id.ToString();
+                if (page != 1)
+                    page_query = $"&page={page}";
+
+                string cat_point = "https://xl-catalog-api.rozetka.com.ua/v4/goods/get?front-type=xl&country=UA&lang=ru&category_id=" + our_category_by_name.rztk_cat_id.ToString()+page_query;
 
                 try
                 {
@@ -1253,10 +1276,12 @@ namespace DiplomaMarketBackend.Controllers
 
                     if (myCategoryClass == null) continue;
 
-                    var ids = myCategoryClass.data.ids.Take(how_many);
+                    var ids = myCategoryClass.data.ids.Take(quantity);
 
                     foreach (var id in ids)
                     {
+                        if (_context.Articles.Any(a => a.rztk_art_id == id)) continue;
+
                         ArticleModel? new_article = null;
                         string aresponseBody = "";
                         string char_responseBody = "";
@@ -1321,7 +1346,7 @@ namespace DiplomaMarketBackend.Controllers
                                     new_article = new ArticleModel();
 
                                     new_article.rztk_art_id = id;
-                                    new_article.Category = category;
+                                    new_article.Category = our_category_by_name;
                                     new_article.Title = TextContentHelper.CreateTextContent(_context, article.data.title, lang);
                                     new_article.Price = decimal.Parse(article.data.price);
                                     new_article.OldPrice = decimal.Parse(article.data.old_price);
@@ -1330,10 +1355,10 @@ namespace DiplomaMarketBackend.Controllers
                                     new_article.Updated = DateTime.Now;
 
                                     //top category fill
-                                    var top = category.ParentCategoryId;
-                                    if (category.ParentCategoryId != null)
+                                    var top = our_category_by_name.ParentCategoryId;
+                                    if (our_category_by_name.ParentCategoryId != null)
                                     {
-                                        var parent = _context.Categories.FirstOrDefault(c => c.Id == category.ParentCategoryId);
+                                        var parent = _context.Categories.FirstOrDefault(c => c.Id == our_category_by_name.ParentCategoryId);
                                         if (parent != null)
                                         {
                                             if (parent.ParentCategoryId != null)
@@ -1582,7 +1607,7 @@ namespace DiplomaMarketBackend.Controllers
                                                         Title = TextContentHelper.CreateTextContent(_context, harakt.title, lang),
                                                         Name = TextContentHelper.CreateTextContent(_context, harakt.name, lang),
                                                         Status = harakt.status,
-                                                        CategoryId = category.Id,
+                                                        CategoryId = our_category_by_name.Id,
                                                         Order = harakt.order,
                                                         Group = exst_gpr,
                                                         roz_har_id = harakt.id,
@@ -1605,10 +1630,13 @@ namespace DiplomaMarketBackend.Controllers
 
                                                     if (new_charakt.Id != 0)
                                                     {
-                                                        exist_value = _context.CharacteristicValues.Include(v => v.Title).FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
+                                                        exist_value = _context.CharacteristicValues.
+                                                            Include(v => v.Title).
+                                                            FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
                                                     }
 
                                                     if (exist_value == null)
+                                                    {
                                                         exist_value = new ValueModel()
                                                         {
                                                             Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
@@ -1616,7 +1644,12 @@ namespace DiplomaMarketBackend.Controllers
 
                                                         };
 
-                                                    _context.CharacteristicValues.Add(exist_value);
+                                                        _context.CharacteristicValues.Add(exist_value);
+                                                    }else
+                                                    {
+                                                        _logger.LogInformation($"Value exist: {exist_value.Title.OriginalText}");
+                                                    }
+
                                                     new_article.CharacteristicValues.Add(exist_value);
                                                 }
 
@@ -1639,7 +1672,7 @@ namespace DiplomaMarketBackend.Controllers
                                                         Title = TextContentHelper.CreateTextContent(_context, harakt.title, lang),
                                                         Name = TextContentHelper.CreateTextContent(_context, harakt.name, lang),
                                                         Status = harakt.status,
-                                                        CategoryId = category.Id,
+                                                        CategoryId = our_category_by_name.Id,
                                                         Order = harakt.order,
                                                         roz_har_id = harakt.id,
                                                         Comparable = harakt.comparable
@@ -1660,10 +1693,14 @@ namespace DiplomaMarketBackend.Controllers
 
                                                     if (new_charakt.Id != 0)
                                                     {
-                                                        exist_value = _context.CharacteristicValues.Include(v => v.Title).FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
+                                                        exist_value = _context.CharacteristicValues.
+                                                            Include(v => v.Title).
+     
+                                                            FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
                                                     }
 
                                                     if (exist_value == null)
+                                                    {
                                                         exist_value = new ValueModel()
                                                         {
                                                             Title = TextContentHelper.CreateTextContent(_context, val.title, lang),
@@ -1671,7 +1708,15 @@ namespace DiplomaMarketBackend.Controllers
 
                                                         };
 
-                                                    _context.CharacteristicValues.Add(exist_value);
+           
+                                                        _context.CharacteristicValues.Add(exist_value);
+                                                    }
+                                                    else
+                                                    {
+
+                                                        _logger.LogInformation($"Value exist: {exist_value.Title.OriginalText}");
+                                                    }
+
                                                     new_article.CharacteristicValues.Add(exist_value);
                                                 }
 
@@ -1761,11 +1806,6 @@ namespace DiplomaMarketBackend.Controllers
                                                         }
 
                                                     }
-
-
-
-
-
 
                                                 }
 
@@ -2045,6 +2085,8 @@ namespace DiplomaMarketBackend.Controllers
 
             return Ok();
         }
+
+        
 
     }
 }

@@ -89,7 +89,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="400">If the request value is bad</response>
         [HttpGet]
         [Route("category-articles")]
-        [ResponseCache(VaryByQueryKeys = new[] { "category_Id", "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
+        [ResponseCache(VaryByQueryKeys = new[] { "category_Id", "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 3600)]
         public async Task<IActionResult> GetCategoryArticlesPages([FromQuery] int category_Id, int goods_on_page, int page, string lang)
         {
             lang = lang.NormalizeLang();
@@ -169,7 +169,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="400">If the request value is bad</response>
         [HttpPost]
         [Route("category-articles")]
-        [ResponseCache(VaryByQueryKeys = new[] { "category_Id", "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
+        [ResponseCache(VaryByQueryKeys = new[] { "category_Id", "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 3600)]
         public async Task<IActionResult> GetCategoryArticlesPages([FromQuery] int category_Id, int goods_on_page, int page, string lang,
             [FromBody] Filter? filter)
         {

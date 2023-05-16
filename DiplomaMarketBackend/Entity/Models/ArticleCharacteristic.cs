@@ -42,6 +42,7 @@
         public ArticleCharacteristic()
         {
             Values = new();
+
         }
 
     }

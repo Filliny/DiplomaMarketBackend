@@ -5,21 +5,19 @@ using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using Lessons3.Entity.Models;
 using Mapster;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using PasswordGenerator;
-using System.Security.Claims;
 using WebShopApp.Abstract;
 
 
 namespace DiplomaMarketBackend.Controllers
 {
-	
-	[ApiController]
+
+    [ApiController]
     [Route("api/[controller]")]
     public class OrdersController : Controller
     {
@@ -196,13 +194,13 @@ namespace DiplomaMarketBackend.Controllers
         [Route("new")]
         public async Task<ActionResult<Order>> NewOrder([FromBody] Order order)
         {
-            var logged_user = await _userManager.FindByNameAsync(User.Identity.Name??"");
+            var logged_user = await _userManager.FindByNameAsync(User.Identity.Name ?? "");
 
             //check user not logged
             if (logged_user == null)
             {
                 //check used data filled
-                if(order.user != null)
+                if (order.user != null)
                 {
                     var exist_user = await _userManager.FindByEmailAsync(order.user.email);
 
@@ -244,8 +242,9 @@ namespace DiplomaMarketBackend.Controllers
                             var role_result = await _userManager.AddToRoleAsync(user, "User");
                             if (!role_result.Succeeded)
                             {
-                                return StatusCode(StatusCodes.Status500InternalServerError, new Result{ 
-                                    Status = "Error", 
+                                return StatusCode(StatusCodes.Status500InternalServerError, new Result
+                                {
+                                    Status = "Error",
                                     Message = "User creation failed! Please check user details and try again.",
                                     Entity = role_result.Errors
                                 });
@@ -261,7 +260,7 @@ namespace DiplomaMarketBackend.Controllers
                                 Entity = result.Errors
                             });
                         }
-                        
+
                     }
                 }
                 else
@@ -270,7 +269,7 @@ namespace DiplomaMarketBackend.Controllers
                 }
 
             }
-            
+
             var jwt = JwtTokenGenerator.GetToken(_userManager, logged_user);
 
             //add reciver
@@ -344,12 +343,12 @@ namespace DiplomaMarketBackend.Controllers
 
             return Ok(new Result
             {
-                Status= "Success",
-                Message="Order creatd Successfully!",
+                Status = "Success",
+                Message = "Order creatd Successfully!",
                 Entity = new
                 {
                     jwt,
-                    payment_callback = HttpContext.Request.Scheme+"://"+HttpContext.Request.Host+"/api/Order/liqpay-callback", //payment_type.CallbackURL
+                    payment_callback = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/api/Order/liqpay-callback", //payment_type.CallbackURL
                     order_id = new_order.Id,
                     order = new_order,
                 }
@@ -366,11 +365,11 @@ namespace DiplomaMarketBackend.Controllers
         [Route("get")]
         public async Task<ActionResult<Order>> GetOrder([FromQuery] int order_id)
         {
-            var  order = await _context.Orders.
-                Include(o=>o.User).
-                Include(o=>o.Receiver).
-                Include(o=>o.Items).
-                FirstOrDefaultAsync(o=>o.Id == order_id);
+            var order = await _context.Orders.
+                Include(o => o.User).
+                Include(o => o.Receiver).
+                Include(o => o.Items).
+                FirstOrDefaultAsync(o => o.Id == order_id);
 
             if (order == null) return NotFound(new Result
             {
@@ -378,7 +377,7 @@ namespace DiplomaMarketBackend.Controllers
                 Message = "Order not found!"
             });
 
-            var result= order.Adapt<Order>();
+            var result = order.Adapt<Order>();
 
             result.payData = JsonConvert.DeserializeObject<Order.PayData>(order.PaymentData);
             result.goods = order.Items.ToDictionary(t => t.ArticleId, t => t.Quantity);

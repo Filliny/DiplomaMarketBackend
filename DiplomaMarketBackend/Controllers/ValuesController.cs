@@ -68,27 +68,38 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns>List of characteristics</returns>
         [HttpGet]
         [Route("category-chars-values")]
+        [ResponseCache(VaryByQueryKeys = new[] { "category_id", "lang" }, Duration = 3600)]
         public async Task<IActionResult> GetCategoryCharacteristics([FromQuery] int category_id, string lang)
         {
             lang = lang.NormalizeLang();
 
-            var charakteristics = await _context.ArticleCharacteristics.
-                Include(c => c.Title.Translations).
-                Include(c => c.Values).ThenInclude(v => v.Title.Translations).
-                Where(c => c.show_in_filter == true).
-                Where(c => c.CategoryId == category_id).Take(20).ToListAsync();
+            //var charakteristics = await _context.ArticleCharacteristics.
+            //    Include(c => c.Title.Translations).
+            //    Include(c => c.Values).ThenInclude(v => v.Title.Translations).
+            //    Where(c => c.show_in_filter == true).
+            //    Where(c => c.CategoryId == category_id).Take(20).ToListAsync();
+
+
+            var chars = await  _context.Articles.AsSplitQuery().
+                Include(a=>a.CharacteristicValues).ThenInclude(v=>v.CharacteristicType.Title.Translations).
+                Include(a => a.CharacteristicValues).ThenInclude(v => v.Title.Translations)
+                .Where(a=>a.CategoryId == category_id).ToListAsync();
+
+            var groups = chars.SelectMany(a => a.CharacteristicValues).Distinct().GroupBy(v=>v.CharacteristicType).ToList();
 
             var result = new List<dynamic>();
 
-            foreach (var charakter in charakteristics)
+            foreach (var charakter in groups)
             {
-                int min = charakter.filterType == FilterType.slider ? int.MaxValue : 0;
+                if(!charakter.Key.show_in_filter) continue;
+
+                int min = charakter.Key.filterType == FilterType.slider ? int.MaxValue : 0;
                 int max = 0;
                 var values = new List<dynamic>();
 
-                foreach (var value in charakter.Values)
+                foreach (var value in charakter)
                 {
-                    if (charakter.filterType == FilterType.slider)
+                    if (charakter.Key.filterType == FilterType.slider)
                     {
                         if (int.TryParse(value.Title.OriginalText, out int val))
                         {
@@ -106,9 +117,9 @@ namespace DiplomaMarketBackend.Controllers
 
                 var charakt = new
                 {
-                    id = charakter.Id,
-                    name = charakter.Title.Content(lang),
-                    filter_type = charakter.filterType.ToString(),
+                    id = charakter.Key.Id,
+                    name = charakter.Key.Title.Content(lang),
+                    filter_type = charakter.Key.filterType.ToString(),
                     lower_value = min,
                     upper_value = max,
                     values
@@ -117,6 +128,47 @@ namespace DiplomaMarketBackend.Controllers
 
                 result.Add(charakt);
             }
+
+
+            //var result = new List<dynamic>();
+
+            //foreach (var charakter in charakteristics)
+            //{
+            //    int min = charakter.filterType == FilterType.slider ? int.MaxValue : 0;
+            //    int max = 0;
+            //    var values = new List<dynamic>();
+
+            //    foreach (var value in charakter.Values)
+            //    {
+            //        if (charakter.filterType == FilterType.slider)
+            //        {
+            //            if (int.TryParse(value.Title.OriginalText, out int val))
+            //            {
+            //                if (val < min) min = val;
+            //                if (val > max) max = val;
+            //            }
+            //        }
+
+            //        values.Add(new
+            //        {
+            //            id = value.Id,
+            //            name = value.Title.Content(lang)
+            //        });
+            //    }
+
+            //    var charakt = new
+            //    {
+            //        id = charakter.Id,
+            //        name = charakter.Title.Content(lang),
+            //        filter_type = charakter.filterType.ToString(),
+            //        lower_value = min,
+            //        upper_value = max,
+            //        values
+
+            //    };
+
+            //    result.Add(charakt);
+            //}
 
             return new JsonResult(new { data = result });
 

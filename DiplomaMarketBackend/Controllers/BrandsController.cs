@@ -102,6 +102,50 @@ namespace DiplomaMarketBackend.Controllers
             return new JsonResult(new { data = result });
         }
 
+
+
+        /// <summary>
+        /// Get list of category brands for filter
+        /// </summary>
+        /// <param name="category_Id">category id</param>
+        /// /// <param name="count">number items to show</param>
+        /// <param name="lang"></param>
+        /// <returns>List of brands presents in this category</returns>
+        /// <response code="400">If the request values is bad</response>
+        /// <response code="404">If category isn't top and haven't brands relation</response>
+        [HttpGet]
+        [Route("filter-brands")]
+        public async Task<IActionResult> categoryFilterBrands([FromQuery] int category_Id, string lang, int count=999999)
+        {
+            lang = lang.NormalizeLang();
+
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == category_Id);
+
+            if (category == null) return base.NotFound("No such category");
+
+            //todo category-brands relation table with trigger refill
+
+            var brands = _context.Articles.Include((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).Where(a => a.CategoryId == category_Id).GroupBy((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).ToList().Take(count);
+
+            var result = new List<dynamic>();
+
+            foreach (var brand in brands)
+            {
+
+                if (brand.Key != null)
+                {
+                    result.Add(new
+                    {
+                        id = brand.Key.Id,
+                        name = brand.Key.Name,
+                    });
+                }
+
+            }
+
+            return new JsonResult(new { data = result });
+        }
+
         /// <summary>
         /// Create new brand
         /// </summary>

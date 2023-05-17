@@ -152,7 +152,19 @@ namespace DiplomaMarketBackend.Controllers
                 new_entry.Created = DateTime.Now;
 
                 _context.Articles.Add(new_entry);
-                //_context.SaveChanges();
+                _context.SaveChanges();
+
+                //process category-brands relation
+                var category = await _context.Categories.Include(c => c.Brands).FirstOrDefaultAsync(c => c.Id == new_article.category_id);
+                if (category != null)
+                {
+                    if (!category.Brands.Any(b => b.Id == new_article.brand_id))
+                    {
+                        var brand = await _context.Brands.FindAsync(new_article.brand_id);
+                        if (brand != null) category.Brands.Add(brand);
+                        _context.SaveChanges();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -190,19 +202,24 @@ namespace DiplomaMarketBackend.Controllers
                 var updateData = JsonConvert.DeserializeObject<Article>(json);
                 if (updateData == null) throw new Exception("Deserialize result is null");
 
-                articleToUpdate = await _context.Articles.
+                articleToUpdate = await _context.Articles.AsSplitQuery().
                 Include(a => a.Title.Translations).
                 Include(a => a.Description.Translations).
                 Include(a => a.Docket.Translations).
                 Include(a => a.Warning).ThenInclude(w => w.Message.Translations).
                 Include(a => a.Actions).
                 Include(a => a.Video).
+                Include(a=>a.Brand).
+                Include(a=>a.Category).ThenInclude(c=>c.Brands).
                 Include(a => a.Images).ThenInclude(i => i.preview).
                 Include(a => a.CharacteristicValues).ThenInclude(v => v.CharacteristicType).ThenInclude(v => v.Title).
                 Include(a => a.CharacteristicValues).ThenInclude(v => v.Title).
                 FirstOrDefaultAsync(a => a.Id == updateData.id);
 
                 if (articleToUpdate == null) throw new Exception($"Article id{updateData.id} not found!");
+
+                var old_category = articleToUpdate.Category;
+                var old_brand = articleToUpdate.Brand;
 
                 articleToUpdate.CategoryId = updateData.category_id;
                 articleToUpdate.Price = updateData.price;
@@ -282,6 +299,27 @@ namespace DiplomaMarketBackend.Controllers
                 }
 
                 _context.SaveChanges();
+
+                //process category-brands relation
+                if(old_brand != null && old_category.Id != updateData.category_id || old_brand.Id != updateData.brand_id)
+                {
+                    //if no articles with this brand left in old category remove relation
+                    if (!_context.Articles.Any(a => a.CategoryId == old_category.Id && a.BrandId == old_brand.Id) && old_brand != null)
+                        old_category.Brands.Remove(old_brand);
+
+                    var new_category = await _context.Categories.Include(c => c.Brands).FirstOrDefaultAsync(c => c.Id == updateData.category_id);
+                    if (new_category != null)
+                    {
+                        if (!new_category.Brands.Any(b => b.Id == updateData.brand_id))
+                        {
+                            var brand = await _context.Brands.FindAsync(updateData.brand_id);
+                            if (brand != null) new_category.Brands.Add(brand);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+
+
             }
             catch (Exception ex)
             {
@@ -308,20 +346,21 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="500">If the request values is bad</response>
         [HttpDelete]
         [Route("delete")]
-        public async Task<IActionResult> DeleteArticle([FromQuery] int id) 
+        public async Task<IActionResult> DeleteArticle([FromQuery] int id)
         {
             try
             {
                 if (_context.OrderItems.Any(o => o.ArticleId == id))
                     throw new Exception("Article relays with orders - cant delete! Suggest simply to disable it");
 
-                var article = await _context.Articles.
+                var article = await _context.Articles.AsSplitQuery().
                 Include(a => a.Title.Translations).
                 Include(a => a.Description.Translations).
                 Include(a => a.Docket.Translations).
                 Include(a => a.Warning).ThenInclude(w => w.Message.Translations).
                 Include(a => a.Video).
-                Include(a => a.Images).ThenInclude(i=>i.base_action).
+                Include(a=>a.Category).ThenInclude(c=>c.Brands).
+                Include(a => a.Images).ThenInclude(i => i.base_action).
                 Include(a => a.Images).ThenInclude(i => i.preview).
                 Include(a => a.Images).ThenInclude(i => i.original).
                 Include(a => a.Images).ThenInclude(i => i.large).
@@ -331,12 +370,12 @@ namespace DiplomaMarketBackend.Controllers
                 Include(a => a.Images).ThenInclude(i => i.big).
                 Include(a => a.Images).ThenInclude(i => i.mobile_large).
                 Include(a => a.Images).ThenInclude(i => i.mobile_medium).
-                Include(a=>a.Reviews).
+                Include(a => a.Reviews).
                 FirstOrDefaultAsync(a => a.Id == id);
 
                 if (article == null) throw new Exception("Article not found");
 
-                _context.Articles.Remove(article);
+                
 
                 TextContentHelper.Delete(_context, article.Title);
                 TextContentHelper.Delete(_context, article.Description);
@@ -347,12 +386,12 @@ namespace DiplomaMarketBackend.Controllers
                     TextContentHelper.Delete(_context, warning.Message);
                 }
 
-                foreach(var video in article.Video)
+                foreach (var video in article.Video)
                 {
                     _context.Videos.Remove(video);
                 }
 
-                foreach( var images in article.Images)
+                foreach (var images in article.Images)
                 {
                     _context.Pictures.Remove(images.base_action);
                     _context.Pictures.Remove(images.preview);
@@ -379,6 +418,12 @@ namespace DiplomaMarketBackend.Controllers
 
                 }
 
+
+                //if no articles with this brand left in old category remove relation
+                if (!_context.Articles.Any(a => a.CategoryId == article.CategoryId && a.BrandId == article.BrandId) && article.Brand != null)
+                    article.Category.Brands.Remove(article.Brand);
+
+                _context.Articles.Remove(article);
                 _context.SaveChanges();
             }
             catch (Exception ex)

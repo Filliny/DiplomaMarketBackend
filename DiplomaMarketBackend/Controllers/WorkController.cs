@@ -1,6 +1,7 @@
 ﻿using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
+using DiplomaMarketBackend.Entity.Models.Delivery;
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Parser.Categories;
 using HtmlAgilityPack;
@@ -17,7 +18,7 @@ namespace DiplomaMarketBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[ApiExplorerSettings(IgnoreApi = true)]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class WorkController : ControllerBase
     {
         ILogger<WorkController> _logger;
@@ -290,7 +291,7 @@ namespace DiplomaMarketBackend.Controllers
 
             var last_category = _context.Articles.FirstOrDefault(a => a.CategoryId == _context.Articles.Max(a => a.CategoryId)).CategoryId;
 
-            var categoryes = _context.Categories.Where(c => c.Id >= last_category).ToList();
+            var categoryes = _context.Categories.Include(c => c.Brands).Where(c => c.Id >= last_category).ToList();
 
             //var categoryes = _context.Categories.ToList();
 
@@ -354,7 +355,7 @@ namespace DiplomaMarketBackend.Controllers
 
 
                                 if (article == null || char_article == null) continue;
-                               
+
 
                                 new_article = _context.Articles.
                                     Include(a => a.CharacteristicValues).ThenInclude(c => c.CharacteristicType).ThenInclude(t => t.Group).
@@ -418,6 +419,10 @@ namespace DiplomaMarketBackend.Controllers
                                         _context.Brands.Add(brand);
 
                                     }
+
+
+                                    if (brand != null && !category.Brands.Contains(brand))
+                                        category.Brands.Add(brand);
 
                                     new_article.Brand = brand;
 
@@ -655,7 +660,8 @@ namespace DiplomaMarketBackend.Controllers
                                                             FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
                                                     }
 
-                                                    if (exist_value == null) {
+                                                    if (exist_value == null)
+                                                    {
 
                                                         exist_value = new ValueModel()
                                                         {
@@ -668,8 +674,8 @@ namespace DiplomaMarketBackend.Controllers
                                                         _context.CharacteristicValues.Add(exist_value);
 
                                                     }
- 
-                                                
+
+
 
                                                     new_article.CharacteristicValues.Add(exist_value);
                                                 }
@@ -730,7 +736,7 @@ namespace DiplomaMarketBackend.Controllers
                                                         _context.CharacteristicValues.Add(exist_value);
 
                                                     }
-                                   
+
 
                                                     _context.CharacteristicValues.Add(exist_value);
 
@@ -1240,7 +1246,7 @@ namespace DiplomaMarketBackend.Controllers
 
             var categoryes = new List<CategoryModel>();
 
-            var our_category_by_name = _context.Categories.FirstOrDefault(c => c.Id == category_id);
+            var our_category_by_name = _context.Categories.Include(c => c.Brands).FirstOrDefault(c => c.Id == category_id);
             if (our_category_by_name == null) { return Ok("No such category"); }
 
             categoryes.Add(our_category_by_name);
@@ -1252,15 +1258,15 @@ namespace DiplomaMarketBackend.Controllers
             string responseBody = "";
             string page_query = "";
 
-            List <int> pages = new List<int>();
-            int maxpage = quantity / 60; 
+            List<int> pages = new List<int>();
+            int maxpage = quantity / 60;
 
-            for(int page=1; page <= maxpage; page++)
+            for (int page = 1; page <= maxpage; page++)
             {
                 if (page != 1)
                     page_query = $"&page={page}";
 
-                string cat_point = "https://xl-catalog-api.rozetka.com.ua/v4/goods/get?front-type=xl&country=UA&lang=ru&category_id=" + our_category_by_name.rztk_cat_id.ToString()+page_query;
+                string cat_point = "https://xl-catalog-api.rozetka.com.ua/v4/goods/get?front-type=xl&country=UA&lang=ru&category_id=" + our_category_by_name.rztk_cat_id.ToString() + page_query;
 
                 try
                 {
@@ -1396,8 +1402,11 @@ namespace DiplomaMarketBackend.Controllers
                                         }
 
                                         _context.Brands.Add(brand);
-
                                     }
+
+
+                                    if (brand != null && !our_category_by_name.Brands.Contains(brand))
+                                        our_category_by_name.Brands.Add(brand);
 
                                     new_article.Brand = brand;
 
@@ -1645,7 +1654,8 @@ namespace DiplomaMarketBackend.Controllers
                                                         };
 
                                                         _context.CharacteristicValues.Add(exist_value);
-                                                    }else
+                                                    }
+                                                    else
                                                     {
                                                         _logger.LogInformation($"Value exist: {exist_value.Title.OriginalText}");
                                                     }
@@ -1695,7 +1705,7 @@ namespace DiplomaMarketBackend.Controllers
                                                     {
                                                         exist_value = _context.CharacteristicValues.
                                                             Include(v => v.Title).
-     
+
                                                             FirstOrDefault(v => v.CharacteristicTypeId == new_charakt.Id && v.Title.OriginalText.Equals(val.title));
                                                     }
 
@@ -1708,7 +1718,7 @@ namespace DiplomaMarketBackend.Controllers
 
                                                         };
 
-           
+
                                                         _context.CharacteristicValues.Add(exist_value);
                                                     }
                                                     else
@@ -2086,7 +2096,59 @@ namespace DiplomaMarketBackend.Controllers
             return Ok();
         }
 
-        
+        [HttpGet]
+        [Route("fill-services")]
+        public async Task<IActionResult> FillServices()
+        {
+            var brands = await _context.Brands.Include(c => c.Categories).ToListAsync();
+            var cities = await _context.Cities.ToListAsync();
+
+            var rand = new Random();
+
+            foreach (var brand in brands)
+            {
+
+                foreach (var category in brand.Categories)
+                {
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        CityModel? city = null;
+                        BranchModel? branch;
+                        do
+                        {
+                            do
+                            {
+                                var city_id = rand.Next(1, cities.Count);
+                                city = await _context.Cities.FindAsync(city_id);
+                            } while (city == null);
+
+                            branch = _context.Branches.Include(b => b.Address).FirstOrDefault(b => b.BranchCityId == city.Id);
+
+                        } while (branch == null);
+
+                        var service = new ServiceModel
+                        {
+                            Name = $"Сервісний центр '{brand.Name}'",
+                            CityId = city.Id,
+                            Address = branch.Address.OriginalText ?? "",
+                            CategoryId = category.Id,
+                            BrandId = brand.Id,
+                            Phone = "+3880030020010"
+                        };
+
+                        _context.Services.Add(service);
+                    }
+
+                    _context.SaveChanges();
+                }
+
+            }
+
+
+            return Ok();
+        }
+
 
     }
 }

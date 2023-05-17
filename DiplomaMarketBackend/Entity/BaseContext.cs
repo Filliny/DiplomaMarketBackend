@@ -38,6 +38,7 @@ namespace DiplomaMarketBackend.Entity
         public DbSet<PromoCodeModel> PromoCodes { get; set; }
         public DbSet<ReceiverModel> Receivers { get; set; } 
         public DbSet<PaymentTypesModel> PaymentTypes { get; set; }
+        public DbSet<ServiceModel> Services { get; set; }
 
         //Translations
         public DbSet<Language> Languages { get; set; }

@@ -11,6 +11,7 @@ namespace DiplomaMarketBackend.Entity.Models
 
         public List<ArticleModel> Articles { get; set; }
         public int? rztk_brand_id { get; set; }
+        public List<CategoryModel> Categories { get; set; }
 
         public BrandModel()
         {

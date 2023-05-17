@@ -6,6 +6,7 @@ using DiplomaMarketBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using System.ComponentModel.DataAnnotations;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -76,8 +77,6 @@ namespace DiplomaMarketBackend.Controllers
 
             if (category == null) return base.NotFound("No such category");
 
-            //todo category-brands relation table with trigger refill
-
             var brands = _context.Articles.Include((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).Where(a => a.TopCategoryId == category_Id).GroupBy((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).ToList().Take(count);
 
             if (brands.Count() == 0) return base.NotFound("Category isn't top");
@@ -119,31 +118,89 @@ namespace DiplomaMarketBackend.Controllers
         {
             lang = lang.NormalizeLang();
 
-            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == category_Id);
+            var category = await _context.Categories.
+                Include(c => c.Brands).
+                FirstOrDefaultAsync(c => c.Id == category_Id);
 
             if (category == null) return base.NotFound("No such category");
 
             //todo category-brands relation table with trigger refill
 
-            var brands = _context.Articles.Include((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).Where(a => a.CategoryId == category_Id).GroupBy((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).ToList().Take(count);
+            //var brands = _context.Articles.Include((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).Where(a => a.CategoryId == category_Id).GroupBy((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).ToList().Take(count);
+
+            var new_brands = category.Brands;
 
             var result = new List<dynamic>();
 
-            foreach (var brand in brands)
+            foreach (var brand in new_brands)
             {
 
-                if (brand.Key != null)
+                if (brand != null)
                 {
                     result.Add(new
                     {
-                        id = brand.Key.Id,
-                        name = brand.Key.Name,
+                        id = brand.Id,
+                        name = brand.Name,
                     });
                 }
 
             }
 
             return new JsonResult(new { data = result });
+        }
+
+
+        [HttpGet]
+        [Route("brands-service")]
+        public async Task<IActionResult> GetBrandsServices([FromQuery] char search_symbol,string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            var brands = await _context.Brands.Include(c=>c.Categories).ThenInclude(c=>c.Name.Translations).
+                Where(b=>b.Name.StartsWith(search_symbol.ToString().ToUpper())).ToListAsync();
+
+            var all_services = await _context.Services.Include(s=>s.City.Name.Translations).
+                Include(s=>s.Brand).Where(s=>brands.Contains(s.Brand)).ToListAsync();
+
+            var result = new List<dynamic>();
+            foreach(var brand in brands)
+            {
+                var out_brand = new
+                {
+                    id = brand.Id,
+                    name = brand.Name,
+                    categories = new List<dynamic>()
+                };
+
+                foreach(var category in brand.Categories)
+                {
+                    var out_category = new
+                    {
+                        id = category.Id,
+                        name = category.Name.Content(lang),
+                        services = new List<dynamic>()
+                    };
+
+                    var services = all_services.Where(s=>s.BrandId == brand.Id && s.CategoryId == category.Id).ToList();
+
+                    foreach(var service in services)
+                    {
+                        var out_service = new
+                        {
+                            id = service.Id,
+                            name = service.Name,
+                            city = service.City.Name.Content(lang),
+                            address = service.Address,
+                            phone = service.Phone,
+                        };
+                        out_category.services.Add(out_service);
+                    }
+                    out_brand.categories.Add(out_category);
+                }
+                result.Add(out_brand);
+            }
+
+            return new JsonResult(result);
         }
 
         /// <summary>

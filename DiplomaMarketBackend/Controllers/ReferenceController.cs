@@ -1,5 +1,4 @@
-﻿using DiplomaMarketBackend.Abstract;
-using DiplomaMarketBackend.Entity;
+﻿using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +9,14 @@ namespace DiplomaMarketBackend.Controllers
     [Route("api/[controller]")]
     public class ReferenceController : Controller
     {
-        ILogger<WorkController> _logger;
+        ILogger<ReferenceController> _logger;
         BaseContext _context;
-        IFileService _fileService;
 
-        public ReferenceController(ILogger<WorkController> logger, BaseContext context, IFileService fileService)
+        public ReferenceController(ILogger<ReferenceController> logger, BaseContext context)
         {
             _logger = logger;
             _context = context;
-            _fileService = fileService;
+
         }
 
         /// <summary>

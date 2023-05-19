@@ -32,6 +32,9 @@ namespace DiplomaMarketBackend
             builder.Services.Configure<EmailSettings>
                                 (options => builder.Configuration.GetSection("EmailSettings").Bind(options));
 
+            builder.Services.Configure<LiqpaySettings>
+                    (options => builder.Configuration.GetSection("LiqpaySettings").Bind(options));
+
             string currConnectionString = "DMarketNpgsql";
             var varb = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")

@@ -16,15 +16,14 @@ namespace DiplomaMarketBackend.Controllers
 	[Route("api/[controller]")]
 	public class ServicesController : Controller
 	{
-		ILogger<WorkController> _logger;
+		ILogger<ServicesController> _logger;
 		BaseContext _context;
-		IFileService _fileService;
 
-		public ServicesController(ILogger<WorkController> logger, BaseContext context, IFileService fileService)
+
+		public ServicesController(ILogger<ServicesController> logger, BaseContext context)
 		{
 			_logger = logger;
 			_context = context;
-			_fileService = fileService;
 		}
 
 		/// <summary>

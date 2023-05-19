@@ -10,8 +10,8 @@ namespace DiplomaMarketBackend.Entity.Models
         Paid,
         InProcess,
         Shipped,
-        Delivered
-
+        Delivered,
+        Cancelled
     }
 
     public class OrderModel

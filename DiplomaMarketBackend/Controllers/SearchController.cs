@@ -11,11 +11,11 @@ namespace DiplomaMarketBackend.Controllers
     [Route("api/[controller]")]
     public class SearchController : ControllerBase
     {
-        ILogger<WorkController> _logger;
+        ILogger<SearchController> _logger;
         BaseContext _context;
         IFileService _fileService;
 
-        public SearchController(ILogger<WorkController> logger, BaseContext context, IFileService fileService)
+        public SearchController(ILogger<SearchController> logger, BaseContext context, IFileService fileService)
         {
             _logger = logger;
             _context = context;

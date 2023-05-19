@@ -1,11 +1,9 @@
-﻿using DiplomaMarketBackend.Entity;
-using Lessons3.Entity.Models;
+﻿using Lessons3.Entity.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using WebShopApp.Abstract;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -15,23 +13,15 @@ namespace DiplomaMarketBackend.Controllers
     public class RolesController : Controller
     {
 
-        private readonly ILogger<RegController> _logger;
-        private readonly BaseContext _context;
-        private readonly IEmailService _emailService;
-        private readonly UserManager<UserModel> _userManager;
+        private readonly ILogger<RolesController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
 
-        public RolesController(BaseContext context, ILogger<RegController> logger, IEmailService emailService, UserManager<UserModel> userManager,
-            RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration)
+
+        public RolesController(ILogger<RolesController> logger, UserManager<UserModel> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
-            _context = context;
             _logger = logger;
-            _emailService = emailService;
-            _userManager = userManager;
             _roleManager = roleManager;
-            _configuration = configuration;
         }
 
         /// <summary>
@@ -42,7 +32,7 @@ namespace DiplomaMarketBackend.Controllers
         [Route("roles")]
         public async Task<IActionResult> Get()
         {
-            var roles = await _roleManager.Roles.Select(r=>r.Name).ToListAsync();
+            var roles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
 
             return new JsonResult(roles);
         }
@@ -62,7 +52,7 @@ namespace DiplomaMarketBackend.Controllers
             {
                 await _roleManager.CreateAsync(role);
             }
-            catch (Exception ex )
+            catch (Exception ex)
             {
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Satus = "Error", Message = ex.Message });
@@ -81,7 +71,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns></returns>
         [HttpPut]
         [Route("update")]
-        public async Task<IActionResult> UpdateRole([FromForm] string  roleName, string newName)
+        public async Task<IActionResult> UpdateRole([FromForm] string roleName, string newName)
         {
             var role = await _roleManager.FindByNameAsync(roleName);
 

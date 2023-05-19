@@ -5,12 +5,17 @@ using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using Lessons3.Entity.Models;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using Newtonsoft.Json;
 using PasswordGenerator;
+using System.Security.Cryptography;
+using System.Text;
 using WebShopApp.Abstract;
 
 
@@ -26,14 +31,18 @@ namespace DiplomaMarketBackend.Controllers
         IFileService _fileService;
         private readonly IEmailService _emailService;
         private readonly UserManager<UserModel> _userManager;
+        private readonly IConfiguration _configuration;
+        IOptions<LiqpaySettings> _liqpayOptions;
 
-        public OrdersController(ILogger<WorkController> logger, BaseContext context, IFileService fileService, IEmailService emailService, UserManager<UserModel> userManager)
+        public OrdersController(ILogger<WorkController> logger, BaseContext context, IFileService fileService, IEmailService emailService, UserManager<UserModel> userManager, IConfiguration configuration, IOptions<LiqpaySettings> liqpayOptions)
         {
             _logger = logger;
             _context = context;
             _fileService = fileService;
             _emailService = emailService;
             _userManager = userManager;
+            _configuration = configuration;
+            _liqpayOptions = liqpayOptions;
         }
 
         /// <summary>
@@ -217,7 +226,7 @@ namespace DiplomaMarketBackend.Controllers
                     else//register new user
                     {
 
-                        if (order.user.name.IsNullOrEmpty() || order.user.email.IsNullOrEmpty())
+                        if (order.user.first_name.IsNullOrEmpty() || order.user.email.IsNullOrEmpty())
                             return BadRequest(new Result
                             {
                                 Status = "Error",
@@ -227,10 +236,14 @@ namespace DiplomaMarketBackend.Controllers
 
                         UserModel user = new()
                         {
+                            FirstName = order.user.first_name,
+                            LastName = order.user.last_name,
                             Email = order.user.email,
                             SecurityStamp = Guid.NewGuid().ToString(),
                             UserName = order.user.email,
-                            EmailConfirmed = true
+                            EmailConfirmed = true,
+                            RegDate = DateTime.Now,
+
                         };
 
                         var pwd = new Password().IncludeLowercase().IncludeUppercase().IncludeNumeric().IncludeSpecial("[]{}^_=");
@@ -286,7 +299,7 @@ namespace DiplomaMarketBackend.Controllers
                 _context.Receivers.Add(receiver);
             }
             //order process
-            if (order.order_summ != await GetOrderSumm(order)) return BadRequest(new Result { Status = "Error", Message = "Order summ calculation is wrong" });
+            if (order.total_price != await GetOrderSumm(order)) return BadRequest(new Result { Status = "Error", Message = "Order summ calculation is wrong" });
 
             var new_order = new OrderModel
             {
@@ -297,24 +310,11 @@ namespace DiplomaMarketBackend.Controllers
                 Receiver = receiver,
                 PaymentTypeId = order.payData.payment_type_id,
                 PaymentData = JsonConvert.SerializeObject(order.payData),
-                TotalPrice = order.order_summ,
+                TotalPrice = order.total_price,
                 DeliveryBranchId = order.delivery_branch_id
             };
 
-
-            foreach (var item in order.goods)
-            {
-                var article = await _context.Articles.FindAsync(item.Key);
-                if (article == null) return BadRequest(new Result { Status = "Error", Message = $"Article id:{item.Key} not exist!" });
-
-                var orderitem = new OrderItemModel
-                {
-                    Article = article,
-                    Quantity = item.Value
-                };
-
-                new_order.Items.Add(orderitem);
-            }
+            new_order.Items = order.goods.Adapt<List<OrderItemModel>>();
 
             foreach (var cert in order.certificates)
             {
@@ -361,7 +361,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <param name="order_id">Order id</param>
         /// <returns>Order entity serialized</returns>
         /// <response code="404">If order not found</response>
-        [HttpPost]
+        [HttpGet]
         [Route("get")]
         public async Task<ActionResult<Order>> GetOrder([FromQuery] int order_id)
         {
@@ -380,22 +380,143 @@ namespace DiplomaMarketBackend.Controllers
             var result = order.Adapt<Order>();
 
             result.payData = JsonConvert.DeserializeObject<Order.PayData>(order.PaymentData);
-            result.goods = order.Items.ToDictionary(t => t.ArticleId, t => t.Quantity);
-            result.order_summ = order.TotalPrice;
+            result.goods = order.Items.Adapt<List<Order.Item>>();
+
 
             return Ok(result);
         }
 
+        /// <summary>
+        /// Order editing by manager role
+        /// </summary>
+        /// <param name="order">order data</param>
+        /// <returns>Ok if success</returns>
+        /// <response code="404">If order not found</response>
+        [Authorize(Roles = "Manager")]
+        [HttpPut]
+        [Route("update")]
+        public async Task<ActionResult<Order>> UpdateOrder([FromBody] Order order)
+        {
+            var exist_order = await _context.Orders.
+                Include(o => o.User).
+                Include(o => o.Receiver).
+                Include(o => o.Items).
+                FirstOrDefaultAsync(o => o.Id == order.id);
+
+            if (order == null) return NotFound(new Result
+            {
+                Status = "Error",
+                Message = "Order not found!"
+            });
+
+            order.Adapt(exist_order);
+
+            return Ok(new Result
+            {
+                Status = "Sucess",
+                Message = "Order updated!",
+                Entity = order
+
+            });
+        }
+
+        /// <summary>
+        /// Order deleting by manager
+        /// </summary>
+        /// <param name="order_id">order id</param>
+        /// <returns>Ok if success</returns>
+        /// <response code="400">If order cant be deleted (allready payed and/or articles present)</response>
+        /// <response code="404">If order not found</response>
+        [Authorize(Roles = "Manager")]
+        [HttpDelete]
+        [Route("delete")]
+        public async Task<IActionResult> DeleteOrder([FromQuery] int order_id)
+        {
+            var order = await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == order_id);
+
+            if (order == null) return NotFound(new Result
+            {
+                Status = "Error",
+                Message = "Order not found!"
+            });
+
+            if (order.Items.Count != 0 && order.Status > OrderStatus.PaymentPending) return BadRequest(
+                new Result
+                {
+                    Status = "Error",
+                    Message = "Order can't be deleted!",
+                    Entity = order
+                });
+
+
+            return Ok(new Result
+            {
+                Status = "Sucess",
+                Message = "Order updated!",
+                Entity = order
+            });
+        }
+
+
+        /// <summary>
+        /// Cancel order by user
+        /// </summary>
+        /// <param name="order_id">Order id</param>
+        /// <param name="reason">Reasonn of cancelling from user</param>
+        /// <returns>Ok if succesfully cancelled</returns>
+        [Authorize]
+        [HttpPost]
+        [Route("cancel")]
+        public async Task<IActionResult> CancelOrder([FromQuery] int order_id, string reason)
+        {
+            var order = await _context.Orders.FindAsync(order_id);
+            if (order == null) return NotFound(new Result
+            {
+                Status = "Error",
+                Message = "Order not found!"
+            });
+
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (user != null && user.Id != order.UserId) return Unauthorized(new Result
+            {
+                Status = "Error",
+                Message = "Order not belong to this user!"
+            });
+
+            if (order.Status > OrderStatus.InProcess) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Cant cancel shipped order!"
+            });
+
+
+            order.Status = OrderStatus.Cancelled;
+            _context.SaveChanges();
+
+            return Ok(new Result
+            {
+                Status = "Sucess",
+                Message = "Order cancelled!"
+            });
+        }
+
+
+        /// <summary>
+        /// Order summ check method
+        /// </summary>
+        /// <param name="order">order entity</param>
+        /// <returns>order summ</returns>
         private async Task<decimal> GetOrderSumm(Order order)
         {
             decimal total_summ = default;
 
             foreach (var item in order.goods)
             {
-                var article = await _context.Articles.FindAsync(item.Key);
+                var article = await _context.Articles.FindAsync(item.article_id);
                 if (article == null) continue;
 
-                total_summ += article.Price * item.Value;
+                total_summ += article.Price * item.quantity;
             }
 
             foreach (var cert in order.certificates)
@@ -415,5 +536,26 @@ namespace DiplomaMarketBackend.Controllers
             return total_summ;
         }
 
+
+        /// <summary>
+        /// Bank callback route
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="signature"></param>
+        /// <returns>Ok if payment processed</returns>
+        [HttpPost]
+        [Route("liqpay-callback")]
+        public async Task<ActionResult<Order>> LiqpayCallback([FromQuery] string data, string signature)
+        {
+            var priv_key = _liqpayOptions.Value.PrivateKey;
+            var concatenated = priv_key + data + priv_key;
+            byte[] sourceBytes = Encoding.UTF8.GetBytes(concatenated);
+
+            var sha1 = SHA1.HashData(sourceBytes);
+
+            var comparable = Convert.ToBase64String(sha1);
+
+            return Ok();
+        }
     }
 }

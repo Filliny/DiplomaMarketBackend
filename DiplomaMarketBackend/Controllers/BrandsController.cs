@@ -14,11 +14,11 @@ namespace DiplomaMarketBackend.Controllers
     [Route("api/[controller]")]
     public class BrandsController : ControllerBase
     {
-        ILogger<WorkController> _logger;
+        ILogger<BrandsController> _logger;
         BaseContext _context;
         IFileService _fileService;
 
-        public BrandsController(ILogger<WorkController> logger, BaseContext context, IFileService fileService)
+        public BrandsController(ILogger<BrandsController> logger, BaseContext context, IFileService fileService)
         {
             _logger = logger;
             _context = context;

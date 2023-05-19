@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230519114136_order_items_price")]
+    partial class order_items_price
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,21 +39,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("ArticlesId");
 
                     b.ToTable("ActionModelArticleModel");
-                });
-
-            modelBuilder.Entity("ArticleModelUserModel", b =>
-                {
-                    b.Property<string>("FavoriteUsersId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("FavoritesId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("FavoriteUsersId", "FavoritesId");
-
-                    b.HasIndex("FavoritesId");
-
-                    b.ToTable("ArticleModelUserModel");
                 });
 
             modelBuilder.Entity("ArticleModelValueModel", b =>
@@ -1420,21 +1408,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasOne("DiplomaMarketBackend.Entity.Models.ArticleModel", null)
                         .WithMany()
                         .HasForeignKey("ArticlesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ArticleModelUserModel", b =>
-                {
-                    b.HasOne("Lessons3.Entity.Models.UserModel", null)
-                        .WithMany()
-                        .HasForeignKey("FavoriteUsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.ArticleModel", null)
-                        .WithMany()
-                        .HasForeignKey("FavoritesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

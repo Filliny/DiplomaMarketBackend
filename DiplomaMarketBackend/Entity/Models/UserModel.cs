@@ -14,6 +14,8 @@ namespace Lessons3.Entity.Models
         public DateTime RegDate { get; set; }
         public DateTime BirthDay { get; set;}
 
+        public List<ArticleModel> Favorites { get; set; } = new List<ArticleModel>();
+
         [JsonIgnore]
         public List<ReceiverModel> receivers { get; set; }
     }

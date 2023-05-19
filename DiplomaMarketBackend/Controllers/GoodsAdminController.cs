@@ -15,14 +15,16 @@ using System.Text.RegularExpressions;
 
 namespace DiplomaMarketBackend.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class GoodsAdminController : Controller
     {
-        ILogger<WorkController> _logger;
+        ILogger<GoodsAdminController> _logger;
         BaseContext _context;
         IFileService _fileService;
         IMapper _mapper;
 
-        public GoodsAdminController(ILogger<WorkController> logger, BaseContext context, IFileService fileService, IMapper mapper)
+        public GoodsAdminController(ILogger<GoodsAdminController> logger, BaseContext context, IFileService fileService, IMapper mapper)
         {
             _logger = logger;
             _context = context;
@@ -150,6 +152,7 @@ namespace DiplomaMarketBackend.Controllers
                 }
 
                 new_entry.Created = DateTime.Now;
+                new_entry.Id = 0; //ensure for test
 
                 _context.Articles.Add(new_entry);
                 _context.SaveChanges();
@@ -292,6 +295,8 @@ namespace DiplomaMarketBackend.Controllers
 
                 var remove_images = articleToUpdate.Images.Where(i => updateData.images.All(u => u.id != i.Id));
                 articleToUpdate.Images = articleToUpdate.Images.Except(remove_images).ToList();
+
+                //todo remove images process
                 foreach (var image in article_pack.images)
                 {
                     var img = await GetImagePictires(image.OpenReadStream(), image.FileName);
@@ -318,7 +323,6 @@ namespace DiplomaMarketBackend.Controllers
                         }
                     }
                 }
-
 
             }
             catch (Exception ex)

@@ -15,14 +15,14 @@ namespace DiplomaMarketBackend.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        private readonly ILogger<RegController> _logger;
+        private readonly ILogger<UsersController> _logger;
         private readonly BaseContext _context;
         private readonly IEmailService _emailService;
         private readonly UserManager<UserModel> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public UsersController(BaseContext context, ILogger<RegController> logger, IEmailService emailService, UserManager<UserModel> userManager,
+        public UsersController(BaseContext context, ILogger<UsersController> logger, IEmailService emailService, UserManager<UserModel> userManager,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration)
         {

@@ -1,4 +1,5 @@
 ﻿using DiplomaMarketBackend.Entity.Models;
+using Lessons3.Entity.Models;
 
 namespace DiplomaMarketBackend.Entity.Models
 {
@@ -39,6 +40,7 @@ namespace DiplomaMarketBackend.Entity.Models
         public decimal RatingCalculated { get; set; }
 
         public List<ReviewModel> Reviews { get; set; }
+        public List<UserModel> FavoriteUsers { get; set; }
 
         public int? SellerId { get; set; }
         public SellerModel? Seller { get; set; }

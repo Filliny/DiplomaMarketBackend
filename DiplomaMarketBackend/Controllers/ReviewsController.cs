@@ -15,11 +15,11 @@ namespace DiplomaMarketBackend.Controllers
     [ApiController]
     public class ReviewsController : Controller
     {
-        ILogger<WorkController> _logger;
+        ILogger<ReviewsController> _logger;
         BaseContext _context;
         IFileService _fileService;
 
-        public ReviewsController(ILogger<WorkController> logger, BaseContext context, IFileService fileService)
+        public ReviewsController(ILogger<ReviewsController> logger, BaseContext context, IFileService fileService)
         {
             _logger = logger;
             _context = context;

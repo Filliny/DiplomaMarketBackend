@@ -21,18 +21,17 @@ namespace DiplomaMarketBackend.Controllers
 		private readonly IEmailService _emailService;
 		private readonly UserManager<UserModel> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly IConfiguration _configuration;
+
 
 		public RegController(BaseContext db, ILogger<RegController> logger, IEmailService emailService, UserManager<UserModel> userManager,
-			RoleManager<IdentityRole> roleManager,
-			IConfiguration configuration)
+			RoleManager<IdentityRole> roleManager
+			)
 		{
 			_db = db;
 			_logger = logger;
 			_emailService = emailService;
 			_userManager = userManager;
 			_roleManager = roleManager;
-			_configuration = configuration;
 		}
 		
 		/// <summary>

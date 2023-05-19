@@ -11,11 +11,11 @@ namespace DiplomaMarketBackend.Controllers
     [Route("api/[controller]")]
     public class DeliveryController : Controller
     {
-        ILogger<WorkController> _logger;
+        ILogger<DeliveryController> _logger;
         BaseContext _context;
         IFileService _fileService;
 
-        public DeliveryController(ILogger<WorkController> logger, BaseContext context, IFileService fileService)
+        public DeliveryController(ILogger<DeliveryController> logger, BaseContext context, IFileService fileService)
         {
             _logger = logger;
             _context = context;

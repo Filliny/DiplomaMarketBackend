@@ -13,11 +13,11 @@ namespace DiplomaMarketBackend.Controllers
     [ApiController]
     public class GoodsController : Controller
     {
-        ILogger<WorkController> _logger;
+        ILogger<GoodsController> _logger;
         BaseContext _context;
         IFileService _fileService;
 
-        public GoodsController(ILogger<WorkController> logger, BaseContext context, IFileService fileService)
+        public GoodsController(ILogger<GoodsController> logger, BaseContext context, IFileService fileService)
         {
             _logger = logger;
             _context = context;

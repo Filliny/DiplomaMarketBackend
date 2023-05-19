@@ -2,22 +2,31 @@
 {
     public class Order
     {
+        /// <summary>
+        /// Order receiver (fill if receiver different then user)
+        /// </summary>
         public class Receiver
         {
-            public string name { get; set; } = string.Empty;
+            public string first_name { get; set; } = string.Empty;
             public string last_name { get; set; } = string.Empty;
             public string middle_name { get; set; } = string.Empty;
             public string email { get; set; } = string.Empty;
         }
 
+        /// <summary>
+        /// Order User for registration form 
+        /// </summary>
         public class OrderUser
         {
-            public string name { get; set; } = string.Empty;
+            public string first_name { get; set; } = string.Empty;
             public string last_name { get; set; } = string.Empty;
             public string phone { get; set; } = string.Empty;
             public string email { get; set; } = string.Empty;
         }
 
+        /// <summary>
+        /// Payment data 
+        /// </summary>
         public class PayData
         {
             public int payment_type_id { get; set; }
@@ -27,6 +36,26 @@
             
         }
 
+        /// <summary>
+        /// Order items for order list
+        /// </summary>
+        public class Item
+        {
+            public int article_id { get; set; }
+            public decimal price { get; set; }
+            public int quantity { get; set; }
+
+        }
+
+        /// <summary>
+        /// Order status in one of next states:
+        /// New, PaymentPending, Paid, InProcess, Shipped, Delivered,Cancelled
+        /// </summary>
+        public string? status { get; set; }
+
+        /// <summary>
+        /// Order Id
+        /// </summary>
         public int id { get; set; }
 
         /// <summary>
@@ -50,9 +79,9 @@
         public PayData? payData { get; set; } 
 
         /// <summary>
-        /// goods dictionary, where key - article id, value - quantity
+        /// List of order items (articles, goods)
         /// </summary>
-        public Dictionary<int , int> goods { get; set; } = new Dictionary<int , int>();
+        public List<Item> goods { get; set; } = new List<Item>();
 
         /// <summary>
         /// List of certificates codes
@@ -72,7 +101,7 @@
         /// <summary>
         /// Order view summ for checking
         /// </summary>
-        public decimal order_summ { get; set;}
+        public decimal total_price { get; set;}
 
     }
 }

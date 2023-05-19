@@ -12,15 +12,13 @@ namespace DiplomaMarketBackend.Controllers
     [Route("api/[controller]")]
     public class ValuesController : ControllerBase
     {
-        ILogger<WorkController> _logger;
+        ILogger<ValuesController> _logger;
         BaseContext _context;
-        IFileService _fileService;
 
-        public ValuesController(ILogger<WorkController> logger, BaseContext context, IFileService fileService)
+        public ValuesController(ILogger<ValuesController> logger, BaseContext context)
         {
             _logger = logger;
             _context = context;
-            _fileService = fileService;
         }
 
         /// <summary>
@@ -73,13 +71,6 @@ namespace DiplomaMarketBackend.Controllers
         {
             lang = lang.NormalizeLang();
 
-            //var charakteristics = await _context.ArticleCharacteristics.
-            //    Include(c => c.Title.Translations).
-            //    Include(c => c.Values).ThenInclude(v => v.Title.Translations).
-            //    Where(c => c.show_in_filter == true).
-            //    Where(c => c.CategoryId == category_id).Take(20).ToListAsync();
-
-
             var chars = await  _context.Articles.AsSplitQuery().
                 Include(a=>a.CharacteristicValues).ThenInclude(v=>v.CharacteristicType.Title.Translations).
                 Include(a => a.CharacteristicValues).ThenInclude(v => v.Title.Translations)
@@ -129,49 +120,7 @@ namespace DiplomaMarketBackend.Controllers
                 result.Add(charakt);
             }
 
-
-            //var result = new List<dynamic>();
-
-            //foreach (var charakter in charakteristics)
-            //{
-            //    int min = charakter.filterType == FilterType.slider ? int.MaxValue : 0;
-            //    int max = 0;
-            //    var values = new List<dynamic>();
-
-            //    foreach (var value in charakter.Values)
-            //    {
-            //        if (charakter.filterType == FilterType.slider)
-            //        {
-            //            if (int.TryParse(value.Title.OriginalText, out int val))
-            //            {
-            //                if (val < min) min = val;
-            //                if (val > max) max = val;
-            //            }
-            //        }
-
-            //        values.Add(new
-            //        {
-            //            id = value.Id,
-            //            name = value.Title.Content(lang)
-            //        });
-            //    }
-
-            //    var charakt = new
-            //    {
-            //        id = charakter.Id,
-            //        name = charakter.Title.Content(lang),
-            //        filter_type = charakter.filterType.ToString(),
-            //        lower_value = min,
-            //        upper_value = max,
-            //        values
-
-            //    };
-
-            //    result.Add(charakt);
-            //}
-
             return new JsonResult(new { data = result });
-
         }
 
         /// <summary>
@@ -248,7 +197,6 @@ namespace DiplomaMarketBackend.Controllers
             return NotFound("No such characteristic!");
 
         }
-
 
 
         /// <summary>

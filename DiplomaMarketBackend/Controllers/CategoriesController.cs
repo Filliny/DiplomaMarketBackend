@@ -17,12 +17,12 @@ namespace DiplomaMarketBackend.Controllers
     public class CategoriesController : Controller
     {
 
-        ILogger<WorkController> _logger;
+        ILogger<CategoriesController> _logger;
         ICloudStorageService _storageService;
         BaseContext _context;
         IFileService _fileService;
 
-        public CategoriesController(ILogger<WorkController> logger, ICloudStorageService cloudStorageService, BaseContext context, IFileService fileService)
+        public CategoriesController(ILogger<CategoriesController> logger, ICloudStorageService cloudStorageService, BaseContext context, IFileService fileService)
         {
             _logger = logger;
             _storageService = cloudStorageService;
@@ -71,75 +71,7 @@ namespace DiplomaMarketBackend.Controllers
                 response.Add(getInnerTree(category, lang, doubled));
             }   
 
-
-            //var new_result = new List<Models.OutCategory>();
-
-            //foreach (var category in stop_categories)
-            //{
-            //    if (category.is_active == false) continue;
-
-            //    var get_childs = await _context.Categories.AsNoTracking().
-            //        Include(c => c.Name.Translations).
-            //        Include(c => c.ChildCategories).ThenInclude(c => c.Name.Translations).
-            //        Where(c => c.ShowInCategoryId == category.Id).ToListAsync();
-
-            //    var out_cat = new Models.OutCategory()
-            //    {
-            //        Name = category.Name.Content(lang),
-            //        Id = category.Id,
-            //        SmallIcon = category.ImgData != null ? Convert.ToBase64String(category.ImgData) : null,
-            //        BigPicture = Request.GetImageURL(BucketNames.category.ToString(), category.ImgUrl)
-
-            //    };
-
-            //    //adding show_in
-            //    category.ChildCategories.AddRange(get_childs);
-
-            //    foreach (var mid_cat in category.ChildCategories)
-            //    {
-            //        if (mid_cat.is_active == false) continue;
-
-            //        var get_mchilds = await _context.Categories.AsNoTracking().
-            //        Include(c => c.Name.Translations).
-            //        Include(c => c.ChildCategories).ThenInclude(c => c.Name.Translations).
-            //        Where(c => c.ShowInCategoryId == mid_cat.Id).ToListAsync();
-
-            //        var omid_cat = new Models.OutCategory()
-            //        {
-            //            Name = mid_cat.Name.Content(lang),
-            //            Id = mid_cat.Id,
-            //            SmallIcon = mid_cat.ImgData != null ? Convert.ToBase64String(mid_cat.ImgData) : null,
-            //            BigPicture = Request.GetImageURL(BucketNames.category.ToString(), mid_cat.ImgUrl),
-            //            ParentId = category.Id,
-
-            //        };
-
-            //        mid_cat.ChildCategories.AddRange(get_childs);
-
-            //        foreach (var low_cat in mid_cat.ChildCategories)
-            //        {
-            //            if (low_cat.is_active == false) continue;
-
-            //            var olow_cat = new Models.OutCategory()
-            //            {
-            //                Name = low_cat.Name.Content(lang),
-            //                Id = low_cat.Id,
-            //                SmallIcon = low_cat.ImgData != null ? Convert.ToBase64String(low_cat.ImgData) : null,
-            //                BigPicture = Request.GetImageURL(BucketNames.category.ToString(), low_cat.ImgUrl),
-            //                ParentId = mid_cat.Id,
-
-            //            };
-
-            //            omid_cat.Children.Add(olow_cat);
-            //        }
-            //        out_cat.Children.Add(omid_cat);
-            //    }
-
-            //    new_result.Add(out_cat);
-            //}
-
             return new JsonResult(new { data = response });
-
         }
 
         private List<CategoryModel> SearchDoubled(List<CategoryModel> list)
@@ -167,7 +99,7 @@ namespace DiplomaMarketBackend.Controllers
                 Id = category.Id,
                 SmallIcon = category.ImgData != null ? Convert.ToBase64String(category.ImgData) : null,
                 BigPicture = Request.GetImageURL(BucketNames.category.ToString(), category.ImgUrl)
-
+                
             };
 
             foreach (var child in category.ChildCategories)

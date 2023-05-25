@@ -44,6 +44,8 @@ namespace DiplomaMarketBackend.Entity.Models
 
         public int? SellerId { get; set; }
         public SellerModel? Seller { get; set; }
+        public decimal Quantity { get; set; }
+        public uint Points { get;set; }
 
         public ArticleModel()
         {

@@ -39,6 +39,10 @@ namespace DiplomaMarketBackend.Entity
         public DbSet<ReceiverModel> Receivers { get; set; } 
         public DbSet<PaymentTypesModel> PaymentTypes { get; set; }
         public DbSet<ServiceModel> Services { get; set; }
+        public DbSet<BannerModel> Banners { get; set; }
+
+        //Fixed Filters
+        public DbSet<FixedFilterSettingsModel> FixedFilterSettings { get; set; }
 
         //Translations
         public DbSet<Language> Languages { get; set; }

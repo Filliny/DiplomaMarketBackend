@@ -13,6 +13,7 @@ namespace Lessons3.Entity.Models
         public Language? PreferredLanguage { get; set; }
         public DateTime RegDate { get; set; }
         public DateTime BirthDay { get; set;}
+        public string DeliveryAddress { get; set; } = string.Empty;
 
         public List<ArticleModel> Favorites { get; set; } = new List<ArticleModel>();
 

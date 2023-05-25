@@ -15,13 +15,12 @@
 
         public string Content(string language)
         {
+            if(Translations == null)
+                Translations = new List<Translation>();
+
             var translation = Translations.FirstOrDefault(t=>t.LanguageId == language.ToUpper());
 
-
-            if(translation == null) {
-
-                return OriginalText??"";
-            }
+            if(translation == null) return OriginalText??"";
 
             return translation.TranslationString??"";
         }

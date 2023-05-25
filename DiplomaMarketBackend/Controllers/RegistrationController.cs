@@ -2,9 +2,11 @@
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using Lessons3.Entity.Models;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -52,7 +54,7 @@ namespace DiplomaMarketBackend.Controllers
 				});
 
 
-			var userExists = await _userManager.FindByNameAsync(model.user_name);
+			var userExists = await _userManager.FindByNameAsync(model.email);
 
 			if (userExists != null)
 				return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
@@ -61,8 +63,9 @@ namespace DiplomaMarketBackend.Controllers
 			{
 				Email = model.email,
 				SecurityStamp = Guid.NewGuid().ToString(),
-				UserName = model.user_name,
-				EmailConfirmed = true
+				UserName = model.email,
+				EmailConfirmed = true,
+				RegDate = DateTime.Now,
 			};
 
 			var result = await _userManager.CreateAsync(user, model.password);
@@ -72,11 +75,19 @@ namespace DiplomaMarketBackend.Controllers
 				return StatusCode(StatusCodes.Status500InternalServerError, new  { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
 
-			user.PasswordHash = null;
+            var user_dto = user.Adapt<UserFull>();
+            var role = await _userManager.GetRolesAsync(user);
+
+            if (role != null)
+            {
+                user_dto.roles = role;
+            }
+
+            user.PasswordHash = null;
 			var response = new
 			{
 				jwt = JwtTokenGenerator.GetToken(_userManager, user),
-				userModel = user,
+				userModel = user_dto,
 				Status = "Success",
 				Message = "User created successfully!"
 
@@ -143,15 +154,16 @@ namespace DiplomaMarketBackend.Controllers
 		}
 
 
-		/// <summary>
-		/// Password recovery send mail endpoint
-		/// </summary>
-		/// <param name="email">email to send recovery code</param>
-		/// <returns>Ok if send succesfull</returns>
-		/// <response code="400">If user with given email is not exist</response>
-		[HttpPost]
+        /// <summary>
+        /// Password recovery send mail endpoint
+        /// </summary>
+        /// <param name="email">email to send recovery code</param>
+        /// <param name="front_callback">Frontend callback for email confirm route e.g. http://your_host/confirm_email</param>
+        /// <returns>Ok if send succesfull</returns>
+        /// <response code="400">If user with given email is not exist</response>
+        [HttpPost]
 		[Route("pass-recovery")]
-		public async Task<IActionResult> PasswordRecovery([FromQuery] string email)
+		public async Task<IActionResult> PasswordRecovery([FromQuery] string email, string front_callback)
 		{
 			var user = await _userManager.FindByEmailAsync(email.ToLower());
 
@@ -162,14 +174,10 @@ namespace DiplomaMarketBackend.Controllers
 
 			var code = await _userManager.GeneratePasswordResetTokenAsync(user);
 			code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-			var callbackUrl = Url.Page(
-					"/Account/ResetPassword", //todo set right callback
-					pageHandler: null,
-					values: new { area = "Identity", code },
-					protocol: Request.Scheme);
+			var callbackUrl = $"{front_callback}?email={email}&code={code}";
 
-			await _emailService.SendEmailAsync(email,"Reset Password",
-				 $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl??"")}'>clicking here</a>.");
+			await _emailService.SendEmailAsync(email, "Reset Password",
+			 $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl ?? "")}'>clicking here</a>.");
 
 			return Ok();
 		}

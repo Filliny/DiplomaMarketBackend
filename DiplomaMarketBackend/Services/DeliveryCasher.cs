@@ -5,7 +5,6 @@ using DiplomaMarketBackend.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using OpenQA.Selenium.DevTools.V109.Network;
 
 namespace DiplomaMarketBackend.Services
 {
@@ -83,7 +82,7 @@ namespace DiplomaMarketBackend.Services
             if (task == null || task.IsCompleted)
             {
 
-                task = Task.Factory.StartNew(async() =>
+                task = Task.Factory.StartNew(async () =>
                 {
 
                     _logger.LogInformation("Delivery Casher started");
@@ -127,18 +126,31 @@ namespace DiplomaMarketBackend.Services
                         {
                             var br = branch_data.result.First();
 
-                            ///check city for branch
-
+                            //check city for branch
+                            //try find by name and area
                             var city = _context.Cities.
                                 Include(c => c.Area).
                                 Include(c => c.Name).
                                 FirstOrDefault(c => c.Name.OriginalText.ToUpper().Equals(br.city.ua.ToUpper()) && c.Area.Description.ToUpper().Equals(br.region.ua));
 
+                            //try find by mist city id
                             if (city == null)
                             {
                                 city = _context.Cities.FirstOrDefault(c => c.NpCityRef == br.city_id);
                             }
 
+                            //Try get by koatsu
+                            if (city == null)
+                            {
+                                var city_resp = await GetMistCities(br.district_id, br.city.ua);
+
+                                if (city_resp != null)
+                                {
+                                    var city_data = JsonConvert.DeserializeObject<Parser.Mist.City.Root>(city_resp);
+                                    var fcity = city_data.result.First().data;
+                                    city = _context.Cities.FirstOrDefault(c => c.CoatsuCode == fcity.kt);
+                                }
+                            }
 
                             if (city == null)
                             {
@@ -166,6 +178,8 @@ namespace DiplomaMarketBackend.Services
                                             Name = name_content,
                                             NpCityRef = fcity.city_id,
                                             CoatsuCode = fcity.kt,
+                                            Creator = "mist_casher",
+                                            Created = DateTime.Now,
 
                                         };
 
@@ -505,9 +519,9 @@ namespace DiplomaMarketBackend.Services
 
             try
             {
-                using(var client = new HttpClient())
+                using (var client = new HttpClient())
                 {
-                    var result = await client.GetAsync("https://api.delengine.com/v1.0/settlements?page=1&region_uuid=333f9e71-a1fd-46cc-8f6a-371420e3e280&token="+delengine_key);
+                    var result = await client.GetAsync("https://api.delengine.com/v1.0/settlements?page=1&region_uuid=333f9e71-a1fd-46cc-8f6a-371420e3e280&token=" + delengine_key);
 
                     if (result != null)
                     {
@@ -519,21 +533,21 @@ namespace DiplomaMarketBackend.Services
                             foreach (var city in cities.data)
                             {
 
-                                var city_base = _context.Cities.Include(c=>c.Area).Include(c=>c.Name).
+                                var city_base = _context.Cities.Include(c => c.Area).Include(c => c.Name).
                                     FirstOrDefault(c => c.Name.OriginalText.ToUpper().Equals(city.name_uk.ToUpper()) && c.Area.Description.ToUpper().Equals(city.region.name_uk.ToUpper()));
 
-                                if(city_base != null)
+                                if (city_base != null)
                                 {
-                                    var url = $"https://api.delengine.com/v1.0/departments?page=1&settlement_uuid=" + city.uuid + "&company_uuid=64054fa0-8584-4492-8425-142156ce3110&token="+delengine_key;
+                                    var url = $"https://api.delengine.com/v1.0/departments?page=1&settlement_uuid=" + city.uuid + "&company_uuid=64054fa0-8584-4492-8425-142156ce3110&token=" + delengine_key;
 
                                     var city_res = await client.GetAsync(url);
                                     var city_str = await city_res.Content.ReadAsStringAsync();
 
                                     var branches = JsonConvert.DeserializeObject<Parser.Delengine.Branches.Root>(city_str);
 
-                                    if(branches != null)
+                                    if (branches != null)
                                     {
-                                        foreach(var branch in branches.data)
+                                        foreach (var branch in branches.data)
                                         {
                                             var new_branch = _context.Branches.FirstOrDefault(b => b.DeliveryBranchId == branch.uuid);
 
@@ -558,9 +572,9 @@ namespace DiplomaMarketBackend.Services
                                             new_branch.DeliveryId = 3;
                                             new_branch.LocalBranchNumber = branch.number.ToString();
                                             new_branch.BranchCity = city_base;
-                                            new_branch.Long = (branch.longitude??(double)0).ToString();
-                                            new_branch.Lat = (branch.latitude??(double)0).ToString();
-                                            new_branch.WorkHours =branch.schedules??"";
+                                            new_branch.Long = (branch.longitude ?? (double)0).ToString();
+                                            new_branch.Lat = (branch.latitude ?? (double)0).ToString();
+                                            new_branch.WorkHours = branch.schedules ?? "";
 
                                             _context.SaveChanges();
                                         }
@@ -580,7 +594,7 @@ namespace DiplomaMarketBackend.Services
 
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogWarning($"Delivery casher Updating Ukrpost branches error  : {e.Message}");
             }

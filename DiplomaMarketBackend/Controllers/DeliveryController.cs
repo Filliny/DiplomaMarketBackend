@@ -4,6 +4,7 @@ using DiplomaMarketBackend.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -55,16 +56,20 @@ namespace DiplomaMarketBackend.Controllers
         /// </summary>
         /// <param name="search">Search string - search from start of string</param>
         /// <param name="lang">language of search and results</param>
+        /// <param name="limit">Number of rows to get - default 10</param>
         /// <returns>List of found cities or empty list</returns>
         [HttpGet]
         [Route("city")]
-        public async Task<IActionResult> CitySearch([FromQuery] string search, string lang)
+        public async Task<IActionResult> CitySearch([FromQuery] string? search, string lang, int limit=10)
         {
             lang= lang.NormalizeLang();
+            if (search.IsNullOrEmpty()) search = "";
 
             var found = await _context.Cities.Include(c => c.Name).ThenInclude(n => n.Translations).
                 Include(c => c.Area).ThenInclude(a=>a.Name).ThenInclude(n=>n.Translations).
-                Where(c => c.Name.Translations.Any(t => t.TranslationString.ToLower().StartsWith(search.ToLower()) && t.LanguageId == lang)).ToListAsync();
+                Where(c => c.Name.Translations.Any(t => t.TranslationString.ToLower().StartsWith(search.ToLower()) && t.LanguageId == lang)).
+                OrderBy(c=>c.Name.OriginalText).
+                Take(limit).ToListAsync();
 
             var result = new List<dynamic>();
 
@@ -76,6 +81,8 @@ namespace DiplomaMarketBackend.Controllers
                     id = city.Id,
                     name = city.Name.Content(lang),
                     area = city.Area.Name.Content(lang),
+                    coautsu = city.CoatsuCode,
+                    zip = city.Index1
                 });
             }
 

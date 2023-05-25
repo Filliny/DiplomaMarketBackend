@@ -31,7 +31,7 @@ namespace DiplomaMarketBackend.Services
             plainTextContent, htmlMessage);
             var response = await sendGridClient.SendEmailAsync(msg);
 
-            _logger.LogInformation(plainTextContent, response);
+            _logger.LogInformation(plainTextContent);
 
         }
     }

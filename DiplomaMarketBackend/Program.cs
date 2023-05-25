@@ -98,6 +98,8 @@ namespace DiplomaMarketBackend
                 
             });
 
+            builder.Services.RegisterMapsterConfiguration();
+
             builder.Services.AddTransient(typeof(SetImgFullURL));
 
 

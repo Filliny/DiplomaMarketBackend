@@ -13,8 +13,6 @@
         public ArticleCharacteristic CharacteristicType { get; set; }
         public List<ArticleModel> Articles { get; set; }
 
-
-
         public ValueModel()
         {
             Articles = new();

@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using PasswordGenerator;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 using WebShopApp.Abstract;
 
 
@@ -263,6 +264,7 @@ namespace DiplomaMarketBackend.Controllers
                                 });
                             }
                             logged_user = user;
+                            await _emailService.SendEmailAsync(logged_user.Email, "New registration", HtmlEncoder.Default.Encode($"<h1>Password :{password}</h1>"));
                         }
                         else
                         {
@@ -285,6 +287,12 @@ namespace DiplomaMarketBackend.Controllers
 
             var jwt = JwtTokenGenerator.GetToken(_userManager, logged_user);
 
+            //process delivery adress
+            if (order.delivery_adress != null && logged_user.DeliveryAddress.IsNullOrEmpty())
+            {
+                logged_user.DeliveryAddress = JsonConvert.SerializeObject(order.delivery_adress);
+            }
+
             //add reciver
             if (order.receiver == null)
                 order.receiver = order.user.Adapt<Order.Receiver>();
@@ -294,7 +302,10 @@ namespace DiplomaMarketBackend.Controllers
 
             if (receiver == null)
             {
+                //fill profile name cos no field if order form
+                if (order.receiver.profile_name == null) order.receiver.profile_name = order.receiver.first_name + " " + order.receiver.last_name;
                 receiver = order.receiver.Adapt<ReceiverModel>() ?? new ReceiverModel();
+
                 receiver.UserId = logged_user.Id;
                 _context.Receivers.Add(receiver);
             }
@@ -322,10 +333,14 @@ namespace DiplomaMarketBackend.Controllers
                 if (certificate == null) return BadRequest(new Result { Status = "Error", Message = $"Certificate id:{cert} not exist!" });
                 if (certificate.ValidUntil.Date < DateTime.Now.Date || !certificate.Unused) return BadRequest(new Result { Status = "Error", Message = $"Certificate id:{cert} valid untill {certificate.ValidUntil.ToShortDateString()} is expired or already Used!" });
 
-                certificate.Closed = DateTime.Now;
-                certificate.Unused = false;
-                _context.Certificates.Update(certificate);
-                new_order.Certificates.Add(certificate);
+                if (logged_user.UserName != "admin@gmail.com" && certificate.CertificateCode != "11110000")
+                {
+                    certificate.Closed = DateTime.Now;
+                    certificate.Unused = false;
+                    _context.Certificates.Update(certificate);
+                    new_order.Certificates.Add(certificate);
+                }
+
             }
 
             foreach (var promo in order.promo_codes)
@@ -344,13 +359,13 @@ namespace DiplomaMarketBackend.Controllers
             return Ok(new Result
             {
                 Status = "Success",
-                Message = "Order creatd Successfully!",
+                Message = "Order created Successfully!",
                 Entity = new
                 {
                     jwt,
                     payment_callback = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/api/Order/liqpay-callback", //payment_type.CallbackURL
                     order_id = new_order.Id,
-                    order = new_order,
+
                 }
             });
         }
@@ -392,7 +407,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <param name="order">order data</param>
         /// <returns>Ok if success</returns>
         /// <response code="404">If order not found</response>
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPut]
         [Route("update")]
         public async Task<ActionResult<Order>> UpdateOrder([FromBody] Order order)
@@ -409,7 +424,9 @@ namespace DiplomaMarketBackend.Controllers
                 Message = "Order not found!"
             });
 
-            order.Adapt(exist_order);
+
+            //todo define changing values
+            //order.Adapt(exist_order);
 
             return Ok(new Result
             {
@@ -462,7 +479,7 @@ namespace DiplomaMarketBackend.Controllers
         /// Cancel order by user
         /// </summary>
         /// <param name="order_id">Order id</param>
-        /// <param name="reason">Reasonn of cancelling from user</param>
+        /// <param name="reason">Reason of cancelling from user</param>
         /// <returns>Ok if succesfully cancelled</returns>
         [Authorize]
         [HttpPost]

@@ -14,6 +14,8 @@
         public string Index1 { get; set; } = string.Empty;
         public string Index2 { get; set; } = string.Empty;
         public List<BranchModel> Branches { get; set; }
+        public string Creator { get; set; } = string.Empty;
+        public DateTime Created { get; set; }
 
         public CityModel()
         {

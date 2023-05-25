@@ -13,12 +13,13 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using System.ComponentModel.DataAnnotations;
 
 namespace DiplomaMarketBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    //ApiExplorerSettings(IgnoreApi = true)]
     public class WorkController : ControllerBase
     {
         ILogger<WorkController> _logger;
@@ -2149,6 +2150,31 @@ namespace DiplomaMarketBackend.Controllers
             return Ok();
         }
 
+
+        [HttpGet]
+        [Route("points")]
+        public async Task<IActionResult> Points()
+        {
+            var count = _context.Articles.Count();
+
+            var rand = new Random();    
+
+            for (int i = 0; i < 100; i++)
+            {
+                var id = rand.Next(1, count);
+
+                var article = await _context.Articles.FindAsync(id);
+                if(article != null)
+                {
+                    article.Points = (uint)(rand.Next(1, 9) * 100);
+                }
+
+                _context.SaveChanges();
+            }
+            
+            
+            return Ok();
+        }
 
     }
 }

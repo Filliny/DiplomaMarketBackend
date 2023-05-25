@@ -166,6 +166,8 @@ namespace DiplomaMarketBackend.Helpers
         /// <exception cref="Exception"></exception>
         public static void UpdateFromDictionary(BaseContext _db, TextContent? content, Dictionary<string, string> translations, bool save = true)
         {
+            if (translations == null) return;
+
             if(content != null && content.Translations == null)
                 content = _db.textContents.Include(c=>c.Translations).FirstOrDefault(c=>c.Id == content.Id);
             if (content == null)

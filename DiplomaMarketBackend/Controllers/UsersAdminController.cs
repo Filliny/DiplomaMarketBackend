@@ -13,16 +13,16 @@ namespace DiplomaMarketBackend.Controllers
     //[Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : Controller
+    public class UsersAdminController : Controller
     {
-        private readonly ILogger<UsersController> _logger;
+        private readonly ILogger<UsersAdminController> _logger;
         private readonly BaseContext _context;
         private readonly IEmailService _emailService;
         private readonly UserManager<UserModel> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public UsersController(BaseContext context, ILogger<UsersController> logger, IEmailService emailService, UserManager<UserModel> userManager,
+        public UsersAdminController(BaseContext context, ILogger<UsersAdminController> logger, IEmailService emailService, UserManager<UserModel> userManager,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration)
         {
@@ -258,7 +258,7 @@ namespace DiplomaMarketBackend.Controllers
                         return Ok(new Result
                         {
                             Status = "Success",
-                            Message = "User created sucessfully",
+                            Message = "User updated sucessfully",
                             Entity = user
 
                         });
@@ -269,7 +269,7 @@ namespace DiplomaMarketBackend.Controllers
                         return BadRequest(new Result
                         {
                             Status = "Error",
-                            Message = "Create user error - see entity",
+                            Message = "Update user error - see entity",
                             Entity = roles_result.Errors
                         });
 
@@ -281,7 +281,7 @@ namespace DiplomaMarketBackend.Controllers
                     return BadRequest(new Result
                     {
                         Status = "Error",
-                        Message = "Create user error- see entity",
+                        Message = "Update user error- see entity",
                         Entity = result.Errors
                     });
 

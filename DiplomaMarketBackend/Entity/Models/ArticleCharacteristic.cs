@@ -12,7 +12,13 @@
     public enum FilterType
     {
         checkbox,
-        slider
+        slider,
+        price,
+        brand,
+        shipping_ready,
+        action,
+        bonuses,
+        status
     }
 
     public class ArticleCharacteristic
@@ -31,7 +37,7 @@
         public int? Order { get; set; }
         public string? Comparable { get; set; }
         public CharacteristicType Type { get; set;}
-        public List<ValueModel> Values { get;}
+        public List<ValueModel> Values { get; set; }
 
         public int ? GroupId { get; set; }
         public CharacteristicGroupModel? Group { get; set; }
@@ -42,7 +48,6 @@
         public ArticleCharacteristic()
         {
             Values = new();
-
         }
 
     }

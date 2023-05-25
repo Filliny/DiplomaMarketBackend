@@ -1,10 +1,11 @@
-﻿using DiplomaMarketBackend.Abstract;
-using DiplomaMarketBackend.Entity;
+﻿using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Xml.Linq;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -71,18 +72,24 @@ namespace DiplomaMarketBackend.Controllers
         {
             lang = lang.NormalizeLang();
 
-            var chars = await  _context.Articles.AsSplitQuery().
-                Include(a=>a.CharacteristicValues).ThenInclude(v=>v.CharacteristicType.Title.Translations).
+            var chars = await _context.Articles.AsSplitQuery().
+                Include(a => a.CharacteristicValues).ThenInclude(v => v.CharacteristicType.Title.Translations).
                 Include(a => a.CharacteristicValues).ThenInclude(v => v.Title.Translations)
-                .Where(a=>a.CategoryId == category_id).ToListAsync();
+                .Where(a => a.CategoryId == category_id).ToListAsync();
 
-            var groups = chars.SelectMany(a => a.CharacteristicValues).Distinct().GroupBy(v=>v.CharacteristicType).ToList();
+            var common = await _context.ArticleCharacteristics.AsSplitQuery().
+                Include(c => c.Title.Translations).
+                Include(c => c.Values).ThenInclude(v => v.Title.Translations).
+                Where(c => c.CategoryId == null).ToListAsync();
+
+            var groups = chars.SelectMany(a => a.CharacteristicValues).Distinct().GroupBy(v => v.CharacteristicType).ToList();
 
             var result = new List<dynamic>();
 
             foreach (var charakter in groups)
             {
-                if(!charakter.Key.show_in_filter) continue;
+                if (!charakter.Key.show_in_filter) continue;
+                if ( charakter.Key.CategoryId == null) continue;
 
                 int min = charakter.Key.filterType == FilterType.slider ? int.MaxValue : 0;
                 int max = 0;
@@ -120,7 +127,80 @@ namespace DiplomaMarketBackend.Controllers
                 result.Add(charakt);
             }
 
-            return new JsonResult(new { data = result });
+            //process fixed filter
+
+            var settings = _context.FixedFilterSettings.FirstOrDefault(s => s.CategoryId == category_id) ?? new FixedFilterSettingsModel();
+
+            if(settings.IsReadyToShipFilterEnabled)
+            {
+                var characteristic = common.First(c => c.filterType == FilterType.shipping_ready);
+                if (characteristic != null)
+                {
+                    result.Add(GetFilter(characteristic,lang));
+                }
+            }
+
+            if (settings.IsActionsFilterEnabled)
+            {
+                var characteristic = common.First(c => c.filterType == FilterType.action);
+                if (characteristic != null)
+                {
+                    result.Add(GetFilter(characteristic, lang));
+                }
+            }
+
+            if (settings.IsLoyalityFilterEnabled)
+            {
+                var characteristic = common.First(c => c.filterType == FilterType.bonuses);
+                if (characteristic != null)
+                {
+                    result.Add(GetFilter(characteristic, lang));
+                }
+            }
+
+            if (settings.IsStatusFilterEnabled)
+            {
+                var characteristic = common.First(c => c.filterType == FilterType.status);
+                if (characteristic != null)
+                {
+                    result.Add(GetFilter(characteristic, lang));
+                }
+            }
+
+            var price = common.First(c => c.filterType == FilterType.price);
+            var brand = common.First(c => c.filterType == FilterType.brand);
+
+            var switches = new
+            {
+                price_enabled = settings.IsPriceFilterEnabled,
+                price_translation = price.Title.Content(lang),
+                brands_enabled = settings.IsBrandFilterEnabled,
+                brands_translation = brand.Title.Content(lang),
+                price_step = settings.PriceStep
+
+            };
+
+
+            return new JsonResult(new { data = result,settings = switches });
+        }
+
+
+        private dynamic GetFilter(ArticleCharacteristic characteristic, string lang)
+        {
+            var charakt = new
+            {
+                id = characteristic.Id,
+                name = characteristic.Title.Content(lang),
+                filter_type = characteristic.filterType.ToString(),
+                lower_value = 0,
+                upper_value = 0,
+                values = characteristic.Values.Select(v=> new
+                {
+                    id = v.Id,
+                    name = v.Title.Content(lang)
+                })
+            };
+            return charakt;
         }
 
         /// <summary>
@@ -262,7 +342,7 @@ namespace DiplomaMarketBackend.Controllers
 
             try
             {
-                if (!characteristic.Names.ContainsKey("UK")) return BadRequest (new Result()
+                if (!characteristic.Names.ContainsKey("UK")) return BadRequest(new Result()
                 {
                     Status = "Error",
                     Message = "Name lacks default translation string locale UK",

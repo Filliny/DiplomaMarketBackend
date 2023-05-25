@@ -60,7 +60,7 @@ namespace DiplomaMarketBackend.IntegrationTests
             do
             {
                 email = Faker.Internet.Email();
-                search_result = await _httpClient.GetAsync($"/api/Users/get-email?email={email}");
+                search_result = await _httpClient.GetAsync($"/api/UsersAdmin/get-email?email={email}");
 
             } while (search_result.IsSuccessStatusCode);
 
@@ -82,8 +82,9 @@ namespace DiplomaMarketBackend.IntegrationTests
 
             _userPhone = user.phone_number; //save for update check
 
+
             // Act
-            var response = await _httpClient.PostAsync($"/api/Users/create", new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
+            var response = await _httpClient.PostAsync($"/api/UsersAdmin/create", new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
 
             var result = await response.Content.ReadAsStringAsync();
             var data = JsonConvert.DeserializeObject<dynamic>(result);
@@ -103,7 +104,7 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void Admin3_UpdateUser_Success()
         {
             // Arrange 
-            var response = await _httpClient.GetAsync($"/api/Users/get?user_id={_userId}");
+            var response = await _httpClient.GetAsync($"/api/UsersAdmin/get?user_id={_userId}");
             UserFull? user = new UserFull();
 
             if (response != null && response.IsSuccessStatusCode)
@@ -130,7 +131,7 @@ namespace DiplomaMarketBackend.IntegrationTests
         [Fact]
         public async void Admin4_DeleteUser_Success() 
         {
-            var response = await _httpClient.DeleteAsync($"/api/Users/delete?user_id={_userId}");
+            var response = await _httpClient.DeleteAsync($"/api/UsersAdmin/delete?user_id={_userId}");
 
             Assert.True(response.IsSuccessStatusCode);
         }

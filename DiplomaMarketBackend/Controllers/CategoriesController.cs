@@ -203,7 +203,8 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns>List of all categories or filtered list</returns>
         [HttpGet]
         [Route("flat")]
-        public async Task<IActionResult> GetFlatList([FromQuery] string? search, string lang, int limit, int page)
+        [ResponseCache(VaryByQueryKeys = new[] { "search","lang","limit","page" }, Duration = 3600)]
+        public async Task<IActionResult> GetFlatList([FromQuery] string? search, string lang, int limit=1000, int page=1)
         {
             lang = lang.NormalizeLang();
 

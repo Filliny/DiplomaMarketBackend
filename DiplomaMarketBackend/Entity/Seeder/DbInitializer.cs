@@ -16,6 +16,8 @@ namespace DiplomaMarketBackend.Entity.Seeder
                 await InitDeliveries(context);
                 await InitRoles(serviceProvider, context);
                 await InitPayments(context);
+                await InitStaticFilters(context);
+
             }
         }
 
@@ -101,7 +103,7 @@ namespace DiplomaMarketBackend.Entity.Seeder
 
         private static async Task InitPayments(BaseContext context)
         {
-            if ( await context.PaymentTypes.AnyAsync()) return;
+            if (await context.PaymentTypes.AnyAsync()) return;
 
             int id = EnsurePayment(context, "Оплатити зараз", "Оплатить сейчас", null, null, null);
             EnsurePayment(context, "Карткою", "Картой", null, null, id);
@@ -129,6 +131,89 @@ namespace DiplomaMarketBackend.Entity.Seeder
             context.SaveChanges();
 
             return payment.Id;
+        }
+
+
+        private async static Task InitStaticFilters(BaseContext context)
+        {
+            if (context.ArticleCharacteristics.Any(c => c.CategoryId == null)) return;
+
+            context.ArticleCharacteristics.Add(new ArticleCharacteristic
+            {
+                Title = TextContentHelper.CreateFull(context, "Бренд", "Бренд"),
+                CategoryId = null,
+                filterType = FilterType.brand
+
+            });
+
+            context.ArticleCharacteristics.Add(new ArticleCharacteristic
+            {
+                Title = TextContentHelper.CreateFull(context, "Ціна", "Цена"),
+                CategoryId = null,
+                filterType = FilterType.price
+
+            });
+
+            context.ArticleCharacteristics.Add(new ArticleCharacteristic
+            {
+                Title = TextContentHelper.CreateFull(context, "Готовий до відправлення", "Готов к отправке"),
+                CategoryId = null,
+                show_in_filter = true,
+                filterType = FilterType.shipping_ready,
+                Values = new List<ValueModel> { new ValueModel{
+                    Title = TextContentHelper.CreateFull(context, "Готовий до відправлення", "Готов к отправке"),
+                }}
+
+            });
+
+            context.ArticleCharacteristics.Add(new ArticleCharacteristic
+            {
+                Title = TextContentHelper.CreateFull(context, "Товари з акціями", "Aкционные товары"),
+                CategoryId = null,
+                show_in_filter = true,
+                filterType = FilterType.action,
+                Values = new List<ValueModel> { new ValueModel{
+                    Title = TextContentHelper.CreateFull(context, "Акція", "Акция"),
+                }}
+            });
+
+            context.ArticleCharacteristics.Add(new ArticleCharacteristic
+            {
+                Title = TextContentHelper.CreateFull(context, "Програма лояльності", "Программа лояльности"),
+                CategoryId = null,
+                show_in_filter = true,
+                filterType = FilterType.bonuses,
+                Values = new List<ValueModel> { new ValueModel{
+                    Title = TextContentHelper.CreateFull(context, "З бонусами", "C бонусами"),
+                }}
+            });
+
+            context.ArticleCharacteristics.Add(new ArticleCharacteristic
+            {
+                Title = TextContentHelper.CreateFull(context, "Статус товару", "Статус товара"),
+                CategoryId = null,
+                show_in_filter = true,
+                filterType = FilterType.status,
+                Values = new List<ValueModel> {
+                new ValueModel{
+                    Title = TextContentHelper.CreateFull(context, "Немає в наявності", "Нет в наличии"),
+                },
+                new ValueModel{
+                    Title = TextContentHelper.CreateFull(context, "Є в наявності", "Есть в наличии"),
+                },
+                new ValueModel{
+                    Title = TextContentHelper.CreateFull(context, "Закінчився", "Кончился"),
+                },
+                new ValueModel{
+                    Title = TextContentHelper.CreateFull(context, "Закінчується", "Заканчивается"),
+                },
+                new ValueModel{
+                    Title = TextContentHelper.CreateFull(context, "Очікується", "Ожидается"),
+                },
+                }
+            });
+
+            await context.SaveChangesAsync();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230525203710_fixes_settings")]
+    partial class fixes_settings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -599,6 +602,93 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("NameId");
 
                     b.ToTable("Deliveries");
+                });
+
+            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.FixedFilterLocalizationModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ActionValueNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ActionsFilterNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ArticleStatusFilterNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("BrandFilterNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("EndingSoonValueNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("InStockValueNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ItemAwaitedValueNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ItemEndedValueNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<List<string>>("LocalesAvailable")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<int?>("LoyalityFilterNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("OutOfStockValueNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PriceFilterNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ReadyToShipFilterNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ReadyToShipValueNameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("WithBonusesValueNameId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionValueNameId");
+
+                    b.HasIndex("ActionsFilterNameId");
+
+                    b.HasIndex("ArticleStatusFilterNameId");
+
+                    b.HasIndex("BrandFilterNameId");
+
+                    b.HasIndex("EndingSoonValueNameId");
+
+                    b.HasIndex("InStockValueNameId");
+
+                    b.HasIndex("ItemAwaitedValueNameId");
+
+                    b.HasIndex("ItemEndedValueNameId");
+
+                    b.HasIndex("LoyalityFilterNameId");
+
+                    b.HasIndex("OutOfStockValueNameId");
+
+                    b.HasIndex("PriceFilterNameId");
+
+                    b.HasIndex("ReadyToShipFilterNameId");
+
+                    b.HasIndex("ReadyToShipValueNameId");
+
+                    b.HasIndex("WithBonusesValueNameId");
+
+                    b.ToTable("FixedFilterLocalization");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.FixedFilterSettingsModel", b =>
@@ -1758,6 +1848,93 @@ namespace DiplomaMarketBackend.Migrations
                         .HasForeignKey("NameId");
 
                     b.Navigation("Name");
+                });
+
+            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.FixedFilterLocalizationModel", b =>
+                {
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "ActionValueName")
+                        .WithMany()
+                        .HasForeignKey("ActionValueNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "ActionsFilterName")
+                        .WithMany()
+                        .HasForeignKey("ActionsFilterNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "ArticleStatusFilterName")
+                        .WithMany()
+                        .HasForeignKey("ArticleStatusFilterNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "BrandFilterName")
+                        .WithMany()
+                        .HasForeignKey("BrandFilterNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "EndingSoonValueName")
+                        .WithMany()
+                        .HasForeignKey("EndingSoonValueNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "InStockValueName")
+                        .WithMany()
+                        .HasForeignKey("InStockValueNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "ItemAwaitedValueName")
+                        .WithMany()
+                        .HasForeignKey("ItemAwaitedValueNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "ItemEndedValueName")
+                        .WithMany()
+                        .HasForeignKey("ItemEndedValueNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "LoyalityFilterName")
+                        .WithMany()
+                        .HasForeignKey("LoyalityFilterNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "OutOfStockValueName")
+                        .WithMany()
+                        .HasForeignKey("OutOfStockValueNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "PriceFilterName")
+                        .WithMany()
+                        .HasForeignKey("PriceFilterNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "ReadyToShipFilterName")
+                        .WithMany()
+                        .HasForeignKey("ReadyToShipFilterNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "ReadyToShipValueName")
+                        .WithMany()
+                        .HasForeignKey("ReadyToShipValueNameId");
+
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.TextContent", "WithBonusesValueName")
+                        .WithMany()
+                        .HasForeignKey("WithBonusesValueNameId");
+
+                    b.Navigation("ActionValueName");
+
+                    b.Navigation("ActionsFilterName");
+
+                    b.Navigation("ArticleStatusFilterName");
+
+                    b.Navigation("BrandFilterName");
+
+                    b.Navigation("EndingSoonValueName");
+
+                    b.Navigation("InStockValueName");
+
+                    b.Navigation("ItemAwaitedValueName");
+
+                    b.Navigation("ItemEndedValueName");
+
+                    b.Navigation("LoyalityFilterName");
+
+                    b.Navigation("OutOfStockValueName");
+
+                    b.Navigation("PriceFilterName");
+
+                    b.Navigation("ReadyToShipFilterName");
+
+                    b.Navigation("ReadyToShipValueName");
+
+                    b.Navigation("WithBonusesValueName");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.FixedFilterSettingsModel", b =>

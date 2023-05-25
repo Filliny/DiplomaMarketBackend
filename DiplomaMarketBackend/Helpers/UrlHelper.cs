@@ -16,7 +16,8 @@ namespace DiplomaMarketBackend.Helpers
         big=720,
         mobile_large=170,
         mobile_medium=100,
-        review
+        review,
+        banner
     }
 
     public static class UrlHelper

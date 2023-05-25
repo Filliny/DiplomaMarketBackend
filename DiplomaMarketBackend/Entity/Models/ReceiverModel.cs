@@ -1,10 +1,14 @@
 ﻿using Lessons3.Entity.Models;
+using Mapster;
 
 namespace DiplomaMarketBackend.Entity.Models
 {
 	public class ReceiverModel
 	{
 		public int Id { get; set; }
+		public string ProfileName { get; set; } = string.Empty;
+
+		[AdaptMember("FirstName")]
 		public string Name { get; set; } = string.Empty;
 		public string LastName { get; set; } = string.Empty;
 		public string MiddleName { get; set; } = string.Empty;

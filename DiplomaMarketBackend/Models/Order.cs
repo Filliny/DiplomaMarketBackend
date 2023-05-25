@@ -7,10 +7,13 @@
         /// </summary>
         public class Receiver
         {
+            public int Id { get; set; }
             public string first_name { get; set; } = string.Empty;
             public string last_name { get; set; } = string.Empty;
             public string middle_name { get; set; } = string.Empty;
+            public string? profile_name { get; set;} 
             public string email { get; set; } = string.Empty;
+            public string? phone { get; set; }
         }
 
         /// <summary>
@@ -47,6 +50,15 @@
 
         }
 
+
+        public class DeliveryAdress
+        {
+            public string city_name { get; set; } = string.Empty;
+            public string street { get; set; } = string.Empty;
+            public string building { get; set; } = string.Empty;
+            public string apartment { get; set; } = string.Empty;
+        }
+
         /// <summary>
         /// Order status in one of next states:
         /// New, PaymentPending, Paid, InProcess, Shipped, Delivered,Cancelled
@@ -61,7 +73,7 @@
         /// <summary>
         /// User Id
         /// </summary>
-        public string?  user_id{ get; set; }
+        public string? user_id{ get; set; }
 
         /// <summary>
         /// User data for new user autoregistration (null if user logged/ignored if logged)
@@ -76,7 +88,7 @@
         /// <summary>
         /// Payment data with payment type id and required fuileds
         /// </summary>
-        public PayData? payData { get; set; } 
+        public PayData payData { get; set; } = new PayData();
 
         /// <summary>
         /// List of order items (articles, goods)
@@ -97,6 +109,11 @@
         /// Id of delivery branch
         /// </summary>
         public int delivery_branch_id { get; set;}
+
+        /// <summary>
+        /// Delivery adress for curier delivery if selected
+        /// </summary>
+        public DeliveryAdress? delivery_adress { get; set; }
 
         /// <summary>
         /// Order view summ for checking

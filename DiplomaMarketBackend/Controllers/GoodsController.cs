@@ -210,9 +210,9 @@ namespace DiplomaMarketBackend.Controllers
 
 
             //filter section
-            if (filter != null )
+            if (filter != null)
             {
-                
+
                 //parsing filter diapason list to real values ids
                 if (filter.slider_values != null && filter.slider_values.Count() > 0)
                 {
@@ -225,7 +225,8 @@ namespace DiplomaMarketBackend.Controllers
 
                         foreach (var select in select_list)
                         {
-                            if (int.TryParse(select.Title.OriginalText,out int val)){
+                            if (int.TryParse(select.Title.OriginalText, out int val))
+                            {
 
                                 if (val >= value.lower_value && val <= value.upper_value) add_search_ids.Add(select.Id);
                             }
@@ -235,17 +236,17 @@ namespace DiplomaMarketBackend.Controllers
                     filter.values_id.AddRange(add_search_ids);
                 }
 
-                if(filter.brands_id.Count() > 0)
-                action_goods = action_goods.Where(a =>filter.brands_id.Contains(a.BrandId)).ToList();
+                if (filter.brands_id.Count() > 0)
+                    action_goods = action_goods.Where(a => filter.brands_id.Contains(a.BrandId)).ToList();
 
                 if (filter.values_id.Count() > 0)
-                action_goods = action_goods.Where(a => a.CharacteristicValues.Any(v => filter.values_id.Contains(v.Id))).ToList();
+                    action_goods = action_goods.Where(a => a.CharacteristicValues.Any(v => filter.values_id.Contains(v.Id))).ToList();
 
-                if(filter.price_low != 0)
-                action_goods = action_goods.Where(a=>a.Price >= filter.price_low).ToList();
+                if (filter.price_low != 0)
+                    action_goods = action_goods.Where(a => a.Price >= filter.price_low).ToList();
 
-                if(filter.price_high != 0)
-                action_goods = action_goods.Where(a => a.Price <= filter.price_high).ToList();
+                if (filter.price_high != 0)
+                    action_goods = action_goods.Where(a => a.Price <= filter.price_high).ToList();
 
 
             }
@@ -481,6 +482,9 @@ namespace DiplomaMarketBackend.Controllers
 
                         foreach (var charakterystyc_type in group)
                         {
+                            //skip fixed filter charakterystic
+                            if (charakterystyc_type.Key.CategoryId == null) continue;
+
                             var list_values = new List<dynamic>();
 
                             foreach (var val in charakterystyc_type)
@@ -634,7 +638,8 @@ namespace DiplomaMarketBackend.Controllers
                         articles,
                         total_goods,
                         total_pages,
-                        displayed_page = page_num
+                        displayed_page = page_num,
+                        breadcrumbs = new List<dynamic> { new { id = 0, name = lang == "UK" ? "Акційні пропозиції" : "Акционные предложения" } }
                     }
                 };
 
@@ -644,9 +649,72 @@ namespace DiplomaMarketBackend.Controllers
             {
                 return BadRequest("Check  parameters!");
             }
+        }
 
+
+        /// <summary>
+        /// Get articles for bonus points
+        /// </summary>
+        /// <param name="goods_on_page">goods count to display</param>
+        /// <param name="page">page to display starts from 1</param>
+        /// <param name="lang">language</param>
+        /// <returns>List of articles sorted by bonus points</returns>
+        /// <response code="400">If the request value is bad</response>
+        [HttpGet]
+        [Route("best-points")]
+        [ResponseCache(VaryByQueryKeys = new[] { "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
+        public async Task<IActionResult> GetBestPoints([FromQuery] int goods_on_page, int page, string lang)
+        {
+            lang = lang.NormalizeLang();
+
+            var articles = new List<dynamic>();
+
+
+            var action_goods = await  _context.Articles.
+
+                Include(a => a.Title.Translations).
+                Include(a => a.Description).ThenInclude(t => t.Translations).
+                //Include(a => a.Docket).ThenInclude(t => t.Translations).
+                Include(a => a.Category).
+                //Include(a => a.Seller).
+                //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                //Include(a => a.Video).
+                Include(a => a.Actions).ThenInclude(a => a.Name.Translations).
+                Where(a => a.Points > 0).OrderByDescending(a=>a.Points).ToListAsync();
+
+
+            int total_goods = action_goods.Count();
+            int total_pages = (int)Math.Ceiling(total_goods / (decimal)goods_on_page);
+
+            if (page == 0) page = 1;
+            if (page > total_pages) page = total_pages;
+
+            int skip = (page - 1) * goods_on_page;
+
+            action_goods = action_goods.Skip(skip).Take(goods_on_page).ToList();
+
+            foreach (var article in action_goods)
+            {
+                articles.Add(ArticleToDtoLight(article, lang));
+
+            }
+
+            var result = new
+            {
+                data = new
+                {
+                    articles,
+                    total_goods,
+                    total_pages,
+                    displayed_page = page,
+                    breadcrumbs = new List<dynamic> { new { id = 0, name = lang == "UK" ? "Товари з найвигіднішими балами" : "Товары с самыми выгодными баллами" } }
+                }
+            };
+
+            return new JsonResult(result);
 
         }
+
 
 
         /// <summary>
@@ -731,7 +799,8 @@ namespace DiplomaMarketBackend.Controllers
                         articles,
                         total_goods,
                         total_pages,
-                        displayed_page = page_num
+                        displayed_page = page_num,
+                        breadcrumbs = new List<dynamic> { new { id = 0, name = lang == "UK" ? "Гарячі новинки" : "Гарячие новинки" } }
                     }
                 };
 
@@ -797,9 +866,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 foreach (var article in action_goods)
                 {
-
                     articles.Add(ArticleToDtoLight(article, lang));
-
                 }
 
                 var result = new
@@ -809,7 +876,8 @@ namespace DiplomaMarketBackend.Controllers
                         articles,
                         total_goods,
                         total_pages,
-                        displayed_page = page_num
+                        displayed_page = page_num,
+                        breadcrumbs = new List<dynamic> { new {id=0, name = lang == "UK"? "Найчастіше додають в лист бажань": "Чаще всего добавляют в список желаний" } }
                     }
                 };
 
@@ -884,7 +952,8 @@ namespace DiplomaMarketBackend.Controllers
                         articles,
                         total_goods,
                         total_pages,
-                        displayed_page = page_num
+                        displayed_page = page_num,
+                        breadcrumbs = new List<dynamic> { new { id = 0, name = lang == "UK" ? "Найбільш очікувані" : "Наиболее ожидаемые" } }
                     }
                 };
 
@@ -984,7 +1053,7 @@ namespace DiplomaMarketBackend.Controllers
                     //Include(a => a.Description).ThenInclude(t => t.Translations).
                     //Include(a => a.Docket).ThenInclude(t => t.Translations).
                     //Include(a => a.Brand).
-                    Include(a =>a.Category).
+                    Include(a => a.Category).
                     //Include(a => a.Seller).
                     //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
                     //Include(a => a.Video).
@@ -1332,7 +1401,7 @@ namespace DiplomaMarketBackend.Controllers
                 }
             }
 
-
+            
             response.Add("id", article.Id);
             response.Add("price", article.Price.ToString());
             response.Add("old_price", article.OldPrice.ToString());
@@ -1342,6 +1411,7 @@ namespace DiplomaMarketBackend.Controllers
             //response.Add("images", out_images);
             response.Add("preview_img", preview_img);
             response.Add("actions", actions);
+            response.Add("points", article.Points);
 
             return response;
         }

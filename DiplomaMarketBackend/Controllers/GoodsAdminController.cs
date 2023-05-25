@@ -131,10 +131,26 @@ namespace DiplomaMarketBackend.Controllers
 
                 foreach (var value in new_article.values)
                 {
-                    //todo add ability to create new value from text input
-                    var ex_value = _context.CharacteristicValues.FirstOrDefault(v => v.Id == value.value_id);
-                    if (ex_value != null)
-                        new_entry.CharacteristicValues.Add(ex_value);
+                    if(value.value_id == 0 )
+                    {
+                        if(value.charcteristic_id != 0)
+                        {
+                            var new_value = new ValueModel
+                            {
+                                //todo auto add translations 
+                                Title = new TextContent { OriginalText = value.value_name, OriginalLanguageId = "UK" },
+                                CharacteristicTypeId = value.charcteristic_id,
+                            };
+                            new_entry.CharacteristicValues.Add(new_value);
+                        }
+                    }
+                    else
+                    {
+                        var ex_value = _context.CharacteristicValues.FirstOrDefault(v => v.Id == value.value_id);
+                        if (ex_value != null)
+                            new_entry.CharacteristicValues.Add(ex_value);
+                    }
+
                 }
 
                 foreach (var action_id in new_article.actions_ids)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230521133803_user_delivery_address")]
+    partial class user_delivery_address
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,13 +197,7 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<decimal>("OldPrice")
                         .HasColumnType("numeric");
 
-                    b.Property<long>("Points")
-                        .HasColumnType("bigint");
-
                     b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("Quantity")
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("RatingCalculated")
@@ -244,30 +241,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("TopCategoryId");
 
                     b.ToTable("Articles");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.BannerModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Banners");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.BrandModel", b =>
@@ -599,45 +572,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("NameId");
 
                     b.ToTable("Deliveries");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.FixedFilterSettingsModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsActionsFilterEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsBrandFilterEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsLoyalityFilterEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsPriceFilterEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsReadyToShipFilterEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsStatusFilterEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("PriceStep")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("FixedFilterSettings");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ImageModel", b =>
@@ -1758,17 +1692,6 @@ namespace DiplomaMarketBackend.Migrations
                         .HasForeignKey("NameId");
 
                     b.Navigation("Name");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.FixedFilterSettingsModel", b =>
-                {
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.CategoryModel", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ImageModel", b =>

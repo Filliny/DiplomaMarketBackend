@@ -2,6 +2,7 @@
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using Lessons3.Entity.Models;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,27 +34,40 @@ namespace DiplomaMarketBackend.Controllers
 
             //var user =  _db.Users.FirstOrDefault(u => u.Email == model.Email.ToLower());
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await _userManager.FindByNameAsync(model.Email);
 
-            if(user != null && await _userManager.CheckPasswordAsync(user,model.Password))
+            if (user != null)
             {
-
-                var getJwt = JwtTokenGenerator.GetToken(_userManager,user);
-                user.PasswordHash = null;
-                var response = new
+                if (await _userManager.CheckPasswordAsync(user, model.Password))
                 {
-                    jwt = getJwt,
-                    userModel = model
-                };
-           
-                return new JsonResult(response);
-   
+
+                    var user_dto = user.Adapt<UserFull>();
+                    var role = await _userManager.GetRolesAsync(user);
+
+                    if (role != null)
+                    {
+                        user_dto.roles = role;
+                    }
+
+                    var getJwt = JwtTokenGenerator.GetToken(_userManager, user);
+                    user.PasswordHash = null;
+                    var response = new
+                    {
+                        jwt = getJwt,
+                        user = user_dto
+                    };
+
+                    return new JsonResult(response);
+                }
+
+                return Unauthorized("Check user password!");
+
             }
 
-            return Unauthorized();
+            return Unauthorized("Check user login!");
         }
 
 
-        
+
     }
 }

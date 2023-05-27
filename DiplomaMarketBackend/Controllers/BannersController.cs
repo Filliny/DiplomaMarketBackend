@@ -22,6 +22,11 @@ namespace DiplomaMarketBackend.Controllers
             _fileService = fileService;
         }
 
+        /// <summary>
+        /// Get banners for given category
+        /// </summary>
+        /// <param name="category_id">Category id</param>
+        /// <returns>List of banners url for category if any is set, othervice list for main page </returns>
         [HttpGet]
         [Route("category-banners")]
         [ResponseCache(VaryByQueryKeys = new[] { "category_id" }, Duration = 3600)]
@@ -35,6 +40,13 @@ namespace DiplomaMarketBackend.Controllers
             return Json(result);
         }
 
+        /// <summary>
+        /// Upload banner for category
+        /// </summary>
+        /// <param name="category_id"><Category id/param>
+        /// <param name="file">Form file</param>
+        /// <returns>Ok if success</returns>
+        /// <response code="400">If file is empty</response>
         [HttpPost]
         [Route("add")]
         public async Task<IActionResult> AddBanner([FromForm] int category_id, IFormFile file)

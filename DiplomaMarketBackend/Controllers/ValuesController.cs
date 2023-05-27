@@ -35,11 +35,11 @@ namespace DiplomaMarketBackend.Controllers
         {
             lang = lang.NormalizeLang();
 
-            var charakteristics = await _context.ArticleCharacteristics.Include(c => c.Title.Translations).Where(c => c.CategoryId == category_id).ToListAsync();
+            var charakteristics = _context.ArticleCharacteristics.Include(c => c.Title.Translations).Where(c => c.CategoryId == category_id);
 
             if (search != null)
             {
-                charakteristics = charakteristics.Where(c => c.Title.Translations.Any(t => t.TranslationString.ToUpper().Contains(search.ToUpper()) && t.LanguageId == lang)).ToList();
+                charakteristics = charakteristics.Where(c => c.Title.Translations.Any(t => t.TranslationString.ToUpper().Contains(search.ToUpper()) && t.LanguageId == lang));
             }
 
             var result = new List<dynamic>();

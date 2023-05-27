@@ -4,7 +4,18 @@ namespace DiplomaMarketBackend.Models
 {
     public class FixedFilter
     {
-        public int id {  get; set; }
+        public class CharacteristicType
+        {
+            public int id { get; set; } 
+            public Dictionary <string,string> characteristic_names { get; set; } = new Dictionary<string,string>();
+            public List<ValueType> values { get; set; } = new List<ValueType>();
+        }
+
+        public class ValueType
+        {
+            public int id { get; set; }
+            public Dictionary<string, string> value_names { get; set; } = new Dictionary<string, string>();
+        }
 
         public int category_id { get; set; }
         public string category_name { get; set; } = string.Empty;
@@ -15,26 +26,7 @@ namespace DiplomaMarketBackend.Models
         public bool is_loyality_filter_enabled { get; set; } 
         public bool is_status_filter_enabled { get; set; }
 
-        public List<string> locales_available { get; set; } = new List<string>();
+        public List<CharacteristicType>? characteristics { get; set; } = new List<CharacteristicType>();
 
-        public Dictionary<string, string>? brand_filter_name { get; set; } = new Dictionary<string, string>();
-
-        public Dictionary<string, string>? price_filter_name { get; set; } = new Dictionary<string, string>();
-
-        public Dictionary<string, string>? ready_to_ship_filter_name { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string>? ready_to_ship_value_name { get; set; } = new Dictionary<string, string>();
-
-        public Dictionary<string, string>? actions_filter_name { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string>? action_value_name { get; set; } = new Dictionary<string, string>();
-
-        public Dictionary<string, string>? loyality_filter_name { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string>? with_bonuses_value_name { get; set; } = new Dictionary<string, string>();
-
-        public Dictionary<string, string>? article_status_filter_name { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string>? in_stock_value_name { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string>? out_of_stock_value_name { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string>? item_ended_value_name { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string>? ending_soon_value_name { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string>? item_awaited_value_name { get; set; } = new Dictionary<string, string>();
     }
 }

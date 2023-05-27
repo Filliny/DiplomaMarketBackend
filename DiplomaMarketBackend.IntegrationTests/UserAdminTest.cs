@@ -75,7 +75,7 @@ namespace DiplomaMarketBackend.IntegrationTests
                 password = "PassWoRd16$",
                 birth_day = Faker.Identification.DateOfBirth(),
                 phone_number = Faker.Phone.Number(),
-                roles = new string[] { "user", "manager" },
+                //roles = new string[] { "user", "manager" },
                 preferred_language_id = "UK",
 
             };

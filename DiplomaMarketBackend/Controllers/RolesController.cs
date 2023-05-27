@@ -1,4 +1,7 @@
-﻿using Lessons3.Entity.Models;
+﻿using DiplomaMarketBackend.Entity;
+using DiplomaMarketBackend.Entity.Models;
+using DiplomaMarketBackend.Models;
+using Lessons3.Entity.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +10,7 @@ using System.Data;
 
 namespace DiplomaMarketBackend.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class RolesController : Controller
@@ -15,100 +18,225 @@ namespace DiplomaMarketBackend.Controllers
 
         private readonly ILogger<RolesController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly BaseContext _context;
+        private readonly UserManager<UserModel> _userManager;
 
 
-        public RolesController(ILogger<RolesController> logger, UserManager<UserModel> userManager,
+        public RolesController(ILogger<RolesController> logger, UserManager<UserModel> userManager, BaseContext context,
             RoleManager<IdentityRole> roleManager)
         {
             _logger = logger;
             _roleManager = roleManager;
+            _context = context;
+            _userManager = userManager;
         }
 
+
         /// <summary>
-        /// Get all available names of roles
+        /// Get existing roles (customer groups)
         /// </summary>
-        /// <returns>List of role names</returns>
+        /// <returns>List of role names with id</returns>
+        [Authorize(Roles = "CustomersRead")]
         [HttpGet]
         [Route("roles")]
         public async Task<IActionResult> Get()
         {
-            var roles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            var roles = await _context.CustomerGroups.Select(g => new { id = g.Id, name = g.Name }).ToListAsync();
 
             return new JsonResult(roles);
         }
 
+
         /// <summary>
-        /// Create role 
+        /// Get existing permissions
         /// </summary>
-        /// <param name="roleName">Role name</param>
-        /// <returns>Ok if sucess</returns>
-        [HttpPost]
-        [Route("create")]
-        public async Task<IActionResult> CreateRole([FromForm] string roleName)
+        /// <returns>List of permission names with id</returns>
+        [Authorize(Roles = "CustomersRead")]
+        [HttpGet]
+        [Route("permissions")]
+        public async Task<IActionResult> Permissions()
         {
-            var role = new IdentityRole { Name = roleName };
+            var permissions = await _context.Permissions.Select(g => new { id = g.Id, name = g.Description }).ToListAsync();
 
-            try
-            {
-                await _roleManager.CreateAsync(role);
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Satus = "Error", Message = ex.Message });
-            }
-
-            return Ok(role);
-
+            return new JsonResult(permissions);
         }
 
 
         /// <summary>
-        /// Update existing role by name
+        /// Get users role and assigned permissions settings
         /// </summary>
-        /// <param name="roleName">Role name</param>
-        /// <param name="newName">New role name</param>
-        /// <returns></returns>
+        /// <param name="role_id"></param>
+        /// <returns>Ok if sucess</returns>
+        [Authorize(Roles = "CustomersRead")]
+        [HttpGet]
+        [Route("get-group")]
+        public async Task<ActionResult<CustomersRole>> GetRole([FromQuery] int role_id)
+        {
+            var customer_group = await _context.CustomerGroups.
+                Include(r=>r.PermissionsKeys).ThenInclude(k=>k.Permission).
+                FirstOrDefaultAsync(r => r.Id == role_id);
+
+            if (customer_group == null) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Users group not found!"
+            });
+
+            var response = new CustomersRole
+            {
+                id = customer_group.Id,
+                name = customer_group.Name,
+            };
+
+            var  permissions_group = customer_group.PermissionsKeys.GroupBy(p=>p.Permission).ToList();
+
+            //test gen
+            //var perrmissions = _context.PermissionKeys.Include(k => k.Permission).GroupBy(k => k.Permission).ToList();
+
+            foreach(var permission in permissions_group)
+            {
+                var prem = new CustomersRole.SelectedPermission
+                {
+                    id = permission.Key.Id,
+                    name = permission.Key.Name,
+                    read_allowed = true,
+                    write_allowed = true,
+                    
+                };
+
+                foreach(var key in permission)
+                {
+                    if(key.Allowed == AllowedKey.read) prem.read_allowed = true;
+                    if (key.Allowed == AllowedKey.write) prem.write_allowed = true;
+
+                }
+
+                response.permissions.Add(prem);
+            }
+
+            return Ok(response);
+
+        }
+
+        /// <summary>
+        /// Create roles customers group  
+        /// </summary>
+        /// <param name="customers_group"></param>
+        /// <returns>Ok if sucess</returns>
+        [Authorize(Roles = "CustomersWrite")]
+        [HttpPost]
+        [Route("create")]
+        public async Task<IActionResult> CreateRole([FromBody] CustomersRole customers_group)
+        {
+            var new_group = new CustomerGroupModel 
+            {
+                Name = customers_group.name,
+            };
+
+            var permissions_list = await _context.Permissions.Include(p=>p.Keys).ToListAsync();
+
+            foreach(var permission in  customers_group.permissions)
+            {
+                var base_permission = permissions_list.FirstOrDefault(p => p.Id == permission.id);
+                if(base_permission == null) continue;
+
+                if (permission.read_allowed) new_group.PermissionsKeys.Add(base_permission.Keys.First(k => k.Allowed == AllowedKey.read));
+                if (permission.write_allowed) new_group.PermissionsKeys.Add(base_permission.Keys.First(k => k.Allowed == AllowedKey.write));
+            }
+
+            _context.CustomerGroups.Add(new_group);
+            _context.SaveChanges();
+
+            return Ok(new Result
+            {
+                Status = "Success",
+                Message = "Customers group succesfully added",
+                Entity = customers_group
+
+            });
+        }
+
+        /// <summary>
+        /// Update existing role group
+        /// for "permissions" list can be sended only changed permission row
+        /// </summary>
+        /// <param name="customers_group"></param>
+        /// <returns>Ok if success</returns>
+        [Authorize(Roles = "CustomersWrite")]
         [HttpPut]
         [Route("update")]
-        public async Task<IActionResult> UpdateRole([FromForm] string roleName, string newName)
+        public async Task<IActionResult> UpdateRole([FromBody] CustomersRole customers_group)
         {
-            var role = await _roleManager.FindByNameAsync(roleName);
-
-            try
+            var exist_group = await _context.CustomerGroups.Include(g=>g.PermissionsKeys).FirstOrDefaultAsync(g=>g.Id == customers_group.id);
+            if (exist_group == null) return BadRequest(new Result
             {
-                if (role == null) { throw new Exception("Role not found! "); }
+                Status = "Error",
+                Message = "Group not found",
+                Entity = customers_group
+            });
 
-                role.Name = newName;
-                await _roleManager.UpdateAsync(role);
-            }
-            catch (Exception ex)
+            exist_group.Name = customers_group.name;
+
+            var permissions_list = await _context.Permissions.Include(p => p.Keys).ToListAsync();
+
+            foreach (var permission in customers_group.permissions)
             {
+                //remove existing permissions
+                var to_remove = exist_group.PermissionsKeys.Where(k => k.PermissionId == permission.id);
+                
+                foreach(var key in to_remove)
+                {
+                    exist_group.PermissionsKeys.Remove(key);
+                }
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Satus = "Error", Message = ex.Message });
+                //readd any of changed
+                var base_permission = permissions_list.FirstOrDefault(p => p.Id == permission.id);
+                if (base_permission == null) continue;
+
+                if (permission.read_allowed) exist_group.PermissionsKeys.Add(base_permission.Keys.First(k => k.Allowed == AllowedKey.read));
+                if (permission.write_allowed) exist_group.PermissionsKeys.Add(base_permission.Keys.First(k => k.Allowed == AllowedKey.write));
+
             }
 
-            return Ok(role);
+            _context.CustomerGroups.Update(exist_group);
+            _context.SaveChanges();
+
+            return Ok(new Result
+            {
+                Status = "Success",
+                Message = "Customers group succesfully updated",
+                Entity = customers_group
+
+            });
 
         }
 
         /// <summary>
         /// Delete role by name
         /// </summary>
-        /// <param name="roleName">Role name</param>
+        /// <param name="group_id">Group Id</param>
         /// <returns>Ok if sucess</returns>
-        /// <response code="500">If role deleting unsuccessfull</response>
+        /// <response code="00">If group is not exist</response>
+        /// <response code="500">If role deleting unsuccessfull (have users related)</response>
+        [Authorize(Roles = "CustomersWrite")]
         [HttpDelete]
         [Route("delete")]
-        public async Task<IActionResult> DeleteRole([FromForm] string roleName)
+        public async Task<IActionResult> DeleteRole([FromQuery] int group_id)
         {
-            var role = await _roleManager.FindByNameAsync(roleName);
+            var exist_group = await _context.CustomerGroups.Include(g => g.Customers).FirstOrDefaultAsync(g => g.Id == group_id);
+            if (exist_group == null) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Group not found",
+
+            });
 
             try
             {
-                if (role == null) { throw new Exception("Role not found! "); }
+                if (exist_group.Customers.Count != 0) { throw new Exception("Cant delete group with customers relaying! "); }
 
-                await _roleManager.DeleteAsync(role);
+                _context.CustomerGroups.Remove(exist_group);
+                _context.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -116,7 +244,13 @@ namespace DiplomaMarketBackend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Satus = "Error", Message = ex.Message });
             }
 
-            return Ok(role);
+            return Ok(new Result
+            {
+                Status = "Success",
+                Message = "Customers group succesfully deleted",
+                Entity = exist_group
+
+            });
         }
     }
 }

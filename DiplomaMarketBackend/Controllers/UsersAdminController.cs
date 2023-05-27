@@ -4,8 +4,10 @@ using Lessons3.Entity.Models;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using WebShopApp.Abstract;
+using ZstdSharp;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -36,21 +38,21 @@ namespace DiplomaMarketBackend.Controllers
 
 
         /// <summary>
-        /// Get all users list /or filtered by role name
+        /// Get all users list /or filtered by users group id
         /// </summary>
-        /// <param name="role">Role name from list in roles endpoint</param>
+        /// <param name="group">Users group id</param>
         /// <returns>List of users</returns>
         [HttpGet]
         [Route("get-users")]
-        public async Task<IActionResult> Get([FromQuery] string? role)
+        public async Task<IActionResult> Get([FromQuery] int? group)
         {
 
             IList<UserModel>? users = null;
 
-            if (role != null)
-                users = await _userManager.GetUsersInRoleAsync(role);
+            if (group != null)
+                users = await _context.Users.Include(u=>u.CustomerGroup).Where(u=>u.CustomerGroupId == group).ToListAsync();
             else
-                users = _userManager.Users.ToList();
+                users = await _context.Users.Include(u => u.CustomerGroup).Where(u =>u.CustomerGroupId != null).ToListAsync();
 
             var result = new List<dynamic>();
             foreach (var user in users)
@@ -65,7 +67,9 @@ namespace DiplomaMarketBackend.Controllers
                     register_date = user.RegDate.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture),
                     birth_date = user.BirthDay.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture),
                     email = user.Email,
-                    phone = user.PhoneNumber
+                    phone = user.PhoneNumber,
+                    group = user.CustomerGroup?.Name??"",
+                    group_id = user.CustomerGroup?.Id,
                 });
             }
 
@@ -91,11 +95,6 @@ namespace DiplomaMarketBackend.Controllers
             {
                 var user_dto = user.Adapt<UserFull>();
                 var role = await _userManager.GetRolesAsync(user);
-
-                if (role != null)
-                {
-                    user_dto.roles = role;
-                }
 
                 return Json(user_dto);
             }
@@ -124,13 +123,6 @@ namespace DiplomaMarketBackend.Controllers
             if (user != null)
             {
                 var user_dto = user.Adapt<UserFull>();
-                var role = await _userManager.GetRolesAsync(user);
-
-                if (role != null)
-                {
-                    user_dto.roles = role;
-                }
-
                 return Json(user_dto);
             }
 
@@ -169,9 +161,10 @@ namespace DiplomaMarketBackend.Controllers
 
                 if (result.Succeeded)
                 {
-                    var roles_result = await _userManager.AddToRolesAsync(new_user, user.roles);
+                   
+                    var roles_result = await ChangeUserGroup(new_user, null, user.customer_group_id );
 
-                    if (roles_result.Succeeded)
+                    if (roles_result)
                     {
                         if (user.email_notify && new_user.Email != null)
                         {
@@ -195,8 +188,11 @@ namespace DiplomaMarketBackend.Controllers
                         return BadRequest(new Result
                         {
                             Status = "Error",
-                            Message = "Create user error- see entity",
-                            Entity = roles_result.Errors
+                            Message = "Create user error- Permission assing error",
+                            Entity = new
+                            {
+                                user.customer_group_id,
+                            }
                         });
 
                     }
@@ -242,18 +238,16 @@ namespace DiplomaMarketBackend.Controllers
                 if (exist_user == null) throw new Exception("User not found!");
 
                 user.user_name = user.email;
+                var oldgroup = exist_user.CustomerGroupId;
                 user.Adapt(exist_user);
+
 
                 var result = await _userManager.UpdateAsync(exist_user);
 
                 if (result.Succeeded)
                 {
-                    var user_roles = await _userManager.GetRolesAsync(exist_user);
-                    var remove_result = await _userManager.RemoveFromRolesAsync(exist_user, user_roles);
-
-                    var roles_result = await _userManager.AddToRolesAsync(exist_user, user.roles);
-
-                    if (roles_result.Succeeded)
+ 
+                    if (await ChangeUserGroup(exist_user,oldgroup,user.customer_group_id))//roles_result.Succeeded)
                     {
                         return Ok(new Result
                         {
@@ -270,7 +264,7 @@ namespace DiplomaMarketBackend.Controllers
                         {
                             Status = "Error",
                             Message = "Update user error - see entity",
-                            Entity = roles_result.Errors
+                            Entity = null /// roles_result.Errors
                         });
 
                     }
@@ -299,6 +293,105 @@ namespace DiplomaMarketBackend.Controllers
             }
 
         }
+
+
+        /// <summary>
+        /// Lock user by Id
+        /// </summary>
+        /// <param name="user_id">User Id</param>
+        /// <returns>Ok if sucess</returns>
+        /// <response code="500">If fail remove User</response>
+        [HttpPatch]
+        [Route("lock")]
+        public async Task<ActionResult<UserFull>> LockUser([FromQuery] string user_id)
+        {
+            try
+            {
+                var exist_user = await _userManager.FindByIdAsync(user_id);
+                if (exist_user == null) throw new Exception("User not found!");
+
+                var result = await _userManager.SetLockoutEnabledAsync(exist_user,true);
+
+                if (result.Succeeded)
+                {
+                    return Ok(new Result
+                    {
+                        Status = "Success",
+                        Message = "User locked",
+
+                    });
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Result
+                    {
+                        Status = "Error",
+                        Message = "User not locked!",
+                        Entity = result.Errors
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Result
+                {
+                    Status = "Error",
+                    Message = "User not locked!",
+                    Entity = ex.Message
+                });
+            }
+        }
+
+
+        /// <summary>
+        /// Unock user by Id
+        /// </summary>
+        /// <param name="user_id">User Id</param>
+        /// <returns>Ok if sucess</returns>
+        /// <response code="500">If fail remove User</response>
+        [HttpPatch]
+        [Route("unlock")]
+        public async Task<ActionResult<UserFull>> UnockUser([FromQuery] string user_id)
+        {
+            try
+            {
+                var exist_user = await _userManager.FindByIdAsync(user_id);
+                if (exist_user == null) throw new Exception("User not found!");
+
+                var result = await _userManager.SetLockoutEnabledAsync(exist_user, false);
+
+                if (result.Succeeded)
+                {
+                    return Ok(new Result
+                    {
+                        Status = "Success",
+                        Message = "User unlocked",
+
+                    });
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Result
+                    {
+                        Status = "Error",
+                        Message = "User not unocked!",
+                        Entity = result.Errors
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Result
+                {
+                    Status = "Error",
+                    Message = "User not unlocked!",
+                    Entity = ex.Message
+                });
+            }
+        }
+
 
         /// <summary>
         /// Delete user by Id
@@ -348,6 +441,9 @@ namespace DiplomaMarketBackend.Controllers
             }
         }
 
+
+
+
         private UserModel CreateUser()
         {
             try
@@ -360,6 +456,42 @@ namespace DiplomaMarketBackend.Controllers
                     $"Ensure that '{nameof(UserModel)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
+        }
+
+        private async Task<bool> ChangeUserGroup(UserModel user, int? oldGroupId, int? newGroupId)
+        {
+            if (oldGroupId == 0 || newGroupId == 0) return false;
+            if (user == null) return false;
+            if (oldGroupId == newGroupId) return true;
+
+            if(oldGroupId != null) {
+            var oldGroup = await _context.CustomerGroups.Include(g=>g.PermissionsKeys).FirstOrDefaultAsync(g=>g.Id == oldGroupId);
+            if(oldGroup != null ) 
+                foreach( var key in oldGroup.PermissionsKeys)
+                {
+                    var role = await _roleManager.FindByIdAsync(key.RoleId);
+                    if (role != null &&  role.Name != null)
+                    await _userManager.RemoveFromRoleAsync(user, role.Name);
+                }
+            }
+
+            if(newGroupId != null)
+            {
+                var newGroup = await _context.CustomerGroups.Include(g => g.PermissionsKeys).FirstOrDefaultAsync(g => g.Id == newGroupId);
+                if (newGroup != null)
+                    foreach (var key in newGroup.PermissionsKeys)
+                    {
+                        var role = await _roleManager.FindByIdAsync(key.RoleId);
+                        if (role != null && role.Name != null)
+                            await _userManager.AddToRoleAsync(user, role.Name);
+                    }
+            }
+            else
+            {
+                throw new Exception("User group was NULL, cant assign permissions!");
+            }
+
+            return true;
         }
     }
 }

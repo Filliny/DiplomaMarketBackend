@@ -46,7 +46,7 @@ namespace DiplomaMarketBackend.Controllers
 
                     if (role != null)
                     {
-                        user_dto.roles = role;
+                        //user_dto.roles = role;
                     }
 
                     var getJwt = JwtTokenGenerator.GetToken(_userManager, user);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230527100112_customergroups_premissions_relation")]
+    partial class customergroups_premissions_relation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,19 +86,19 @@ namespace DiplomaMarketBackend.Migrations
                     b.ToTable("BrandModelCategoryModel");
                 });
 
-            modelBuilder.Entity("CustomerGroupModelPermissionKeysModel", b =>
+            modelBuilder.Entity("CustomerGroupModelPermissionModel", b =>
                 {
                     b.Property<int>("CustomerGroupsId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PermissionsKeysId")
+                    b.Property<int>("PermissionsId")
                         .HasColumnType("integer");
 
-                    b.HasKey("CustomerGroupsId", "PermissionsKeysId");
+                    b.HasKey("CustomerGroupsId", "PermissionsId");
 
-                    b.HasIndex("PermissionsKeysId");
+                    b.HasIndex("PermissionsId");
 
-                    b.ToTable("CustomerGroupModelPermissionKeysModel");
+                    b.ToTable("CustomerGroupModelPermissionModel");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ActionModel", b =>
@@ -455,11 +458,16 @@ namespace DiplomaMarketBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CustomerGroupModelId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerGroupModelId");
 
                     b.ToTable("CustomerGroups");
                 });
@@ -866,33 +874,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("PaymentTypes");
-                });
-
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.PermissionKeysModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Allowed")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PermissionId");
-
-                    b.HasIndex("Allowed", "PermissionId");
-
-                    b.ToTable("PermissionKeys");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.PermissionModel", b =>
@@ -1638,7 +1619,7 @@ namespace DiplomaMarketBackend.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CustomerGroupModelPermissionKeysModel", b =>
+            modelBuilder.Entity("CustomerGroupModelPermissionModel", b =>
                 {
                     b.HasOne("DiplomaMarketBackend.Entity.Models.CustomerGroupModel", null)
                         .WithMany()
@@ -1646,9 +1627,9 @@ namespace DiplomaMarketBackend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.PermissionKeysModel", null)
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.PermissionModel", null)
                         .WithMany()
-                        .HasForeignKey("PermissionsKeysId")
+                        .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1798,6 +1779,13 @@ namespace DiplomaMarketBackend.Migrations
                         .HasForeignKey("groupTitleId");
 
                     b.Navigation("groupTitle");
+                });
+
+            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.CustomerGroupModel", b =>
+                {
+                    b.HasOne("DiplomaMarketBackend.Entity.Models.CustomerGroupModel", null)
+                        .WithMany("Customers")
+                        .HasForeignKey("CustomerGroupModelId");
                 });
 
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.Delivery.AreaModel", b =>
@@ -2009,17 +1997,6 @@ namespace DiplomaMarketBackend.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.PermissionKeysModel", b =>
-                {
-                    b.HasOne("DiplomaMarketBackend.Entity.Models.PermissionModel", "Permission")
-                        .WithMany()
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-                });
-
             modelBuilder.Entity("DiplomaMarketBackend.Entity.Models.ReceiverModel", b =>
                 {
                     b.HasOne("Lessons3.Entity.Models.UserModel", "User")
@@ -2164,7 +2141,7 @@ namespace DiplomaMarketBackend.Migrations
             modelBuilder.Entity("Lessons3.Entity.Models.UserModel", b =>
                 {
                     b.HasOne("DiplomaMarketBackend.Entity.Models.CustomerGroupModel", "CustomerGroup")
-                        .WithMany("Customers")
+                        .WithMany()
                         .HasForeignKey("CustomerGroupId");
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.Language", "PreferredLanguage")

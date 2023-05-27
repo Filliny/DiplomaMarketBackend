@@ -15,7 +15,9 @@ namespace DiplomaMarketBackend.Entity
             //Database.EnsureCreated();
         }
 
-
+        public DbSet<PermissionModel> Permissions { get; set; }
+        public DbSet<PermissionKeysModel> PermissionKeys { get; set; }
+        public DbSet<CustomerGroupModel> CustomerGroups { get; set; }
         public DbSet<ArticleModel> Articles { get; set; }
         public DbSet<CategoryModel> Categories { get; set; }
         public DbSet<TagModel> Tags { get; set; }

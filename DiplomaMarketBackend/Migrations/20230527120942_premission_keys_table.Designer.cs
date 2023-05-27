@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230527120942_premission_keys_table")]
+    partial class premission_keys_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,12 +91,12 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<int>("CustomerGroupsId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PermissionsKeysId")
+                    b.Property<int>("PermissionsId")
                         .HasColumnType("integer");
 
-                    b.HasKey("CustomerGroupsId", "PermissionsKeysId");
+                    b.HasKey("CustomerGroupsId", "PermissionsId");
 
-                    b.HasIndex("PermissionsKeysId");
+                    b.HasIndex("PermissionsId");
 
                     b.ToTable("CustomerGroupModelPermissionKeysModel");
                 });
@@ -1648,7 +1651,7 @@ namespace DiplomaMarketBackend.Migrations
 
                     b.HasOne("DiplomaMarketBackend.Entity.Models.PermissionKeysModel", null)
                         .WithMany()
-                        .HasForeignKey("PermissionsKeysId")
+                        .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

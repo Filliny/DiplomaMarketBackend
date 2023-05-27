@@ -78,10 +78,10 @@ namespace DiplomaMarketBackend.Controllers
             var user_dto = user.Adapt<UserFull>();
             var role = await _userManager.GetRolesAsync(user);
 
-            if (role != null)
-            {
-                user_dto.roles = role;
-            }
+            //if (role != null)
+            //{
+            //    user_dto.roles = role;
+            //}
 
             user.PasswordHash = null;
 			var response = new

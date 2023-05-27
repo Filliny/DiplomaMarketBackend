@@ -3,6 +3,7 @@ using DiplomaMarketBackend.Entity.Models.Delivery;
 using DiplomaMarketBackend.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace DiplomaMarketBackend.Entity.Seeder
 {
@@ -21,21 +22,92 @@ namespace DiplomaMarketBackend.Entity.Seeder
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
         private static async Task InitRoles(IServiceProvider serviceProvider, BaseContext context)
         {
             if (context.Roles.Any()) return;
 
-            var roles = new string[] { "User", "Admin", "Manager" };
+            //Generate permissions table and fill corresponding roles
+            var permission_dictionary = new Dictionary<string, string>
+            {
+                ["Categories"] = "Категорії",
+                ["Articles"] = "Товари",
+                ["Filters"] = "Фільтри",
+                ["Reviews"] = "Відгуки про товари",
+                ["Orders"] = "Замовлення",
+                ["Payments"] = "Періодичні",
+                ["Returns"] = "Повернення",
+                ["Certificates"] = "Сертифікати",
+                ["Loyality"] = "Програма лояльності",
+                ["Actions"] = "Акції",
+                ["Clients"] = "Зареєстровані клієнти",
+                ["ClientsGroups"] = "Групи клієнтів",
+                ["Storage"] = "Склад замовлення",
+                ["Customers"] = "Користувачі",
+            };
+
+            foreach(var line in permission_dictionary)
+            {
+                var premission = await context.Permissions.FirstOrDefaultAsync(p => p.Name.Equals(line.Key));
+                if (premission == null){
+
+                    premission = new PermissionModel
+                    {
+                        Name = line.Key,
+                        Description = line.Value
+                    };
+
+                    context.Permissions.Add(premission);
+                    context.SaveChanges();
+                }
+
+
+                var read_id =  await EnsureRole(serviceProvider, line.Key + "Read");
+
+                if (read_id != null)
+                {
+                    var key = new PermissionKeysModel
+                    {
+                        Allowed = AllowedKey.read,
+                        RoleId = read_id.Id,
+                        Permission = premission
+                    };
+
+                    context.PermissionKeys.Add(key);
+                    context.SaveChanges();
+                }
+
+                var write_id =   await EnsureRole(serviceProvider, line.Key + "Write");
+                if (write_id != null)
+                {
+                    var key = new PermissionKeysModel
+                    {
+                        Allowed = AllowedKey.write,
+                        RoleId = write_id.Id,
+                        Permission = premission
+                    };
+
+                    context.PermissionKeys.Add(key);    
+                    context.SaveChanges();  
+                }
+
+            }
+
+            var roles = new string[] { "User", "Admin", };
 
             foreach (var role in roles)
             {
                 await EnsureRole(serviceProvider, role);
             }
-
         }
 
 
-        private static async Task<IdentityResult> EnsureRole(IServiceProvider serviceProvider, string role)
+        private static async Task<IdentityRole?> EnsureRole(IServiceProvider serviceProvider, string role)
         {
             var roleManager = serviceProvider.GetService<RoleManager<IdentityRole>>();
 
@@ -49,14 +121,19 @@ namespace DiplomaMarketBackend.Entity.Seeder
             {
                 IR = await roleManager.CreateAsync(new IdentityRole(role));
             }
-
-            if (IR != null)
+            else
             {
-                return IR;
+                return await roleManager.FindByNameAsync(role);
             }
 
-            throw new Exception("Role create error");
+            if (IR.Succeeded )
+            {
+                return await roleManager.FindByNameAsync(role);
+            }
 
+
+
+            throw new Exception("Role create error");
         }
 
 

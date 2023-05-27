@@ -15,6 +15,9 @@ namespace Lessons3.Entity.Models
         public DateTime BirthDay { get; set;}
         public string DeliveryAddress { get; set; } = string.Empty;
 
+        public int? CustomerGroupId { get; set; }
+        public CustomerGroupModel? CustomerGroup { get; set; }
+
         public List<ArticleModel> Favorites { get; set; } = new List<ArticleModel>();
 
         [JsonIgnore]

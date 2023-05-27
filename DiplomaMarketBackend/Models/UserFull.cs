@@ -10,7 +10,9 @@
         public DateTime reg_date { get; set;}
         public DateTime birth_day { get; set; }
         public string? phone_number { get; set; } = string.Empty;
-        public IList<string> roles { get ; set; } = new List<string>();
+        public int? customer_group_id { get; set; }
+
+        //public IList<string> roles { get ; set; } = new List<string>();
 
         public bool email_notify { get; set; } = true;
         public int gender { get; set; }

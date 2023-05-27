@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using WebShopApp.Abstract;
-using ZstdSharp;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -50,9 +49,9 @@ namespace DiplomaMarketBackend.Controllers
             IList<UserModel>? users = null;
 
             if (group != null)
-                users = await _context.Users.Include(u=>u.CustomerGroup).Where(u=>u.CustomerGroupId == group).ToListAsync();
+                users = await _context.Users.Include(u => u.CustomerGroup).Where(u => u.CustomerGroupId == group).ToListAsync();
             else
-                users = await _context.Users.Include(u => u.CustomerGroup).Where(u =>u.CustomerGroupId != null).ToListAsync();
+                users = await _context.Users.Include(u => u.CustomerGroup).Where(u => u.CustomerGroupId != null).ToListAsync();
 
             var result = new List<dynamic>();
             foreach (var user in users)
@@ -68,7 +67,7 @@ namespace DiplomaMarketBackend.Controllers
                     birth_date = user.BirthDay.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture),
                     email = user.Email,
                     phone = user.PhoneNumber,
-                    group = user.CustomerGroup?.Name??"",
+                    group = user.CustomerGroup?.Name ?? "",
                     group_id = user.CustomerGroup?.Id,
                 });
             }
@@ -161,8 +160,8 @@ namespace DiplomaMarketBackend.Controllers
 
                 if (result.Succeeded)
                 {
-                   
-                    var roles_result = await ChangeUserGroup(new_user, null, user.customer_group_id );
+
+                    var roles_result = await ChangeUserGroup(new_user, null, user.customer_group_id);
 
                     if (roles_result)
                     {
@@ -246,8 +245,8 @@ namespace DiplomaMarketBackend.Controllers
 
                 if (result.Succeeded)
                 {
- 
-                    if (await ChangeUserGroup(exist_user,oldgroup,user.customer_group_id))//roles_result.Succeeded)
+
+                    if (await ChangeUserGroup(exist_user, oldgroup, user.customer_group_id))//roles_result.Succeeded)
                     {
                         return Ok(new Result
                         {
@@ -310,7 +309,7 @@ namespace DiplomaMarketBackend.Controllers
                 var exist_user = await _userManager.FindByIdAsync(user_id);
                 if (exist_user == null) throw new Exception("User not found!");
 
-                var result = await _userManager.SetLockoutEnabledAsync(exist_user,true);
+                var result = await _userManager.SetLockoutEnabledAsync(exist_user, true);
 
                 if (result.Succeeded)
                 {
@@ -464,18 +463,19 @@ namespace DiplomaMarketBackend.Controllers
             if (user == null) return false;
             if (oldGroupId == newGroupId) return true;
 
-            if(oldGroupId != null) {
-            var oldGroup = await _context.CustomerGroups.Include(g=>g.PermissionsKeys).FirstOrDefaultAsync(g=>g.Id == oldGroupId);
-            if(oldGroup != null ) 
-                foreach( var key in oldGroup.PermissionsKeys)
-                {
-                    var role = await _roleManager.FindByIdAsync(key.RoleId);
-                    if (role != null &&  role.Name != null)
-                    await _userManager.RemoveFromRoleAsync(user, role.Name);
-                }
+            if (oldGroupId != null)
+            {
+                var oldGroup = await _context.CustomerGroups.Include(g => g.PermissionsKeys).FirstOrDefaultAsync(g => g.Id == oldGroupId);
+                if (oldGroup != null)
+                    foreach (var key in oldGroup.PermissionsKeys)
+                    {
+                        var role = await _roleManager.FindByIdAsync(key.RoleId);
+                        if (role != null && role.Name != null)
+                            await _userManager.RemoveFromRoleAsync(user, role.Name);
+                    }
             }
 
-            if(newGroupId != null)
+            if (newGroupId != null)
             {
                 var newGroup = await _context.CustomerGroups.Include(g => g.PermissionsKeys).FirstOrDefaultAsync(g => g.Id == newGroupId);
                 if (newGroup != null)

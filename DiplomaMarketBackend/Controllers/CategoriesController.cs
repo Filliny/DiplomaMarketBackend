@@ -212,11 +212,17 @@ namespace DiplomaMarketBackend.Controllers
 
             if (search != null)
             {
-                categories = await _context.Categories.Include(c => c.Name.Translations).Where(c => c.Name.Translations.Any(t => t.TranslationString.ToLower().Contains(search.ToLower()) && t.LanguageId == lang)).ToListAsync();
+                categories = await _context.Categories.AsSplitQuery().AsNoTracking().
+                    Include(c => c.ChildCategories).
+                    Include(c => c.Name.Translations).
+                    Where(c => c.Name.Translations.Any(t => t.TranslationString.ToLower().Contains(search.ToLower()) && t.LanguageId == lang)).
+                    ToListAsync();
             }
             else
             {
-                categories = await _context.Categories.Include(c => c.Name.Translations).ToListAsync();
+                categories = await _context.Categories.AsSplitQuery().AsNoTracking().
+                    Include(c => c.ChildCategories).
+                    Include(c => c.Name.Translations).ToListAsync();
             }
 
             var found = categories.Count();
@@ -239,6 +245,8 @@ namespace DiplomaMarketBackend.Controllers
 
                     id = category.Id,
                     name = category.Name.Content(lang),
+                    articles_count = _context.Articles.Where(a=>a.CategoryId == category.Id).AsNoTracking().Count(),
+                    child_categories = category.ChildCategories.Count()
 
                 });
             }

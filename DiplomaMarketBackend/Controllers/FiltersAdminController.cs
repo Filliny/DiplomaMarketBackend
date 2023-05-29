@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaMarketBackend.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class FiltersAdminController : Controller
     {
         ILogger<GoodsController> _logger;

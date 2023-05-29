@@ -40,7 +40,7 @@ namespace DiplomaMarketBackend.Entity.Seeder
                 ["Filters"] = "Фільтри",
                 ["Reviews"] = "Відгуки про товари",
                 ["Orders"] = "Замовлення",
-                ["Payments"] = "Періодичні",
+                ["Payments"] = "Періодичні платежі",
                 ["Returns"] = "Повернення",
                 ["Certificates"] = "Сертифікати",
                 ["Loyality"] = "Програма лояльності",
@@ -62,7 +62,8 @@ namespace DiplomaMarketBackend.Entity.Seeder
                         Description = line.Value
                     };
 
-                    context.Permissions.Add(premission);
+                    if (!context.Permissions.Any(p => p.Name.Equals(line.Key)))
+                        context.Permissions.Add(premission);
                     context.SaveChanges();
                 }
 
@@ -78,7 +79,8 @@ namespace DiplomaMarketBackend.Entity.Seeder
                         Permission = premission
                     };
 
-                    context.PermissionKeys.Add(key);
+                    if (!context.PermissionKeys.Any(k => k.RoleId == read_id.Id))
+                        context.PermissionKeys.Add(key);
                     context.SaveChanges();
                 }
 
@@ -92,7 +94,8 @@ namespace DiplomaMarketBackend.Entity.Seeder
                         Permission = premission
                     };
 
-                    context.PermissionKeys.Add(key);    
+                    if (!context.PermissionKeys.Any(k => k.RoleId == write_id.Id))
+                             context.PermissionKeys.Add(key);    
                     context.SaveChanges();  
                 }
 

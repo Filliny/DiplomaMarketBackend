@@ -3,9 +3,9 @@ using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Seeder;
 using DiplomaMarketBackend.Helpers;
+using DiplomaMarketBackend.Mappings;
 using DiplomaMarketBackend.Models;
 using DiplomaMarketBackend.Services;
-using Google;
 using Lessons3.Entity.Models;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,13 +13,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
-using SendGrid.Helpers.Mail;
 using System.Reflection;
 using System.Text;
 using WebShopApp.Abstract;
-using AutoMapper;
-using DiplomaMarketBackend.Mappings;
-using Microsoft.AspNetCore.Hosting;
 
 namespace DiplomaMarketBackend
 {
@@ -40,7 +36,8 @@ namespace DiplomaMarketBackend
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
             {
                 currConnectionString = "DMarketNpgsqlLocal";
-            }else if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing")
+            }
+            else if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing")
             {
                 currConnectionString = "DMarketNpgsqlTesting";
             }
@@ -70,7 +67,7 @@ namespace DiplomaMarketBackend
             {
                 options.Password.RequireNonAlphanumeric = false;
             });
-           
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -95,7 +92,7 @@ namespace DiplomaMarketBackend
             {
                 config.AddProfile(new AssemblyMappingProfile(Assembly.GetExecutingAssembly()));
                 //config.AddProfile(new AssemblyMappingProfile(typeof(INotesDbContext).Assembly));
-                
+
             });
 
             builder.Services.RegisterMapsterConfiguration();
@@ -134,7 +131,7 @@ namespace DiplomaMarketBackend
 
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment() || app.Environment.IsProduction()||app.Environment.EnvironmentName.Equals("Testing"))
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction() || app.Environment.EnvironmentName.Equals("Testing"))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
@@ -164,10 +161,7 @@ namespace DiplomaMarketBackend
 
             app.Run();
 
-
-
         }
-
 
 
         private static void JwtBearerHandler(JwtBearerOptions option)

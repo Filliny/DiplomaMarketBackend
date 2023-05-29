@@ -6,7 +6,6 @@ using DiplomaMarketBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
-using System.ComponentModel.DataAnnotations;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -114,7 +113,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="404">If category isn't top and haven't brands relation</response>
         [HttpGet]
         [Route("filter-brands")]
-        public async Task<IActionResult> categoryFilterBrands([FromQuery] int category_Id, string lang, int count=999999)
+        public async Task<IActionResult> categoryFilterBrands([FromQuery] int category_Id, string lang, int count = 999999)
         {
             lang = lang.NormalizeLang();
 
@@ -152,18 +151,18 @@ namespace DiplomaMarketBackend.Controllers
 
         [HttpGet]
         [Route("brands-service")]
-        public async Task<IActionResult> GetBrandsServices([FromQuery] char search_symbol,string lang)
+        public async Task<IActionResult> GetBrandsServices([FromQuery] char search_symbol, string lang)
         {
             lang = lang.NormalizeLang();
 
-            var brands = await _context.Brands.Include(c=>c.Categories).ThenInclude(c=>c.Name.Translations).
-                Where(b=>b.Name.StartsWith(search_symbol.ToString().ToUpper())).ToListAsync();
+            var brands = await _context.Brands.Include(c => c.Categories).ThenInclude(c => c.Name.Translations).
+                Where(b => b.Name.StartsWith(search_symbol.ToString().ToUpper())).ToListAsync();
 
-            var all_services = await _context.Services.Include(s=>s.City.Name.Translations).
-                Include(s=>s.Brand).Where(s=>brands.Contains(s.Brand)).ToListAsync();
+            var all_services = await _context.Services.Include(s => s.City.Name.Translations).
+                Include(s => s.Brand).Where(s => brands.Contains(s.Brand)).ToListAsync();
 
             var result = new List<dynamic>();
-            foreach(var brand in brands)
+            foreach (var brand in brands)
             {
                 var out_brand = new
                 {
@@ -172,7 +171,7 @@ namespace DiplomaMarketBackend.Controllers
                     categories = new List<dynamic>()
                 };
 
-                foreach(var category in brand.Categories)
+                foreach (var category in brand.Categories)
                 {
                     var out_category = new
                     {
@@ -181,9 +180,9 @@ namespace DiplomaMarketBackend.Controllers
                         services = new List<dynamic>()
                     };
 
-                    var services = all_services.Where(s=>s.BrandId == brand.Id && s.CategoryId == category.Id).ToList();
+                    var services = all_services.Where(s => s.BrandId == brand.Id && s.CategoryId == category.Id).ToList();
 
-                    foreach(var service in services)
+                    foreach (var service in services)
                     {
                         var out_service = new
                         {

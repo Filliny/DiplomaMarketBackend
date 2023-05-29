@@ -23,10 +23,12 @@
 
         public List<BrandModel> Brands { get; set; }
 
+
+
         public CategoryModel() { 
         
             ChildCategories = new List<CategoryModel>();
-
+           
         }
     }
 }

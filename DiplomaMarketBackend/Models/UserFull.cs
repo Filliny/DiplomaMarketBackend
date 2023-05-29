@@ -12,7 +12,7 @@
         public string? phone_number { get; set; } = string.Empty;
         public int? customer_group_id { get; set; }
 
-        //public IList<string> roles { get ; set; } = new List<string>();
+        public IList<string> roles { get ; set; } = new List<string>();
 
         public bool email_notify { get; set; } = true;
         public int gender { get; set; }

@@ -42,6 +42,11 @@
         public string name { get; set; } = string.Empty;
 
         /// <summary>
+        /// Is group active (active\inactive)
+        /// </summary>
+        public string state { get; set; } = string.Empty;
+
+        /// <summary>
         /// List of permissions for this group
         /// </summary>
         public List<SelectedPermission> permissions { get; set; } = new List<SelectedPermission>();

@@ -94,7 +94,7 @@ namespace DiplomaMarketBackend.Controllers
             {
                 var user_dto = user.Adapt<UserFull>();
                 var role = await _userManager.GetRolesAsync(user);
-
+                user_dto.roles = role;
                 return Json(user_dto);
             }
 
@@ -441,8 +441,6 @@ namespace DiplomaMarketBackend.Controllers
         }
 
 
-
-
         private UserModel CreateUser()
         {
             try
@@ -459,10 +457,13 @@ namespace DiplomaMarketBackend.Controllers
 
         private async Task<bool> ChangeUserGroup(UserModel user, int? oldGroupId, int? newGroupId)
         {
-            if (oldGroupId == 0 || newGroupId == 0) return false;
+            //check values
             if (user == null) return false;
+          
+            if (oldGroupId == 0 || newGroupId == 0) return false;
             if (oldGroupId == newGroupId) return true;
 
+            //remove all old roles
             if (oldGroupId != null)
             {
                 var oldGroup = await _context.CustomerGroups.Include(g => g.PermissionsKeys).FirstOrDefaultAsync(g => g.Id == oldGroupId);
@@ -474,7 +475,13 @@ namespace DiplomaMarketBackend.Controllers
                             await _userManager.RemoveFromRoleAsync(user, role.Name);
                     }
             }
+            else
+            {   //if any simple roles present
+                var roles = await _userManager.GetRolesAsync(user);
+                await  _userManager.RemoveFromRolesAsync(user, roles);
+            }
 
+            //add to new roles
             if (newGroupId != null)
             {
                 var newGroup = await _context.CustomerGroups.Include(g => g.PermissionsKeys).FirstOrDefaultAsync(g => g.Id == newGroupId);
@@ -486,9 +493,10 @@ namespace DiplomaMarketBackend.Controllers
                             await _userManager.AddToRoleAsync(user, role.Name);
                     }
             }
-            else
+            else//if NULL assign User role
             {
-                throw new Exception("User group was NULL, cant assign permissions!");
+                user.CustomerGroupId = null;
+                await _userManager.AddToRoleAsync(user,"Admin");
             }
 
             return true;

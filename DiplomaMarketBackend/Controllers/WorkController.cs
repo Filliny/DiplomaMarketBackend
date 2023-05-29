@@ -3,8 +3,12 @@ using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Entity.Models.Delivery;
 using DiplomaMarketBackend.Helpers;
+using DiplomaMarketBackend.Models;
 using DiplomaMarketBackend.Parser.Categories;
 using HtmlAgilityPack;
+using Lessons3.Entity.Models;
+using Mapster;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
@@ -13,13 +17,12 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
 using SixLabors.ImageSharp.Formats.Jpeg;
-using System.ComponentModel.DataAnnotations;
 
 namespace DiplomaMarketBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    //[ApiExplorerSettings(IgnoreApi = true)]
     public class WorkController : ControllerBase
     {
         ILogger<WorkController> _logger;
@@ -27,14 +30,19 @@ namespace DiplomaMarketBackend.Controllers
         BaseContext _context;
         IFileService _fileService;
         IDeliveryCasher _casher;
+        private readonly UserManager<UserModel> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public WorkController(ILogger<WorkController> logger, ICloudStorageService cloudStorageService, BaseContext context, IFileService fileService, IDeliveryCasher casher)
+        public WorkController(ILogger<WorkController> logger, ICloudStorageService cloudStorageService, BaseContext context, IFileService fileService, IDeliveryCasher casher, UserManager<UserModel> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _logger = logger;
             _storageService = cloudStorageService;
             _context = context;
             _fileService = fileService;
             _casher = casher;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [HttpPost]
@@ -2157,23 +2165,46 @@ namespace DiplomaMarketBackend.Controllers
         {
             var count = _context.Articles.Count();
 
-            var rand = new Random();    
+            var rand = new Random();
 
             for (int i = 0; i < 100; i++)
             {
                 var id = rand.Next(1, count);
 
                 var article = await _context.Articles.FindAsync(id);
-                if(article != null)
+                if (article != null)
                 {
                     article.Points = (uint)(rand.Next(1, 9) * 100);
                 }
 
                 _context.SaveChanges();
             }
-            
-            
+
+
             return Ok();
+        }
+
+
+        [HttpGet]
+        [Route("get_user_roles_sfsfg")]
+        public async Task<ActionResult<UserFull>> GetUserAdsdfsRoles([FromQuery] string email)
+        {
+            var user = await _userManager.FindByNameAsync(email);
+
+            var roles = _userManager.GetRolesAsync(user);
+
+            if (user != null)
+            {
+                var user_dto = user.Adapt<UserFull>();
+                return new JsonResult(new { user_dto, roles });
+            }
+
+            return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "User not found"
+            });
+
         }
 
     }

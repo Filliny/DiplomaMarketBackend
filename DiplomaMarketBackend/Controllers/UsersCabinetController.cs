@@ -97,6 +97,7 @@ namespace DiplomaMarketBackend.Controllers
                 exist_user.MiddleName = user.middle_name;
                 exist_user.PreferredLanguageId = user.preferred_language_id;
                 exist_user.BirthDay = user.birth_day;
+                exist_user.Gender = (Gender)user.gender;
 
                 var result = await _userManager.UpdateAsync(exist_user);
 

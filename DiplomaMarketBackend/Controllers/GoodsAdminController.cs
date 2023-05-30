@@ -155,7 +155,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 foreach (var action_id in new_article.actions_ids)
                 {
-                    var action = _context.ActionModel.FirstOrDefault(v => v.Id == action_id);
+                    var action = _context.Actions.FirstOrDefault(v => v.Id == action_id);
                     if (action != null)
                         new_entry.Actions.Add(action);
                 }
@@ -297,7 +297,7 @@ namespace DiplomaMarketBackend.Controllers
                 articleToUpdate.Actions = articleToUpdate.Actions.Except(remove_actions).ToList();
                 foreach (var value in add_values)
                 {
-                    var val = await _context.ActionModel.FindAsync(value.value_id);
+                    var val = await _context.Actions.FindAsync(value.value_id);
                     if (val != null) { articleToUpdate.Actions.Add(val); }
                 }
 

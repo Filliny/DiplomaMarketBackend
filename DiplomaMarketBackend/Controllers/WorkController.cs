@@ -1268,7 +1268,7 @@ namespace DiplomaMarketBackend.Controllers
             string page_query = "";
 
             List<int> pages = new List<int>();
-            int maxpage = quantity / 60;
+            int maxpage = (int)Math.Ceiling(((decimal) quantity) / 60);
 
             for (int page = 1; page <= maxpage; page++)
             {
@@ -1295,6 +1295,7 @@ namespace DiplomaMarketBackend.Controllers
 
                     foreach (var id in ids)
                     {
+                        //skip exist articles
                         if (_context.Articles.Any(a => a.rztk_art_id == id)) continue;
 
                         ArticleModel? new_article = null;

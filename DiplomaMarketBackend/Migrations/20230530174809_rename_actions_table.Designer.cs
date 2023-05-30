@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DiplomaMarketBackend.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaMarketBackend.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    partial class BaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230530174809_rename_actions_table")]
+    partial class rename_actions_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,18 +120,8 @@ namespace DiplomaMarketBackend.Migrations
                     b.Property<int?>("DescriptionId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<int?>("NameId")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

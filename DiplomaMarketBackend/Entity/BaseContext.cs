@@ -35,7 +35,7 @@ namespace DiplomaMarketBackend.Entity
         public DbSet<OrderItemModel> OrderItems { get; set; }
         public DbSet<ReviewModel> Reviews { get; set; }
         public DbSet<SellerModel> Sellers { get; set; }
-        public DbSet<ActionModel> ActionModel { get; set; }
+        public DbSet<ActionModel> Actions { get; set; }
         public DbSet<CertificateModel> Certificates { get; set; }
         public DbSet<PromoCodeModel> PromoCodes { get; set; }
         public DbSet<ReceiverModel> Receivers { get; set; } 

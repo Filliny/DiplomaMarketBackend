@@ -8,6 +8,9 @@
         public List<ArticleModel> Articles { get; set; }
         public string BannerBig { get; set; } = string.Empty;
         public string BannerSmall { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string Status { get; set; }
 
         public ActionModel()
         {

@@ -13,12 +13,12 @@ namespace DiplomaMarketBackend.Controllers
     public class AuthController : ControllerBase
     {
         private readonly ILogger<AuthController> _logger;
-        private readonly BaseContext _db;
+        private readonly BaseContext _context;
         private readonly UserManager<UserModel> _userManager;
 
-        public AuthController(BaseContext db, ILogger<AuthController> logger, UserManager<UserModel> userManager)
+        public AuthController(BaseContext context, ILogger<AuthController> logger, UserManager<UserModel> userManager)
         {
-            _db = db;
+            _context = context;
             _logger = logger;
             _userManager = userManager;
         }
@@ -31,9 +31,6 @@ namespace DiplomaMarketBackend.Controllers
         [HttpPost]
         public async Task<IActionResult> MakeAuth([FromBody] RequestAuthModel model)
         {
-
-            //var user =  _db.Users.FirstOrDefault(u => u.Email == model.Email.ToLower());
-
             var user = await _userManager.FindByNameAsync(model.Email);
 
             if (user != null)
@@ -61,7 +58,6 @@ namespace DiplomaMarketBackend.Controllers
                 }
 
                 return Unauthorized("Check user password!");
-
             }
 
             return Unauthorized("Check user login!");

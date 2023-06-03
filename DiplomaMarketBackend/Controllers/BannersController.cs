@@ -36,10 +36,10 @@ namespace DiplomaMarketBackend.Controllers
             //Show banners from main if no in category
             if (category_id != 0 && _context.Banners.Where(b => b.CategoryId == category_id).Count() == 0) category_id = 0;
 
-            var result = await _context.Banners.Where(b => b.CategoryId == category_id).Select(b => new { id= b.Id, name = b.Name, url=Request.GetImageURL(BucketNames.banner, b.Url ) }).ToListAsync();
+            var result = await _context.Banners.Where(b => b.CategoryId == category_id).Select(b => new { id = b.Id, name = b.Name, url=Request.GetImageURL(BucketNames.banner, b.Url ) }).ToListAsync();
 
             return Json(result);
-        }
+        }///
 
         /// <summary>
         /// Get list of categories with banners and banners quantity
@@ -112,9 +112,9 @@ namespace DiplomaMarketBackend.Controllers
         /// Remove banner from category
         /// </summary>
         /// <param name="banner_id">Banner Id</param>
-          /// <returns>Ok if success</returns>
+        /// <returns>Ok if success</returns>
         /// <response code="400">If banner not found</response>
-        [HttpPost]
+        [HttpDelete]
         [Route("remove")]
         public async Task<IActionResult> removeBanner([FromQuery] int banner_id)
         {
@@ -131,7 +131,6 @@ namespace DiplomaMarketBackend.Controllers
                     Status = "Success",
                     Message = "Banner removed!"
                 });
-
             }
 
             return BadRequest(new Result

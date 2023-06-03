@@ -68,15 +68,15 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="404">If category isn't top and haven't brands relation</response>
         [HttpGet]
         [Route("category-brands")]
-        public async Task<IActionResult> categoryBrands([FromQuery] int category_Id, int count, string lang)
+        public async Task<IActionResult> categoryBrands([FromQuery] int category_id, int count, string lang)
         {
             lang = lang.NormalizeLang();
 
-            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == category_Id);
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == category_id);
 
             if (category == null) return base.NotFound("No such category");
 
-            var brands = _context.Articles.Include((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).Where(a => a.TopCategoryId == category_Id).GroupBy((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).ToList().Take(count);
+            var brands = _context.Articles.Include((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).Where(a => a.TopCategoryId == category_id).GroupBy((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).ToList().Take(count);
 
             if (brands.Count() == 0) return base.NotFound("Category isn't top");
 
@@ -105,7 +105,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <summary>
         /// Get list of category brands for filter
         /// </summary>
-        /// <param name="category_Id">category id</param>
+        /// <param name="category_id">category id</param>
         /// /// <param name="count">number items to show</param>
         /// <param name="lang"></param>
         /// <returns>List of brands presents in this category</returns>
@@ -113,19 +113,15 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="404">If category isn't top and haven't brands relation</response>
         [HttpGet]
         [Route("filter-brands")]
-        public async Task<IActionResult> categoryFilterBrands([FromQuery] int category_Id, string lang, int count = 999999)
+        public async Task<IActionResult> categoryFilterBrands([FromQuery] int category_id, string lang, int count = 999999)
         {
             lang = lang.NormalizeLang();
 
             var category = await _context.Categories.
                 Include(c => c.Brands).
-                FirstOrDefaultAsync(c => c.Id == category_Id);
+                FirstOrDefaultAsync(c => c.Id == category_id);
 
             if (category == null) return base.NotFound("No such category");
-
-            //todo category-brands relation table with trigger refill
-
-            //var brands = _context.Articles.Include((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).Where(a => a.CategoryId == category_Id).GroupBy((System.Linq.Expressions.Expression<Func<ArticleModel, BrandModel>>)(a => a.Brand)).ToList().Take(count);
 
             var new_brands = category.Brands;
 

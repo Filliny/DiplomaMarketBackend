@@ -5,6 +5,7 @@ using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -124,6 +125,12 @@ namespace DiplomaMarketBackend.Controllers
                 new_entry.Video = new_article.video_urls.Select(v => new VideoModel(v)).ToList();
                 new_entry.TopCategoryId = await CatHelper.GetTopCat(_context, new_article.category_id);
 
+                if(new_article.points != 0)
+                {
+                    var bonuses_char = _context.CharacteristicValues.Include(c => c.Title).FirstOrDefault(c => c.Title.OriginalText.Equals("З бонусами"));
+                    if(bonuses_char != null) { new_entry.CharacteristicValues.Add(bonuses_char); }
+                }
+
                 new_entry.Warning = new_article.warnings.Select(w => new WarningModel()
                 {
                     Message = TextContentHelper.CreateFromDictionary(_context, w.messages, false)
@@ -170,9 +177,6 @@ namespace DiplomaMarketBackend.Controllers
                 new_entry.Created = DateTime.Now;
                 new_entry.Id = 0; //ensure for test
 
-                _context.Articles.Add(new_entry);
-                _context.SaveChanges();
-
                 //process category-brands relation
                 var category = await _context.Categories.Include(c => c.Brands).FirstOrDefaultAsync(c => c.Id == new_article.category_id);
                 if (category != null)
@@ -181,9 +185,12 @@ namespace DiplomaMarketBackend.Controllers
                     {
                         var brand = await _context.Brands.FindAsync(new_article.brand_id);
                         if (brand != null) category.Brands.Add(brand);
-                        _context.SaveChanges();
+                        //_context.SaveChanges();
                     }
                 }
+
+                _context.Articles.Add(new_entry);
+                _context.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -249,6 +256,18 @@ namespace DiplomaMarketBackend.Controllers
                 articleToUpdate.Status = updateData.status;
                 articleToUpdate.SellStatus = updateData.sell_status;
                 articleToUpdate.SellerId = updateData.seller_id;
+
+                if (updateData.points != 0)
+                {
+                    var bonuses_char = _context.CharacteristicValues.Include(c => c.Title).FirstOrDefault(c => c.Title.OriginalText.Equals("З бонусами"));
+                    if (bonuses_char != null) { articleToUpdate.CharacteristicValues.Add(bonuses_char); }
+                }
+                else
+                {
+                    var bonuses_char = _context.CharacteristicValues.Include(c => c.Title).FirstOrDefault(c => c.Title.OriginalText.Equals("З бонусами"));
+                    if (bonuses_char != null) { articleToUpdate.CharacteristicValues.Remove(bonuses_char); }
+                }
+
 
                 TextContentHelper.UpdateFromDictionary(_context, articleToUpdate.Title, updateData.titles);
                 TextContentHelper.UpdateFromDictionary(_context, articleToUpdate.Description, updateData.descriptions);
@@ -492,6 +511,59 @@ namespace DiplomaMarketBackend.Controllers
             }
 
             return image;
+        }
+
+
+
+        [HttpPatch]
+        [Route("add-bonuses")]
+        [Authorize(Roles = "LoyalityWrite")]
+        public async Task<IActionResult> AddBonuses([FromForm] int article_id, uint bonuses_count)
+        {
+            var article = await _context.Articles.FindAsync(article_id);
+
+            if (article == null) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Article not found!",
+            });
+
+            article.Points = bonuses_count;
+
+            var bonuses_char = _context.CharacteristicValues.Include(c => c.Title).FirstOrDefault(c => c.Title.OriginalText.Equals("З бонусами"));
+            if (bonuses_char != null) { article.CharacteristicValues.Add(bonuses_char); }
+
+            return Ok(new Result
+            {
+                Status = "Success",
+                Message = "Bonuses added",
+            });
+        }
+
+        [HttpPatch]
+        [Route("remove-bonuses")]
+        [Authorize(Roles ="LoyalityWrite")]
+        public async Task<IActionResult> RemoveBonuses([FromForm] int article_id)
+        {
+            var article = await _context.Articles.FindAsync(article_id);
+
+            if (article == null) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Article not found!",
+            });
+
+            article.Points = 0;
+
+            var bonuses_char = _context.CharacteristicValues.Include(c => c.Title).FirstOrDefault(c => c.Title.OriginalText.Equals("З бонусами"));
+            if (bonuses_char != null) { article.CharacteristicValues.Remove(bonuses_char); }
+
+            return Ok(new Result
+            {
+                Status = "Success",
+                Message = "Bonuses removed",
+            });
+
         }
     }
 }

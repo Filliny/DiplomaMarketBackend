@@ -75,6 +75,7 @@ namespace DiplomaMarketBackend.IntegrationTests
                 password = "PassWoRd16$",
                 birth_day = Faker.Identification.DateOfBirth(),
                 phone_number = Faker.Phone.Number(),
+                customer_group_id = 2,
                 //roles = new string[] { "user", "manager" },
                 preferred_language_id = "UK",
 
@@ -94,9 +95,13 @@ namespace DiplomaMarketBackend.IntegrationTests
             UserFull userData = JsonConvert.DeserializeObject<UserFull>(entity_data);
 
             _userId = userData.Id;
-
+            
             // Assert
             Assert.True(!_userId.IsNullOrEmpty());
+            Assert.True(userData.roles.Count == 2);
+            Assert.True(userData.roles.Contains("CategoriesWrite"));
+            Assert.True(userData.roles.Contains("CategoriesRead"));
+            
 
         }
 
@@ -112,12 +117,13 @@ namespace DiplomaMarketBackend.IntegrationTests
                 var serial = await response.Content.ReadAsStringAsync();
                 user = JsonConvert.DeserializeObject<UserFull>(serial) ?? new UserFull();
                 user.phone_number = Faker.Phone.Number();
+                user.customer_group_id = 1;
             }
 
             // Act
-            response = await _httpClient.PutAsync($"/api/Users/update", new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
+            response = await _httpClient.PutAsync($"/api/UsersAdmin/update", new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
 
-            response = await _httpClient.GetAsync($"/api/Users/get?user_id={_userId}");
+            response = await _httpClient.GetAsync($"/api/UsersAdmin/get?user_id={_userId}");
 
             if (response != null && response.StatusCode == HttpStatusCode.OK)
             {
@@ -126,6 +132,7 @@ namespace DiplomaMarketBackend.IntegrationTests
             }
 
             Assert.NotEqual(_userPhone, user.phone_number);
+            Assert.True(user.roles.Count == 28);
         }
 
         [Fact]

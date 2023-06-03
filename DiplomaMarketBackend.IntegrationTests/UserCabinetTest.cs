@@ -154,7 +154,7 @@ namespace DiplomaMarketBackend.IntegrationTests
         }
 
         [Fact]
-        public async void DeleteReceiver_Success()
+        public async void DeleteReceiver_Error()
         {
             // Arrange
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
@@ -171,7 +171,7 @@ namespace DiplomaMarketBackend.IntegrationTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.True(result.IsSuccessStatusCode);
+            Assert.True(!result.IsSuccessStatusCode);
         }
 
         [Fact]

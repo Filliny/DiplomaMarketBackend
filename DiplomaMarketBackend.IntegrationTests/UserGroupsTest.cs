@@ -93,13 +93,29 @@ namespace DiplomaMarketBackend.IntegrationTests
             //Arrange
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
             HttpResponseMessage response = new();
-            int id = 1;
-            do
+            
+            var permRes = await _httpClient.GetAsync($"/api/Groups/permissions");
+            var permCont = await permRes.Content.ReadAsStringAsync();
+            var perms = JsonConvert.DeserializeObject<List<dynamic>>(permCont)??new List<dynamic>();
+
+            var grp = new
             {
-                response = await _httpClient.GetAsync($"/api/Groups/get-group?group_id={id}");
-                id++;
-            } while (!response.IsSuccessStatusCode);
-            var data = await response.Content.ReadAsStringAsync();
+                name = "TestAdmin",
+                permissions = new List<dynamic>()
+            };
+            
+            foreach (var perm in perms)
+            {
+                grp.permissions.Add(new
+                {
+                    id=perm["id"],
+                    read_allowed=true,
+                    write_allowed=true,
+                });
+            }
+
+            var data = JsonConvert.SerializeObject(grp);
+            
             var msg = new StringContent(data, Encoding.UTF8, "application/json");
             
             // Act

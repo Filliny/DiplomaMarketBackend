@@ -113,7 +113,7 @@ namespace DiplomaMarketBackend.Controllers
 
             try
             {
-                new_article = JsonConvert.DeserializeObject<Article>(json);
+                new_article = JsonConvert.DeserializeObject<Article>(article_pack.article_json);
 
                 if (new_article == null) throw new Exception("Deserialize result is null");
 
@@ -223,9 +223,9 @@ namespace DiplomaMarketBackend.Controllers
             ArticleModel? articleToUpdate = null;
             try
             {
-                var json = Regex.Unescape(article_pack.article_json);
+                //var json = Regex.Unescape(article_pack.article_json);
 
-                var updateData = JsonConvert.DeserializeObject<Article>(json);
+                var updateData = JsonConvert.DeserializeObject<Article>(article_pack.article_json);
                 if (updateData == null) throw new Exception("Deserialize result is null");
 
                 articleToUpdate = await _context.Articles.AsSplitQuery().

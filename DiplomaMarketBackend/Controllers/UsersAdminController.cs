@@ -49,9 +49,11 @@ namespace DiplomaMarketBackend.Controllers
             IList<UserModel>? users = null;
 
             if (group != null)
-                users = await _context.Users.Include(u => u.CustomerGroup).Where(u => u.CustomerGroupId == group).ToListAsync();
+                users = await _context.Users.Include(u => u.CustomerGroup).
+                    Where(u => u.CustomerGroupId == group).ToListAsync();
             else
-                users = await _context.Users.Include(u => u.CustomerGroup).Where(u => u.CustomerGroupId != null).ToListAsync();
+                users = await _context.Users.Include(u => u.CustomerGroup).
+                    Where(u => u.CustomerGroupId != null).ToListAsync();
 
             var result = new List<dynamic>();
             foreach (var user in users)
@@ -122,6 +124,7 @@ namespace DiplomaMarketBackend.Controllers
             if (user != null)
             {
                 var user_dto = user.Adapt<UserFull>();
+                user_dto.roles = await _userManager.GetRolesAsync(user);
                 return Json(user_dto);
             }
 
@@ -171,6 +174,7 @@ namespace DiplomaMarketBackend.Controllers
                                  $"<h5>Admin just created your account with login:{user.email} and password: {user.password}");
                         }
 
+                        user.roles = await _userManager.GetRolesAsync(new_user);
                         user.Id = new_user.Id;
 
                         return Ok(new Result
@@ -248,6 +252,7 @@ namespace DiplomaMarketBackend.Controllers
 
                     if (await ChangeUserGroup(exist_user, oldgroup, user.customer_group_id))//roles_result.Succeeded)
                     {
+                        user.roles = await _userManager.GetRolesAsync(exist_user);
                         return Ok(new Result
                         {
                             Status = "Success",

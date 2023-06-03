@@ -49,11 +49,11 @@ namespace DiplomaMarketBackend.IntegrationTests
         {
             // Arrange
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Зоотовари.png");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Zoo.png");
             FileStream fsSource = new FileStream(path, FileMode.Open, FileAccess.Read);
             FileStream fsSource1 = new FileStream(path, FileMode.Open, FileAccess.Read);
-            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Зоотовари", "Зоотовари");
-            FormFile mockFile1 = new FormFile(fsSource1, 0, fsSource1.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Zoo", "Zoo");
+            FormFile mockFile1 = new FormFile(fsSource1, 0, fsSource1.Length, "Zoo", "Zoo");
 
 
             var response = await _httpClient.GetAsync($"/api/Actions/get?action_id={1}");
@@ -84,11 +84,11 @@ namespace DiplomaMarketBackend.IntegrationTests
         {
             // Arrange
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Зоотовари.png");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Zoo.png");
             FileStream fsSource = new FileStream(path, FileMode.Open, FileAccess.Read);
             FileStream fsSource1 = new FileStream(path, FileMode.Open, FileAccess.Read);
-            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Зоотовари", "Зоотовари");
-            FormFile mockFile1 = new FormFile(fsSource1, 0, fsSource1.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Zoo", "Zoo");
+            FormFile mockFile1 = new FormFile(fsSource1, 0, fsSource1.Length, "Zoo", "Zoo");
 
             var maxidresponse = await _httpClient.GetAsync("/api/Actions/all?lang=uk");
             var mdata = await maxidresponse.Content.ReadAsStringAsync();

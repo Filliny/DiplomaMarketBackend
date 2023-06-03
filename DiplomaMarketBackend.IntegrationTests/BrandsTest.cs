@@ -67,9 +67,9 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void CreateBrand_Success()
         {
             // Arrange
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Зоотовари.png");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Zoo.png");
             FileStream fsSource = new FileStream(path, FileMode.Open, FileAccess.Read);
-            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Zoo", "Zoo");
 
             var request = new MultipartFormDataContent
             {
@@ -93,15 +93,15 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void UpdateBrand_Success()
         {
             // Arrange
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Зоотовари.png");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Zoo.png");
             FileStream fsSource = new FileStream(path, FileMode.Open, FileAccess.Read);
-            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Zoo", "Zoo");
 
 
 
             var request = new MultipartFormDataContent
             {
-                { new StringContent("1"),"id"},
+                { new StringContent(_id.ToString()),"id"},
                 { new StringContent("Microsoft"),"name"},
                 { new StreamContent(mockFile.OpenReadStream()),"logo",mockFile.FileName },
 

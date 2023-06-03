@@ -112,7 +112,7 @@ namespace DiplomaMarketBackend.IntegrationTests
 
             // Act
             var response = await _httpClient.PostAsync("/api/Orders/new", msg);
-
+            var content = await response.Content.ReadAsStringAsync();
             // Assert
             Assert.NotNull(response);
             Assert.True(response.IsSuccessStatusCode);

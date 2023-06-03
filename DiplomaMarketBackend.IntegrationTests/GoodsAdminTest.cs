@@ -41,9 +41,9 @@ namespace DiplomaMarketBackend.IntegrationTests
         {
             // Arrange
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Зоотовари.png");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Zoo.png");
             FileStream fsSource = new FileStream(path, FileMode.Open, FileAccess.Read);
-            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Zoo", "Zoo");
 
 
             var response = await _httpClient.GetAsync($"/api/GoodsAdmin/get?id=1");
@@ -60,7 +60,8 @@ namespace DiplomaMarketBackend.IntegrationTests
 
             // Act
             var result = await  _httpClient.PostAsync("/api/GoodsAdmin/create", request);
-
+            var content = await result.Content.ReadAsStringAsync();
+            
             // Assert
             Assert.True(result.StatusCode == System.Net.HttpStatusCode.Created);
 
@@ -72,9 +73,9 @@ namespace DiplomaMarketBackend.IntegrationTests
         {
             // Arrange
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Зоотовари.png");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Zoo.png");
             FileStream fsSource = new FileStream(path, FileMode.Open, FileAccess.Read);
-            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Zoo", "Zoo");
 
 
             var response = await _httpClient.GetAsync($"/api/GoodsAdmin/get?id=1");
@@ -82,18 +83,16 @@ namespace DiplomaMarketBackend.IntegrationTests
             var data = JsonConvert.DeserializeObject<dynamic>(article);
             var cat_result = data["data"].ToString();
 
-
-
             var request = new MultipartFormDataContent
             {
                 { new StringContent(cat_result),"article_json"},
                 { new StreamContent(mockFile.OpenReadStream()),"images",mockFile.FileName },
-
             };
 
             // Act
             var result = await _httpClient.PutAsync("/api/GoodsAdmin/update", request);
-
+            var content = await result.Content.ReadAsStringAsync();
+            
             // Assert
             Assert.True(result.StatusCode == System.Net.HttpStatusCode.Accepted);
 

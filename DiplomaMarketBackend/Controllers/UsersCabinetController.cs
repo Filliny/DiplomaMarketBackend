@@ -243,7 +243,9 @@ namespace DiplomaMarketBackend.Controllers
             var ex_receiver = await _context.Receivers.FindAsync(id);
             var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? "");
 
-            if (ex_receiver != null && ex_receiver.UserId == user.Id)
+            var orders = await _context.Orders.Where(o => o.ReceiverId == id).ToListAsync();
+
+            if (ex_receiver != null && ex_receiver.UserId == user.Id && orders.Count == 0)
             {
                 _context.Receivers.Remove(ex_receiver);
                 _context.SaveChanges();

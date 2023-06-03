@@ -55,9 +55,9 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void AddBanner_Success()
         {
             // Arrange
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Зоотовари.png");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Zoo.png");
             FileStream fsSource = new FileStream(path, FileMode.Open, FileAccess.Read);
-            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Zoo", "Zoo");
 
             var request = new MultipartFormDataContent
             {

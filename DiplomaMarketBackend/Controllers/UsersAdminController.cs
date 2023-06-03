@@ -1,6 +1,6 @@
 ﻿using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Models;
-using Lessons3.Entity.Models;
+using DiplomaMarketBackend.Entity.Models;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -151,8 +151,9 @@ namespace DiplomaMarketBackend.Controllers
             {
                 user.user_name = user.email;
                 var mapsterConfig = TypeAdapterConfig.GlobalSettings.Clone();
-                mapsterConfig.Default.Ignore("Id");
+                mapsterConfig.Default.Ignore("Id").Ignore("id");
 
+                var usr = CreateUser();
                 var new_user = user.Adapt<UserModel>(mapsterConfig);
 
                 new_user.RegDate = DateTime.Now;

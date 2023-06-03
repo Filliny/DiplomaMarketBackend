@@ -6,7 +6,7 @@ using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Mappings;
 using DiplomaMarketBackend.Models;
 using DiplomaMarketBackend.Services;
-using Lessons3.Entity.Models;
+using DiplomaMarketBackend.Entity.Models;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;

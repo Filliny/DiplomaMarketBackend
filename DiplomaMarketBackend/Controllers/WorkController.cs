@@ -6,7 +6,7 @@ using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using DiplomaMarketBackend.Parser.Categories;
 using HtmlAgilityPack;
-using Lessons3.Entity.Models;
+using DiplomaMarketBackend.Entity.Models;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

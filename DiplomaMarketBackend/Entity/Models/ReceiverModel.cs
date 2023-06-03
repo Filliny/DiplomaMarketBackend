@@ -1,4 +1,4 @@
-﻿using Lessons3.Entity.Models;
+﻿using DiplomaMarketBackend.Entity.Models;
 using Mapster;
 
 namespace DiplomaMarketBackend.Entity.Models

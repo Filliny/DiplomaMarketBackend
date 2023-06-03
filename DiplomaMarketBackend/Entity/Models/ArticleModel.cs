@@ -1,5 +1,5 @@
 ﻿using DiplomaMarketBackend.Entity.Models;
-using Lessons3.Entity.Models;
+using DiplomaMarketBackend.Entity.Models;
 
 namespace DiplomaMarketBackend.Entity.Models
 {

@@ -1,6 +1,6 @@
 ﻿using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Entity.Models.Delivery;
-using Lessons3.Entity.Models;
+using DiplomaMarketBackend.Entity.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

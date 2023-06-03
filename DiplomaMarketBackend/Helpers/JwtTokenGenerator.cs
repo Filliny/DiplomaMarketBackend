@@ -1,5 +1,5 @@
 ﻿using DiplomaMarketBackend.Models;
-using Lessons3.Entity.Models;
+using DiplomaMarketBackend.Entity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

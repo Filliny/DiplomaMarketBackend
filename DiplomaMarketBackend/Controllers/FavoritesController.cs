@@ -1,5 +1,5 @@
 ﻿using DiplomaMarketBackend.Entity;
-using Lessons3.Entity.Models;
+using DiplomaMarketBackend.Entity.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using System.Text.Json.Serialization;
 
-namespace Lessons3.Entity.Models
+namespace DiplomaMarketBackend.Entity.Models
 {
     public enum Gender
     {

@@ -14,9 +14,9 @@ namespace DiplomaMarketBackend.IntegrationTests
             return new FormUrlEncodedContent(formData);
         }
 
-        public static IDictionary<string, string> ToKeyValue(this object metaToken)
+        public static IDictionary<string, string>? ToKeyValue(this object? metaToken)
         {
-            if (metaToken == null)
+            if (metaToken is null)
             {
                 return null;
             }
@@ -45,7 +45,7 @@ namespace DiplomaMarketBackend.IntegrationTests
 
                 return contentData;
             }
-
+            
             var jValue = token as JValue;
             if (jValue?.Value == null)
             {

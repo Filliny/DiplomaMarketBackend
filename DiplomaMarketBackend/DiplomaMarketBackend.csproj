@@ -37,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="files\icons\" />
     <Folder Include="files\images\" />
     <Folder Include="Migrations\" />
   </ItemGroup>

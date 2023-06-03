@@ -75,17 +75,17 @@ namespace DiplomaMarketBackend.IntegrationTests
         {
             // Arrange
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Зоотовари.png");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Zoo.png");
             FileStream fsSource = new FileStream(path, FileMode.Open, FileAccess.Read);
             FileStream fsSource2 = new FileStream(path, FileMode.Open, FileAccess.Read);
-            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Zoo", "Zoo");
             fsSource.Position = 0;
-            FormFile mockFile2 = new FormFile(fsSource2, 0, fsSource.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile2 = new FormFile(fsSource2, 0, fsSource.Length, "Zoo", "Zoo");
 
 
             Category category = new Category
             {
-                names = "{\"UK\":\"Тестова категорія\",\"RU\":\"Тестовая категория\"}",
+                names = "{\"UK\":\"РўРµСЃС‚РѕРІР° РєР°С‚РµРіРѕСЂС–СЏ\",\"RU\":\"РўРµСЃС‚РѕРІР°СЏ РєР°С‚РµРіРѕСЂРёСЏ\"}",
                 parent_id = 1,
                 showin_category_id = 58,
                 root_icon = mockFile,
@@ -150,17 +150,17 @@ namespace DiplomaMarketBackend.IntegrationTests
         {
 
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Зоотовари.png");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "files", "icons", "Zoo.png");
             FileStream fsSource = new FileStream(path, FileMode.Open, FileAccess.Read);
             FileStream fsSource2 = new FileStream(path, FileMode.Open, FileAccess.Read);
-            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile = new FormFile(fsSource, 0, fsSource.Length, "Zoo", "Zoo");
             fsSource.Position = 0;
-            FormFile mockFile2 = new FormFile(fsSource2, 0, fsSource.Length, "Зоотовари", "Зоотовари");
+            FormFile mockFile2 = new FormFile(fsSource2, 0, fsSource.Length, "Zoo", "Zoo");
 
 
             Category category = new Category
             {
-                names = "{\"UK\":\"Тестова категорія update\",\"RU\":\"Тестовая категория\"}",
+                names = "{\"UK\":\"РўРµСЃС‚РѕРІР° РєР°С‚РµРіРѕСЂС–СЏ update\",\"RU\":\"РўРµСЃС‚РѕРІР°СЏ РєР°С‚РµРіРѕСЂРёСЏ updated\"}",
                 parent_id = 1,
                 showin_category_id = 58,
                 root_icon = mockFile,

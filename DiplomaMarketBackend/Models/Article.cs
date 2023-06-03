@@ -104,5 +104,10 @@ namespace DiplomaMarketBackend.Models
         /// </summary>
         public int seller_id { get; set; } = 1;
 
+        /// <summary>
+        /// Article bonuses count
+        /// </summary>
+        public int points { get; set; }
+
     }
 }

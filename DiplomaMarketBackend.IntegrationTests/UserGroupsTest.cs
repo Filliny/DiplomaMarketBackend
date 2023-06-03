@@ -149,19 +149,14 @@ namespace DiplomaMarketBackend.IntegrationTests
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
             HttpResponseMessage response = new();
             HttpResponseMessage next = new();
-            int id = 1;
-            do //get last group when next will be  404
-            {
-                response = await _httpClient.GetAsync($"/api/Groups/get-group?group_id={id}");
-                id++;
-                next = await _httpClient.GetAsync($"/api/Groups/get-group?group_id={id}");
+            response = await _httpClient.GetAsync($"/api/Groups/groups");
 
-            } while (next.IsSuccessStatusCode);
             var data = await response.Content.ReadAsStringAsync();
-            var msg = new StringContent(data, Encoding.UTF8, "application/json");
+            var list = JsonConvert.DeserializeObject<List<dynamic>>(data);
+            var id = list.Max(d => d["id"]);
 
             // Act
-            response = await _httpClient.DeleteAsync($"/api/Groups/delete?group_id={id-1}");
+            response = await _httpClient.DeleteAsync($"/api/Groups/delete?group_id={id}");
 
             // Assert
             Assert.NotNull(response);

@@ -2208,5 +2208,24 @@ namespace DiplomaMarketBackend.Controllers
 
         }
 
+        [HttpGet]
+        [Route("markbonus")]
+        public async Task<IActionResult> MarkBonuses()
+        {
+            var articles = _context.Articles.Where(a => a.Points != 0);
+            var bonuses_char = _context.CharacteristicValues.Include(c => c.Title).FirstOrDefault(c => c.Title.OriginalText.Equals("З бонусами"));
+
+            foreach (var article in articles)
+            {
+                
+                if (bonuses_char != null) { article.CharacteristicValues.Add(bonuses_char); }
+
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
     }
 }

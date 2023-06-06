@@ -9,11 +9,13 @@ namespace DiplomaMarketBackend.IntegrationTests.Tests
         private static int _groupId;
 
         public UsersGroupsTest()
+             : base()
         {
-            //Authorize();
+            Authorize();
         }
         private void Authorize()
         {
+
             var user = new User
             {
                 email = AdminMail,
@@ -26,6 +28,7 @@ namespace DiplomaMarketBackend.IntegrationTests.Tests
             var data = JsonConvert.DeserializeObject<dynamic>(result);
             if (data != null)
                 _jwtToken = data["jwt"];
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
         }
 
         [Fact]

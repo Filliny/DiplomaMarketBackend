@@ -65,8 +65,8 @@ namespace DiplomaMarketBackend.Controllers
         [Route("get-settings")]
         public async Task<ActionResult<FixedFilter>> GetFilterSettings([FromQuery] int category_id = 0)
         {
-            var settings = _context.FixedFilterSettings.Include(c=>c.Category.Name).
-                FirstOrDefault(s=>s.CategoryId == category_id)?? new FixedFilterSettingsModel(); ;
+            var settings = await _context.FixedFilterSettings.Include(c=>c.Category.Name).
+                FirstOrDefaultAsync(s=>s.CategoryId == category_id)?? new FixedFilterSettingsModel();
 
             var common_filters = await _context.ArticleCharacteristics.AsSplitQuery().
                     Include(c => c.Title.Translations).

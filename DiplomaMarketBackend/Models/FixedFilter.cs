@@ -17,14 +17,15 @@ namespace DiplomaMarketBackend.Models
             public Dictionary<string, string> value_names { get; set; } = new Dictionary<string, string>();
         }
 
+        public int id { get; set; }
         public int category_id { get; set; }
-        public string category_name { get; set; } = string.Empty;
-        public bool is_brand_filer_enabled { get; set; }
-        public bool is_price_filer_enabled { get; set; }
-        public bool is_ready_to_ship_filter_enabled { get; set; }
-        public bool is_actions_filter_enabled { get; set; }
-        public bool is_loyality_filter_enabled { get; set; } 
-        public bool is_status_filter_enabled { get; set; }
+        public string? category_name { get; set; } 
+        public bool show_brands { get; set; }
+        public bool show_price { get; set; }
+        public bool show_ship { get; set; }
+        public bool show_actions { get; set; }
+        public bool show_loyality { get; set; } 
+        public bool show_status { get; set; }
 
         public List<CharacteristicType>? characteristics { get; set; } = new List<CharacteristicType>();
 

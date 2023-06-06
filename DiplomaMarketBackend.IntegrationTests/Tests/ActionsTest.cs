@@ -1,18 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-namespace DiplomaMarketBackend.IntegrationTests
+namespace DiplomaMarketBackend.IntegrationTests.Tests
 {
-    public class ActionsTest
+    public class ActionsTest:BasicTest
     {
-        private readonly HttpClient _httpClient;
-        private static int? _id;
-        public ActionsTest()
-        {
-            var webApplicationFactory = new CustomWebApplicationFactory<Program>();
-            _httpClient = webApplicationFactory.CreateDefaultClient();
-        }
-
+        
         [Fact]
         public async void GetActions_Success()
         {

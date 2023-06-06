@@ -1,53 +1,17 @@
-﻿using DiplomaMarketBackend.Models;
-using Microsoft.IdentityModel.Tokens;
+﻿using System.Text;
+using DiplomaMarketBackend.IntegrationTests.Helpers;
+using DiplomaMarketBackend.Models;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DiplomaMarketBackend.IntegrationTests
+namespace DiplomaMarketBackend.IntegrationTests.Tests
 {
-    public class UserCabinetTest
+    public class UserCabinetTest:BasicTest
     {
-        private readonly HttpClient _httpClient;
-        private static string? _jwtToken = string.Empty;
-        private static string? _userId = string.Empty;
-        private static string? _userPhone = string.Empty;
-
-        private readonly string admin_mail = "admin@gmail.com";
-        private readonly string admin_pass = "Test123admin$";
-
-        public UserCabinetTest()
-        {
-            var webApplicationFactory = new CustomWebApplicationFactory<Program>();
-            _httpClient = webApplicationFactory.CreateDefaultClient();
-            Authorize();
-
-        }
-        private void Authorize()
-        {
-            var user = new User
-            {
-                email = admin_mail,
-                password = admin_pass,
-            };
-
-            var response = _httpClient.PostAsync($"/authentication/Auth", new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json")).Result;
-
-            var result = response.Content.ReadAsStringAsync().Result;
-            var data = JsonConvert.DeserializeObject<dynamic>(result);
-            if (data != null)
-                _jwtToken = data["jwt"];
-        }
 
         [Fact]
         public async void GetUserData_Success()
         {
             // Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
-
             // Act
             var response = await _httpClient.GetAsync($"/api/UsersCabinet/get");
 
@@ -62,7 +26,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void UpdateUserData_Success()
         {
             // Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
             var response = await _httpClient.GetAsync($"/api/UsersCabinet/get");
             var msg = await response.Content.ReadAsStringAsync();
 
@@ -78,8 +41,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         [Fact]
         public async void GetReceivers_Success()
         {
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
-
             // Act
             var result = await _httpClient.GetAsync($"/api/UsersCabinet/get-receivers");
 
@@ -92,7 +53,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void CreateReceiver_Success()
         {
             // Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
 
             //to generate 1 more receiver than will be deleted after tests - so next test will have already receiver
             HttpResponseMessage? result = null;
@@ -124,7 +84,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void UpdateReceiver_Success()
         {
             // Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
             var responseMessage = await _httpClient.GetAsync($"/api/UsersCabinet/get-receivers");
             var content = await responseMessage.Content.ReadAsStringAsync();
             var recivers = JsonConvert.DeserializeObject<List<dynamic>>(content);
@@ -154,10 +113,9 @@ namespace DiplomaMarketBackend.IntegrationTests
         }
 
         [Fact]
-        public async void DeleteReceiver_Error()
+        public async void RemoveReceiver_Success()
         {
             // Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
             var responseMessage = await _httpClient.GetAsync($"/api/UsersCabinet/get-receivers");
             var content = await responseMessage.Content.ReadAsStringAsync();
             var recivers = JsonConvert.DeserializeObject<List<dynamic>>(content);
@@ -166,12 +124,12 @@ namespace DiplomaMarketBackend.IntegrationTests
             HttpResponseMessage? result = null;
             if (recivers != null)
             {
-                result = await _httpClient.DeleteAsync($"/api/UsersCabinet/delete-receiver?id={recivers.First()["id"]}");
+                result = await _httpClient.DeleteAsync($"/api/UsersCabinet/delete-receiver?id={recivers.Last()["id"]}");
             }
 
             // Assert
             Assert.NotNull(result);
-            Assert.True(!result.IsSuccessStatusCode);
+            Assert.True(result.IsSuccessStatusCode);
         }
 
         [Fact]
@@ -193,8 +151,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void UpdateDeliveryAddress_Success()
         {
             // Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
-
             var addr = new
             {
                 city_name = Faker.Address.City(),
@@ -216,7 +172,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void ContactsUpdate_Success()
         {
             // Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
 
             var contacts = new
             {
@@ -260,7 +215,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void LoginChangeConfirm_Fail()
         {
             // Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
 
             var contacts = new
             {

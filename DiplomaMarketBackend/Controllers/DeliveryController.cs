@@ -36,7 +36,9 @@ namespace DiplomaMarketBackend.Controllers
         { 
             lang = lang.NormalizeLang();
 
-            var deliveries = await _context.Deliveries.Include(d=>d.Name).ThenInclude(n=>n.Translations).ToListAsync();
+            var deliveries = await _context.Deliveries.AsNoTracking().AsSplitQuery().
+                Include(d=>d.Name.Translations).
+                ToListAsync();
 
             var result = new List<dynamic>();
             foreach ( var deliver in deliveries)
@@ -44,7 +46,7 @@ namespace DiplomaMarketBackend.Controllers
                 result.Add(new
                 {
                     id = deliver.Id,
-                    name = deliver.Name.Content(lang),
+                    name = deliver.Name?.Content(lang),
                 });
             }
             return new JsonResult(new {data=result});
@@ -65,8 +67,9 @@ namespace DiplomaMarketBackend.Controllers
             lang= lang.NormalizeLang();
             if (search.IsNullOrEmpty()) search = "";
 
-            var found = await _context.Cities.Include(c => c.Name).ThenInclude(n => n.Translations).
-                Include(c => c.Area).ThenInclude(a=>a.Name).ThenInclude(n=>n.Translations).
+            var found = await _context.Cities.AsNoTracking().AsSplitQuery().
+                Include(c => c.Name.Translations).
+                Include(c => c.Area.Name.Translations).
                 Where(c => c.Name.Translations.Any(t => t.TranslationString.ToLower().StartsWith(search.ToLower()) && t.LanguageId == lang)).
                 OrderBy(c=>c.Name.OriginalText).
                 Take(limit).ToListAsync();
@@ -79,8 +82,8 @@ namespace DiplomaMarketBackend.Controllers
                 result.Add(new
                 {
                     id = city.Id,
-                    name = city.Name.Content(lang),
-                    area = city.Area.Name.Content(lang),
+                    name = city.Name?.Content(lang),
+                    area = city.Area?.Name?.Content(lang),
                     coautsu = city.CoatsuCode,
                     zip = city.Index1
                 });
@@ -97,31 +100,28 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns>List of delivery companies or empty list</returns>
         [HttpGet]
         [Route("city-deliveries")]
-        public async Task<IActionResult> GetDeliveries([FromQuery] string city_id, string lang)
+        public async Task<IActionResult> GetDeliveries([FromQuery] int city_id, string lang)
         {
             lang = lang.NormalizeLang();
 
-            if(int.TryParse(city_id,out int id))
+            var deliveries = await _context.Branches.AsNoTracking().AsSplitQuery().
+                Include(b=>b.Delivery.Name.Translations).
+                Where(b=>b.BranchCityId == city_id).
+                GroupBy(b=>b.Delivery).
+                ToListAsync();
+
+            var result = new List<dynamic>();
+
+            foreach(var deliver in deliveries)
             {
-                var deliveries = await _context.Branches.Include(b=>b.Delivery).ThenInclude(d=>d.Name).ThenInclude(n=>n.Translations).Where(b=>b.BranchCityId == id).GroupBy(b=>b.Delivery).ToListAsync();
-
-                var result = new List<dynamic>();
-
-                foreach(var deliver in deliveries)
+                result.Add(new
                 {
-                    result.Add(new
-                    {
-                        id = deliver.Key.Id,
-                        name = deliver.Key.Name.Content(lang)
-                    }) ;
-                }
-
-                return(new JsonResult(new {data=result}));
-
+                    id = deliver.Key?.Id,
+                    name = deliver.Key?.Name?.Content(lang)
+                }) ;
             }
 
-            return BadRequest("Check parameters!");
-
+            return(new JsonResult(new {data=result}));
 
         }
 
@@ -135,37 +135,33 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns>List of delivery branches to select for delivery</returns>
         [HttpGet]
         [Route("delivery-branches")]
-        public async Task<IActionResult> GetBranches([FromQuery] string lang, string city_id, string delivery_id, string limit )
+        public async Task<IActionResult> GetBranches([FromQuery] string lang, int city_id, int delivery_id, int limit=10 )
         {
             lang = lang.NormalizeLang();
 
-            if(int.TryParse (city_id,out int cty_id) && int.TryParse(delivery_id,out int del_id) && int.TryParse(limit,out int lim)) {
-                
-                var branches = await _context.Branches.
-                    Include(b=>b.Description).ThenInclude(d=>d.Translations).
-                    Include(b=>b.Address).ThenInclude(a=>a.Translations). 
-                    Where(b=>b.DeliveryId == del_id && b.BranchCityId ==  cty_id).Take(lim).ToListAsync();
 
-                var result = new List<dynamic>();
+            var branches = await _context.Branches.AsNoTracking().AsSplitQuery().
+                Include(b=>b.Description).ThenInclude(d=>d.Translations).
+                Include(b=>b.Address).ThenInclude(a=>a.Translations). 
+                Where(b=>b.DeliveryId == delivery_id && b.BranchCityId ==  city_id).Take(limit).ToListAsync();
 
-                foreach(var branch in branches)
+            var result = new List<dynamic>();
+
+            foreach(var branch in branches)
+            {
+                result.Add(new
                 {
-                    result.Add(new
-                    {
-                        id = branch.Id,
-                        number = branch.LocalBranchNumber,
-                        address = branch.Address.Content(lang),
-                        description = branch.Description.Content(lang),
-                        latitude = branch.Lat,
-                        longtitude = branch.Long,
-                        working_hours = branch.WorkHours
-                    });
-                }
-                
-                return Json(new { data = result });
+                    id = branch.Id,
+                    number = branch.LocalBranchNumber,
+                    address = branch.Address?.Content(lang),
+                    description = branch.Description?.Content(lang),
+                    latitude = branch.Lat,
+                    longtitude = branch.Long,
+                    working_hours = branch.WorkHours
+                });
             }
-
-            return BadRequest("Check parameters!");
+            
+            return Json(new { data = result });
         }
 
     }

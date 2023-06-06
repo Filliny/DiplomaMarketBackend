@@ -1,34 +1,23 @@
-﻿using DiplomaMarketBackend.Models;
+﻿using System.Text;
+using DiplomaMarketBackend.Models;
 using Newtonsoft.Json;
-using System.Text;
 
-namespace DiplomaMarketBackend.IntegrationTests
+namespace DiplomaMarketBackend.IntegrationTests.Tests
 {
-    public class UsersGroupsTest
+    public class UsersGroupsTest:BasicTest
     {
-        private readonly HttpClient _httpClient;
-        private static string? _jwtToken = string.Empty;
-        private static string? groupJson = string.Empty;
         private static int _groupId;
-        private static string? _userPhone = string.Empty;
-
-        private readonly string admin_mail = "admin@gmail.com";
-        private readonly string admin_pass = "Test123admin$";
-
 
         public UsersGroupsTest()
         {
-            var webApplicationFactory = new CustomWebApplicationFactory<Program>();
-            _httpClient = webApplicationFactory.CreateDefaultClient();
-            Authorize();
-
+            //Authorize();
         }
         private void Authorize()
         {
             var user = new User
             {
-                email = admin_mail,
-                password = admin_pass,
+                email = AdminMail,
+                password = AdminPass,
             };
 
             var response = _httpClient.PostAsync($"/authentication/Auth", new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json")).Result;
@@ -42,9 +31,7 @@ namespace DiplomaMarketBackend.IntegrationTests
         [Fact]
         public async void GetGroups_Success()
         {
-            //Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
-
+            //Arran
             // Act
             var response = await _httpClient.GetAsync($"/api/Groups/groups");
 
@@ -57,7 +44,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void GetPermissions_Success()
         {
             //Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
 
             // Act
             var response = await _httpClient.GetAsync($"/api/Groups/permissions");
@@ -71,8 +57,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void GetGroup_Success()
         {
             //Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
-
             // Act
             HttpResponseMessage response = new();
             int id = 1;
@@ -91,7 +75,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void CreateGroup_Success()
         {
             //Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
             HttpResponseMessage response = new();
             
             var permRes = await _httpClient.GetAsync($"/api/Groups/permissions");
@@ -136,7 +119,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void UpdateGroup_Success()
         {
             //Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
             HttpResponseMessage response = new();
             HttpResponseMessage next = new();
             int id = 1;
@@ -162,7 +144,6 @@ namespace DiplomaMarketBackend.IntegrationTests
         public async void DeleteGroup_Success()
         {
             //Arrange
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _jwtToken);
             HttpResponseMessage response = new();
             HttpResponseMessage next = new();
             response = await _httpClient.GetAsync($"/api/Groups/groups");

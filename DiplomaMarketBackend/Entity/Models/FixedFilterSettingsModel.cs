@@ -9,12 +9,12 @@
 
         public int PriceStep { get; set; }
 
-        public bool IsBrandFilterEnabled { get; set; } = true;
-        public bool IsPriceFilterEnabled { get; set; } = true;
-        public bool IsReadyToShipFilterEnabled { get; set; } = true;
-        public bool IsActionsFilterEnabled { get; set; } = true;
-        public bool IsLoyalityFilterEnabled { get; set; } = true;
-        public bool IsStatusFilterEnabled { get; set; } = true;
+        public bool ShowBrands { get; set; } = true;
+        public bool ShowPrice { get; set; } = true;
+        public bool ShowShip { get; set; } = true;
+        public bool ShowActions { get; set; } = true;
+        public bool ShowLoyality { get; set; } = true;
+        public bool ShowStatus { get; set; } = true;
 
     }
 }

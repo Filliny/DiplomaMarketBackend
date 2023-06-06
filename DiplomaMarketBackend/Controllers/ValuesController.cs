@@ -131,7 +131,7 @@ namespace DiplomaMarketBackend.Controllers
 
             var settings = _context.FixedFilterSettings.FirstOrDefault(s => s.CategoryId == category_id) ?? new FixedFilterSettingsModel();
 
-            if(settings.IsReadyToShipFilterEnabled)
+            if(settings.ShowShip)
             {
                 var characteristic = common.First(c => c.filterType == FilterType.shipping_ready);
                 if (characteristic != null)
@@ -140,7 +140,7 @@ namespace DiplomaMarketBackend.Controllers
                 }
             }
 
-            if (settings.IsActionsFilterEnabled)
+            if (settings.ShowActions)
             {
                 var characteristic = common.First(c => c.filterType == FilterType.action);
                 if (characteristic != null)
@@ -149,7 +149,7 @@ namespace DiplomaMarketBackend.Controllers
                 }
             }
 
-            if (settings.IsLoyalityFilterEnabled)
+            if (settings.ShowLoyality)
             {
                 var characteristic = common.First(c => c.filterType == FilterType.bonuses);
                 if (characteristic != null)
@@ -158,7 +158,7 @@ namespace DiplomaMarketBackend.Controllers
                 }
             }
 
-            if (settings.IsStatusFilterEnabled)
+            if (settings.ShowStatus)
             {
                 var characteristic = common.First(c => c.filterType == FilterType.status);
                 if (characteristic != null)
@@ -172,9 +172,9 @@ namespace DiplomaMarketBackend.Controllers
 
             var switches = new
             {
-                price_enabled = settings.IsPriceFilterEnabled,
+                price_enabled = settings.ShowPrice,
                 price_translation = price.Title.Content(lang),
-                brands_enabled = settings.IsBrandFilterEnabled,
+                brands_enabled = settings.ShowBrands,
                 brands_translation = brand.Title.Content(lang),
                 price_step = settings.PriceStep
 

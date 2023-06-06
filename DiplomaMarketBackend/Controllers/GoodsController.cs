@@ -34,47 +34,37 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="400">If the request values is bad</response>
         [HttpGet]
         [Route("get")]
-        public async Task<IActionResult> GetCategoryArticles([FromQuery] string lang, string category_Id)
+        public async Task<IActionResult> GetCategoryArticles([FromQuery] string lang, int category_Id)
         {
             int goods_limit = 60;
+            
+            var category = await _context.Categories.Include(c => c.ChildCategories).
+                ThenInclude(c => c.ChildCategories).
+                FirstOrDefaultAsync(c => c.Id == category_Id);
 
-            if (int.TryParse(category_Id, out int id))
+            if (category == null)
             {
-
-                var category = await _context.Categories.Include(c => c.ChildCategories).ThenInclude(c => c.ChildCategories).FirstOrDefaultAsync(c => c.Id == id);
-
-                if (category == null)
-                {
-                    return NotFound("No such category");
-                }
-
-                //var all_cat_list = category.ChildCategories.SelectMany(x => x.ChildCategories).Concat(category.ChildCategories.SelectMany(x => x.ChildCategories).SelectMany(x => x.ChildCategories)).ToList();
-                //all_cat_list.Add(category);
-
-                var all_cat_list = category.ChildCategories.Flatten(c => c.ChildCategories).ToList();
-                all_cat_list.Add(category);
-                all_cat_list.AddRange(_context.Categories.Where(c => c.ShowInCategoryId == id).ToList());
-
-                var all_articles = _context.Articles.Where(a => all_cat_list.Contains(a.Category)).Select(a => a.Id).ToList();
-
-                dynamic dresponse = new ExpandoObject();
-                IDictionary<string, object> response = (IDictionary<string, object>)dresponse;
-
-                response.Add("ids", all_articles.Skip(0).Take(goods_limit));
-                response.Add("active_pages", new int[] { 1 });
-                response.Add("goods_in_category", all_articles.Count);
-                response.Add("total_pages", Math.Ceiling((double)all_articles.Count / goods_limit));
-                response.Add("goods_limit", goods_limit);
-                response.Add("shown_page", 1);
-
-
-
-                return new JsonResult(new { data = response });
-
-
+                return NotFound("No such category");
             }
 
-            return BadRequest("Check request values!");
+            var all_cat_list = category.ChildCategories.Flatten(c => c.ChildCategories).ToList();
+            all_cat_list.Add(category);
+            all_cat_list.AddRange(_context.Categories.Where(c => c.ShowInCategoryId == category_Id).ToList());
+
+            var all_articles = _context.Articles.Where(a => all_cat_list.Contains(a.Category)).Select(a => a.Id).ToList();
+
+            dynamic dresponse = new ExpandoObject();
+            IDictionary<string, object> response = (IDictionary<string, object>)dresponse;
+
+            response.Add("ids", all_articles.Skip(0).Take(goods_limit));
+            response.Add("active_pages", new int[] { 1 });
+            response.Add("goods_in_category", all_articles.Count);
+            response.Add("total_pages", Math.Ceiling((double)all_articles.Count / goods_limit));
+            response.Add("goods_limit", goods_limit);
+            response.Add("shown_page", 1);
+
+            return new JsonResult(new { data = response });
+
         }
 
 
@@ -90,7 +80,7 @@ namespace DiplomaMarketBackend.Controllers
         [HttpGet]
         [Route("category-articles")]
         [ResponseCache(VaryByQueryKeys = new[] { "category_Id", "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 3600)]
-        public async Task<IActionResult> GetCategoryArticlesPages([FromQuery] int category_Id, int goods_on_page, int page, string lang)
+        public async Task<IActionResult> GetCategoryArticlesPages([FromQuery] int category_Id,  int page, string lang ,int goods_on_page=10)
         {
             lang = lang.NormalizeLang();
 
@@ -396,41 +386,33 @@ namespace DiplomaMarketBackend.Controllers
         /// <response code="400">If the request value is bad</response>
         [HttpGet]
         [Route("get-main")]
-        public async Task<IActionResult> GetArticleFull([FromQuery] string lang, string goodsId)
+        public async Task<IActionResult> GetArticleFull([FromQuery] string lang, int goodsId)
         {
             lang = lang.NormalizeLang();
 
             dynamic dresponse = new ExpandoObject();
             IDictionary<string, object> response = (IDictionary<string, object>)dresponse;
+            
+            var article = await _context.Articles.
+                Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
+                Include(a => a.Title).ThenInclude(t => t.Translations).
+                Include(a => a.Description).ThenInclude(t => t.Translations).
+                Include(a => a.Docket).ThenInclude(t => t.Translations).
+                Include(a => a.Brand).
+                Include(a => a.Seller).
+                Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
+                Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                Include(a => a.Video).
+                //Include(a => a.Images).
+                FirstOrDefaultAsync(a => a.Id == goodsId);
 
-            if (int.TryParse(goodsId, out int art_id))
+            if (article == null)
             {
-
-                var article = await _context.Articles.
-                    Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
-                    Include(a => a.Title).ThenInclude(t => t.Translations).
-                    Include(a => a.Description).ThenInclude(t => t.Translations).
-                    Include(a => a.Docket).ThenInclude(t => t.Translations).
-                    Include(a => a.Brand).
-                    Include(a => a.Seller).
-                    Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                    Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
-                    Include(a => a.Video).
-                    //Include(a => a.Images).
-                    FirstOrDefaultAsync(a => a.Id == art_id);
-
-                if (article == null)
-                {
-                    return NotFound($"Article id={goodsId} not exist!");
-                }
-
-                response = ArticleToDto(article, lang);
-
+                return NotFound($"Article id={goodsId} not exist!");
             }
-            else
-            {
-                return BadRequest($"Request value id={goodsId} must be a number!");
-            }
+
+            response = ArticleToDto(article, lang);
+            
 
             return new JsonResult(new { data = response });
         }

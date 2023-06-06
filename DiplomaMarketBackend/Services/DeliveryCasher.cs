@@ -87,8 +87,8 @@ namespace DiplomaMarketBackend.Services
 
                     _logger.LogInformation("Delivery Casher started");
 
-                    //await updateAreas();
-                    //await updateNpCities();
+                    await updateAreas();
+                    await updateNpCities();
                     await UpdateMistBranches();
                     await updateNpBranches();
                     //updateUkrpost();

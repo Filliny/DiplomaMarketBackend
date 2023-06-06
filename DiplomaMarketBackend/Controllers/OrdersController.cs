@@ -3,7 +3,6 @@ using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
-using DiplomaMarketBackend.Entity.Models;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
 using Newtonsoft.Json;
 using PasswordGenerator;
 using System.Security.Cryptography;
@@ -166,7 +164,7 @@ namespace DiplomaMarketBackend.Controllers
                 var head = new
                 {
                     id = pay.Id,
-                    name = pay.Name.Content(lang),
+                    name = pay.Name?.Content(lang),
                     description = pay.Description == null ? "" : pay.Description.Content(lang),
                     callback = pay.CallbackURL,
                     sub_methods = new List<dynamic>()
@@ -179,7 +177,7 @@ namespace DiplomaMarketBackend.Controllers
                     head.sub_methods.Add(new
                     {
                         id = sub.Id,
-                        name = sub.Name.Content(lang),
+                        name = sub.Name?.Content(lang),
                         description = sub.Description == null ? "" : sub.Description.Content(lang),
                         callback = sub.CallbackURL,
 

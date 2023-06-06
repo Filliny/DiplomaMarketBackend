@@ -50,7 +50,7 @@ namespace DiplomaMarketBackend.Controllers
         /// </summary>
         /// <returns>Ok if succes</returns>
         [Authorize]
-        [HttpGet]
+        [HttpPost]
         [Route("add")]
         public async Task<IActionResult> Add([FromQuery] int article_id)
         {
@@ -74,7 +74,7 @@ namespace DiplomaMarketBackend.Controllers
         /// </summary>
         /// <returns>Ok if succes</returns>
         [Authorize]
-        [HttpGet]
+        [HttpDelete]
         [Route("remove")]
         public async Task<IActionResult> Remove([FromQuery] int article_id)
         {

@@ -1,29 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DiplomaMarketBackend.IntegrationTests
+namespace DiplomaMarketBackend.IntegrationTests.Tests
 {
-    public class GoodsAdminTest
+    public class GoodsAdminTest:BasicTest
     {
-
-        private readonly HttpClient _httpClient;
-        private static string? _jwtToken = string.Empty;
-        private static string? _userId = string.Empty;
-        private static string? _userPhone = string.Empty;
-
-        private readonly string admin_mail = "admin@gmail.com";
-        private readonly string admin_pass = "Test123admin$";
-
-        public GoodsAdminTest()
-        {
-            var webApplicationFactory = new CustomWebApplicationFactory<Program>();
-            _httpClient = webApplicationFactory.CreateDefaultClient();
-        }
+        
 
         [Theory]
         [InlineData(1)]

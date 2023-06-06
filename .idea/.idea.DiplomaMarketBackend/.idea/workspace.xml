@@ -13,13 +13,49 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="" />
+    <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/BasicTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/DeliveryTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/FavoritesTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/FilterAdminTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230606142955_filter_tables.Designer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230606142955_filter_tables.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/ActionsTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ActionsTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/AlphabeticalOrderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Helpers/AlphabeticalOrderer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/AuthorizationTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/AuthorizationTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/BannersTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/BannersTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/BrandsTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/BrandsTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/CategoryTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/CategoryTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/CustomWebApplicationFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Helpers/CustomWebApplicationFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/FormHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Helpers/FormHelper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/GoodsAdminTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsAdminTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/OrdersTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/OrdersTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UserAdminTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserAdminTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UserCabinetTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserCabinetTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UserGroupsTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserGroupsTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/DeliveryController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/DeliveryController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FavoritesController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FavoritesController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FiltersAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FiltersAdminController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ValuesController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ValuesController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Entity/Models/FixedFilterSettingsModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Entity/Models/FixedFilterSettingsModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/BaseContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/BaseContextModelSnapshot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/FixedFilter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/FixedFilter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Services/DeliveryCasher.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Services/DeliveryCasher.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="ProjectId" id="2QhyoXfO1BAKaZvICw5dgBSJACs" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -33,10 +69,12 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.editor",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected=".NET Launch Settings Profile.DiplomaMarketBackend: IIS Express">
+  <component name="RunManager" selected=".NET Launch Settings Profile.DiplomaMarketBackend: https_test">
     <configuration name="DiplomaMarketBackend: registry.hub.docker.com_filliny1" type="DotNetMsBuildPublish" factoryName="Publish to IIS">
       <riderPublish publish_profile="registry.hub.docker.com_filliny1.pubxml" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny1.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
       <method v="2" />
@@ -118,7 +156,10 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile" />
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
       <method v="2" />
     </configuration>
   </component>
@@ -137,7 +178,59 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/OrdersTest.cs</url>
+          <line>110</line>
+          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/OrdersTest.cs" initialLine="110" containingFunctionPresentation="Method 'CreateNewOrderGuest_Success'">
+            <startOffsets>
+              <option value="4688" />
+            </startOffsets>
+            <endOffsets>
+              <option value="4713" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="41" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/CategoryTest.cs</url>
+          <line>111</line>
+          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/CategoryTest.cs" initialLine="111" containingFunctionPresentation="Method 'Admin1_CreateCategory_Success'">
+            <startOffsets>
+              <option value="4553" />
+            </startOffsets>
+            <endOffsets>
+              <option value="4581" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="44" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FavoritesController.cs</url>
+          <line>58</line>
+          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FavoritesController.cs" initialLine="58" containingFunctionPresentation="Method 'Add'">
+            <startOffsets>
+              <option value="1755" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1775" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="53" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="Type#DiplomaMarketBackend.Entity.Models.TextContent" memberName="Translations" />
+      </pinned-members>
+    </pin-to-top-manager>
   </component>
 </project>

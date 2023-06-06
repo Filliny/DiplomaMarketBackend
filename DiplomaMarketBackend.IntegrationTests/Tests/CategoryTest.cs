@@ -1,23 +1,18 @@
+using System.Net.Mime;
+using System.Text;
+using DiplomaMarketBackend.IntegrationTests.Helpers;
 using DiplomaMarketBackend.Models;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using System.Net.Mime;
-using System.Text;
 
-namespace DiplomaMarketBackend.IntegrationTests
+namespace DiplomaMarketBackend.IntegrationTests.Tests
 {
     [TestCaseOrderer(
-    ordererTypeName: "DiplomaMarketBackend.IntegrationTests.AlphabeticalOrderer",
+    ordererTypeName: "DiplomaMarketBackend.IntegrationTests.Helpers.AlphabeticalOrderer",
     ordererAssemblyName: "DiplomaMarketBackend.IntegrationTests")]
-    public class CategoryTest
+    public class CategoryTest:BasicTest
     {
-        private readonly HttpClient _httpClient;
         private static int? _id;
-        public CategoryTest()
-        {
-            var webApplicationFactory = new CustomWebApplicationFactory<Program>();
-            _httpClient = webApplicationFactory.CreateDefaultClient();
-        }
 
         [Fact]
         public async void CategoryTreeGet_Success()
@@ -135,8 +130,7 @@ namespace DiplomaMarketBackend.IntegrationTests
             var response = await _httpClient.GetAsync($"/api/Categories/category?category_id={_id}&lang=UK");
             var result = await response.Content.ReadAsStringAsync();
             var data = JsonConvert.DeserializeObject<Category>(result);
-
-
+            
             //Assert
             Assert.True(response.StatusCode == System.Net.HttpStatusCode.OK);
             Assert.True(!string.IsNullOrEmpty(result));

@@ -2,18 +2,12 @@
 using DiplomaMarketBackend.Models;
 using Newtonsoft.Json;
 
-namespace DiplomaMarketBackend.IntegrationTests
+namespace DiplomaMarketBackend.IntegrationTests.Tests
 {
-    public class OrdersTest
+    public class OrdersTest:BasicTest
     {
 
-        private readonly HttpClient _httpClient;
         private static int? _id;
-        public OrdersTest()
-        {
-            var webApplicationFactory = new CustomWebApplicationFactory<Program>();
-            _httpClient = webApplicationFactory.CreateDefaultClient();
-        }
 
         [Fact]
         public async void CheckCertificate_Success()
@@ -124,7 +118,7 @@ namespace DiplomaMarketBackend.IntegrationTests
             // Arrange
 
             // Act
-            var result = await _httpClient.GetAsync($"/api/Orders/get?order_id=1");
+            var result = await _httpClient.GetAsync($"/api/Orders/get?order_id=10");
 
             // Assert
             Assert.NotNull(result);

@@ -43,7 +43,7 @@ namespace DiplomaMarketBackend.Controllers
         [Route("get")]
         public async Task<ActionResult<Article>> GetArticle([FromQuery] int id)
         {
-            var article = await _context.Articles.
+            var article = await _context.Articles.AsNoTracking().AsSplitQuery().
                 Include(a => a.Title.Translations).
                 Include(a => a.Description.Translations).
                 Include(a => a.Docket.Translations).

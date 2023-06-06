@@ -40,7 +40,7 @@ namespace DiplomaMarketBackend.Controllers
         }
 
         /// <summary>
-        /// Get list of categories that havent settings added-( for new setting in admin inteface)
+        /// Get list of categories that haven't settings added-( for new setting in admin interface)
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -65,7 +65,8 @@ namespace DiplomaMarketBackend.Controllers
         [Route("get-settings")]
         public async Task<ActionResult<FixedFilter>> GetFilterSettings([FromQuery] int category_id = 0)
         {
-            var settings = _context.FixedFilterSettings.Include(c=>c.Category.Name).FirstOrDefault(s=>s.CategoryId == category_id)?? new FixedFilterSettingsModel(); ;
+            var settings = _context.FixedFilterSettings.Include(c=>c.Category.Name).
+                FirstOrDefault(s=>s.CategoryId == category_id)?? new FixedFilterSettingsModel(); ;
 
             var common_filters = await _context.ArticleCharacteristics.AsSplitQuery().
                     Include(c => c.Title.Translations).
@@ -73,6 +74,7 @@ namespace DiplomaMarketBackend.Controllers
                     Where(c => c.CategoryId == null).ToListAsync();
 
             var response = settings.Adapt<FixedFilter>();
+            response.category_name = settings.Category?.Name.OriginalText;
 
             foreach (var filter in common_filters) {
 
@@ -167,9 +169,10 @@ namespace DiplomaMarketBackend.Controllers
                 Entity = filter
             });
 
-            var settings = filter.Adapt<FixedFilterSettingsModel>();
-
-
+            var settings = await _context.FixedFilterSettings.FindAsync(filter.id);
+            filter.Adapt(settings);
+            
+            
             //update strings if have sended
             if (filter.characteristics != null && filter.characteristics.Count > 0)
             {
@@ -200,7 +203,7 @@ namespace DiplomaMarketBackend.Controllers
             return Ok(new Result
             {
                 Status = "Success",
-                Message = "Settings added sucessfullty",
+                Message = "Settings updated successfully",
                 Entity = filter
             });
 
@@ -247,18 +250,26 @@ namespace DiplomaMarketBackend.Controllers
         public async Task<ActionResult<FilterCharacteristics>> GetUnselected([FromQuery] int category_id, string? search, string lang)
         {
             lang = lang.NormalizeLang();
+            
+            var category = _context.Categories.AsNoTracking().
+                Include(c => c.Name.Translations).
+                FirstOrDefault(c => c.Id == category_id);
 
-            var charakteristics = _context.ArticleCharacteristics.
+            var charakteristics = await _context.ArticleCharacteristics.
                 Include(c => c.Title.Translations).
                 Include(c=>c.Category.Name.Translations).
-                Where(c => c.CategoryId == category_id && !c.show_in_filter);
+                Where(c => c.CategoryId == category_id && !c.show_in_filter).ToListAsync();
 
             if (search != null)
             {
-                charakteristics = charakteristics.Where(c => c.Title.Translations.Any(t => t.TranslationString.ToUpper().Contains(search.ToUpper()) && t.LanguageId == lang));
+                charakteristics = charakteristics.Where(c => c.Title.Translations.Any(t => t.TranslationString.ToUpper().Contains(search.ToUpper()) && t.LanguageId == lang)).ToList();
             }
 
-            var result = new FilterCharacteristics();
+            var result = new FilterCharacteristics
+            {
+                category_id = category_id,
+                category_name = category?.Name.Content(lang)??""
+            };
 
             foreach (var charakter in charakteristics)
             {
@@ -286,15 +297,20 @@ namespace DiplomaMarketBackend.Controllers
         {
             lang = lang.NormalizeLang();
 
-            var charakteristics = _context.ArticleCharacteristics.
+            var category = _context.Categories.AsNoTracking().
+                Include(c => c.Name.Translations).
+                FirstOrDefault(c => c.Id == category_id);
+
+            var charakteristics = await _context.ArticleCharacteristics.
                 Include(c => c.Title.Translations).
                 Include(c => c.Category.Name.Translations).
-                Where(c => c.CategoryId == category_id && c.show_in_filter);
+                Where(c => c.CategoryId == category_id && c.show_in_filter).
+                ToListAsync();
 
             var result = new FilterCharacteristics {
 
                 category_id = category_id,
-                category_name = charakteristics.First().Category?.Name.Content(lang)??""
+                category_name = category?.Name.Content(lang)??""
             };
 
             foreach (var charakter in charakteristics)
@@ -312,13 +328,14 @@ namespace DiplomaMarketBackend.Controllers
         /// <summary>
         /// Update showed characteristics list
         /// </summary>
-        /// <param name="update_list">Filter characteristic entity caontains only selected for showing characteristics</param>
+        /// <param name="update_list">Filter characteristic entity contains only selected for showing characteristics</param>
         /// <returns>Ok if success</returns>
         [HttpPatch]
         [Route("filters-update")]
         public async Task<IActionResult> UpdateShowed([FromBody ] FilterCharacteristics update_list)
         {
-            var category_caharacteristics = await _context.ArticleCharacteristics.Where(c => c.CategoryId == update_list.category_id).ToListAsync();
+            var category_caharacteristics = await _context.ArticleCharacteristics.
+                Where(c => c.CategoryId == update_list.category_id).ToListAsync();
 
             foreach(var characteristic in  category_caharacteristics)
             {
@@ -331,7 +348,7 @@ namespace DiplomaMarketBackend.Controllers
                     characteristic.show_in_filter = false;
                 }
 
-                 _context.ArticleCharacteristics.Update(characteristic);
+                _context.ArticleCharacteristics.Update(characteristic);
 
             }
 

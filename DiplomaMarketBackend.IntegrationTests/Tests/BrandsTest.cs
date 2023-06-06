@@ -1,19 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-namespace DiplomaMarketBackend.IntegrationTests
+namespace DiplomaMarketBackend.IntegrationTests.Tests
 {
-    public class BrandsTest
+    public class BrandsTest:BasicTest
     {
-        private readonly HttpClient _httpClient;
         private static int _id;
-
-        public BrandsTest()
-        {
-            var webApplicationFactory = new CustomWebApplicationFactory<Program>();
-            _httpClient = webApplicationFactory.CreateDefaultClient();
-        }
-
+        
         [Fact]
         public async void GetPopularBrands_Success()
         {
@@ -116,7 +109,7 @@ namespace DiplomaMarketBackend.IntegrationTests
         }
 
         [Fact]
-        public async void DeleteBrand_Success()
+        public async void RemoveBrand_Success()
         {
             // Arrange
             while(_id == 0) { }

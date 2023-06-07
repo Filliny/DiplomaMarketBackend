@@ -84,11 +84,10 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("get-review")]
-        public async Task<ActionResult<Review>> GetReview([FromQuery] string review_id)
+        public async Task<ActionResult<Review>> GetReview([FromQuery] int review_id)
         {
-            if (int.TryParse(review_id, out int id))
-            {
-                var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == id);
+
+                var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == review_id);
 
                 if (review != null)
                 {
@@ -98,10 +97,8 @@ namespace DiplomaMarketBackend.Controllers
 
                 }
 
-                return NotFound("Check id!");
-            }
 
-            return BadRequest("Check parameters!");
+                return BadRequest("Check parameters!");
         }
 
         /// <summary>

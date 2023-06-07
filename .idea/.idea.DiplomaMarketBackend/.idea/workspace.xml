@@ -14,12 +14,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ImagesTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/RegistrationTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ReviewsTest.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/CategoriesController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/CategoriesController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/RegistrationController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/RegistrationController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ReviewsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ReviewsController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/UsersAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/UsersAdminController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,13 +50,13 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected=".NET Launch Settings Profile.DiplomaMarketBackend: https">
+  <component name="RunManager" selected="Docker.DiplomaMarketBackend/Dockerfile  build">
     <configuration name="DiplomaMarketBackend: registry.hub.docker.com_filliny1" type="DotNetMsBuildPublish" factoryName="Publish to IIS">
-      <riderPublish publish_profile="registry.hub.docker.com_filliny1.pubxml" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny1.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
+      <riderPublish configuration="Release" platform="Any CPU" publish_profile="&lt;no publish profile&gt;" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny1.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
       <method v="2" />
     </configuration>
     <configuration name="DiplomaMarketBackend: registry.hub.docker.com_filliny11" type="DotNetMsBuildPublish" factoryName="Publish to IIS">
-      <riderPublish publish_profile="registry.hub.docker.com_filliny11.pubxml" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny11.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
+      <riderPublish configuration="Release" platform="Any CPU" publish_profile="&lt;no publish profile&gt;" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny11.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
       <method v="2" />
     </configuration>
     <configuration name="DiplomaMarketBackend: IIS Express" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
@@ -118,16 +119,37 @@
         <option name="Build" />
       </method>
     </configuration>
-    <configuration name="DiplomaMarketBackend/Dockerfile" type="docker-deploy" factoryName="dockerfile">
+    <configuration name="DiplomaMarketBackend/Dockerfile  build" type="docker-deploy" factoryName="dockerfile" server-name="Docker">
       <deployment type="dockerfile">
         <settings>
+          <option name="imageTag" value="filliny1/diplomamarketbackend:latest" />
+          <option name="buildOnly" value="true" />
           <option name="containerName" value="diplomamarketbackend" />
-          <option name="contextFolderPath" value="C:\Users\oleg\source\repos\DiplomaMarketBackend" />
+          <option name="contextFolderPath" value="." />
           <option name="publishAllPorts" value="true" />
+          <option name="showCommandPreview" value="true" />
           <option name="sourceFilePath" value="DiplomaMarketBackend/Dockerfile" />
         </settings>
       </deployment>
       <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="DiplomaMarketBackend/Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="imageTag" value="filliny1/diplomamarketbackend:latest" />
+          <option name="containerName" value="diplomamarketbackend" />
+          <option name="contextFolderPath" value="." />
+          <option name="publishAllPorts" value="true" />
+          <option name="showCommandPreview" value="true" />
+          <option name="sourceFilePath" value="DiplomaMarketBackend/Dockerfile" />
+        </settings>
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="true" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-image" temporary="true">
+      <deployment type="docker-image" />
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
@@ -143,6 +165,7 @@
       <item itemvalue=".NET Launch Settings Profile.DiplomaMarketBackend: https_test" />
       <item itemvalue=".NET Launch Settings Profile.DiplomaMarketBackend: IIS Express" />
       <item itemvalue="Docker.DiplomaMarketBackend/Dockerfile" />
+      <item itemvalue="Docker.DiplomaMarketBackend/Dockerfile  build" />
       <item itemvalue="Publish to IIS.DiplomaMarketBackend: registry.hub.docker.com_filliny1" />
       <item itemvalue="Publish to IIS.DiplomaMarketBackend: registry.hub.docker.com_filliny11" />
     </list>
@@ -157,6 +180,14 @@
       <updated>1685820286762</updated>
       <workItem from="1685820287894" duration="712000" />
     </task>
+    <task id="LOCAL-00001" summary="- flat cashe fix">
+      <created>1686140732540</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1686140732540</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -167,6 +198,8 @@
   <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="- flat cashe fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="- flat cashe fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -209,6 +242,19 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend/Controllers/RegistrationController.cs</url>
+          <line>181</line>
+          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/RegistrationController.cs" initialLine="181" containingFunctionPresentation="Method 'PasswordUpdate'">
+            <startOffsets>
+              <option value="5946" />
+            </startOffsets>
+            <endOffsets>
+              <option value="6012" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="109" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

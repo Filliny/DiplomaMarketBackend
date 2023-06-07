@@ -352,7 +352,7 @@ namespace DiplomaMarketBackend.Controllers
             _context.Orders.Add(new_order);
             _context.SaveChanges();
 
-            var payment_type = await _context.PaymentTypes.FindAsync(new_order.PaymentTypeId);
+            //var payment_type = await _context.PaymentTypes.FindAsync(new_order.PaymentTypeId);
 
             return Ok(new Result
             {

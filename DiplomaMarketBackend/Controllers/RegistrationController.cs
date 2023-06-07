@@ -100,61 +100,6 @@ namespace DiplomaMarketBackend.Controllers
 		}
 
 		/// <summary>
-		/// Register admin users - replaced by Users controller method
-		/// </summary>
-		/// <param name="model">User model</param>
-		/// <param name="role">Role name</param>
-		/// <returns>Ok if success with status and JWT key</returns>
-		/// <response code="500">If something go wrong)</response>
-		[HttpPost]
-		[Authorize(Roles ="Admin")]
-		[Route("register-admin")]
-		public async Task<IActionResult> AdminRegister([FromBody] User model, string role)
-		{
-
-			if (model.user_name is null || model.email is null || model.password is null || role is null)
-				return BadRequest(new { registerError = "Some values is null" });
-
-
-			var userExists = await _userManager.FindByNameAsync(model.user_name);
-
-			if (userExists != null)
-				return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
-
-			UserModel user = new()
-			{
-				Email = model.email,
-				SecurityStamp = Guid.NewGuid().ToString(),
-				UserName = model.user_name,
-				EmailConfirmed = true
-			};
-
-			if (!await _roleManager.RoleExistsAsync(role))
-				 return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Role not exist." });
-
-			var result = await _userManager.CreateAsync(user, model.password);
-			var role_result = await _userManager.AddToRoleAsync(user, role);
-
-			if (!result.Succeeded || !role_result.Succeeded)
-				return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Please check user details and try again." });
-
-
-			user.PasswordHash = null;
-			var response = new
-			{
-				jwt = JwtTokenGenerator.GetToken(_userManager, user),
-				userModel = user,
-				Status = "Success",
-				Message = "User created successfully!"
-
-			};
-
-			return new JsonResult(response);
-
-		}
-
-
-        /// <summary>
         /// Password recovery send mail endpoint
         /// </summary>
         /// <param name="email">email to send recovery code</param>
@@ -179,7 +124,17 @@ namespace DiplomaMarketBackend.Controllers
 			await _emailService.SendEmailAsync(email, "Reset Password",
 			 $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl ?? "")}'>clicking here</a>.");
 
-			return Ok();
+			return Ok(new Result
+			{
+				Status = "Success",
+				Message = "Password recovery request successfully created ",
+				Entity = new
+				{
+					code,
+					callbackUrl,
+					email
+				}
+			});
 		}
 
 		/// <summary>
@@ -199,11 +154,12 @@ namespace DiplomaMarketBackend.Controllers
 			{
 				return BadRequest("User is not exist or email not confirmed!");
 			}
-
+			
 			var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(email_code));
 			var result = await _userManager.ResetPasswordAsync(user, code, new_password);
 
-			if (!result.Succeeded) return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "Password change error: " + result.ToString() });
+			if (!result.Succeeded) return StatusCode(StatusCodes.Status500InternalServerError,
+				new { Status = "Error", Message = "Password change error: " + result.ToString() });
 
 			return Ok();
 		}
@@ -221,7 +177,7 @@ namespace DiplomaMarketBackend.Controllers
 		{
 			try
 			{
-				var user = await _userManager.GetUserAsync(User);
+				var user = await _userManager.FindByEmailAsync(User.Identity.Name);
 
 				if (user ==  null || !(await _userManager.HasPasswordAsync(user)))
 				{

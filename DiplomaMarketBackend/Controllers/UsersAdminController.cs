@@ -192,7 +192,7 @@ namespace DiplomaMarketBackend.Controllers
                         return BadRequest(new Result
                         {
                             Status = "Error",
-                            Message = "Create user error- Permission assing error",
+                            Message = "Create user error- Permission assign error",
                             Entity = new
                             {
                                 user.customer_group_id,

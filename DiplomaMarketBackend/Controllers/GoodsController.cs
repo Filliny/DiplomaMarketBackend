@@ -24,7 +24,6 @@ namespace DiplomaMarketBackend.Controllers
             _fileService = fileService;
         }
 
-
         /// <summary>
         /// Get all articles ids from given category
         /// </summary>
@@ -94,26 +93,16 @@ namespace DiplomaMarketBackend.Controllers
             var flat = category.ChildCategories.Flatten(c => c.ChildCategories).ToList();
             flat.Add(category);
             flat.AddRange(_context.Categories.Where(c => c.ShowInCategoryId == category_Id).ToList());
-
-
+            
             if (page == 0) page = 1;
 
             var articles = new List<dynamic>();
-
-
+            
             var action_goods = await _context.Articles.
-            //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
-            Include(a => a.Title).ThenInclude(t => t.Translations).
-            //Include(a => a.Description).ThenInclude(t => t.Translations).
-            // Include(a => a.Docket).ThenInclude(t => t.Translations).
-            Include(a => a.Category).
-            //Include(a => a.Brand).
-            //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-            //Include(a => a.Video).
-            //Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
-            Where(a => flat.Contains(a.Category)).ToListAsync();
-
-
+                Include(a => a.Title).ThenInclude(t => t.Translations).
+                Include(a => a.Category).
+                Where(a => flat.Contains(a.Category)).ToListAsync();
+            
             int total_goods = action_goods.Count;
             int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
 
@@ -126,9 +115,7 @@ namespace DiplomaMarketBackend.Controllers
 
             foreach (var article in action_goods)
             {
-
                 articles.Add(ArticleToDtoLight(article, lang));
-
             }
 
             var result = new
@@ -145,7 +132,6 @@ namespace DiplomaMarketBackend.Controllers
             return new JsonResult(result);
 
         }
-
 
         /// <summary>
         /// Get articles for sub-categories with single-page pagination
@@ -179,30 +165,20 @@ namespace DiplomaMarketBackend.Controllers
             var flat = category.ChildCategories.Flatten(c => c.ChildCategories).ToList();
             flat.Add(category);
             flat.AddRange(_context.Categories.Where(c => c.ShowInCategoryId == category_Id).ToList());
-
-
+            
             if (page == 0) page = 0;
 
             var articles = new List<dynamic>();
 
             var action_goods = await _context.Articles.
-                //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
                 Include(a => a.Title).ThenInclude(t => t.Translations).
-                //Include(a => a.Description).ThenInclude(t => t.Translations).
-                // Include(a => a.Docket).ThenInclude(t => t.Translations).
                 Include(a => a.Category).
-                //Include(a => a.Brand).
-                //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                //Include(a => a.Video).
-                //Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
                 Include(a => a.CharacteristicValues).
                 Where(a => flat.Contains(a.Category)).ToListAsync();
-
-
+            
             //filter section
             if (filter != null)
             {
-
                 //parsing filter diapason list to real values ids
                 if (filter.slider_values != null && filter.slider_values.Count() > 0)
                 {
@@ -240,8 +216,7 @@ namespace DiplomaMarketBackend.Controllers
 
 
             }
-
-
+            
             int total_goods = action_goods.Count;
             int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
 
@@ -285,93 +260,75 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("category-articles-paged")]
-        public async Task<IActionResult> GetCategoryArticlesPagination([FromQuery] string category_Id, string goods_on_page, string lang, [FromBody] int[] pages)
+        public async Task<IActionResult> GetCategoryArticlesPagination([FromQuery] int category_Id, string lang, int goods_on_page, [FromBody] int[] pages)
         {
             lang = lang.NormalizeLang();
+            if (goods_on_page == 0) goods_on_page = 10;
 
-            int cat_id;
-            if (!int.TryParse(category_Id, out cat_id)) return BadRequest("No such category!");
-
-            var category = await _context.Categories.Include(c => c.ChildCategories).ThenInclude(c => c.ChildCategories).FirstOrDefaultAsync(c => c.Id == cat_id);
+            var category = await _context.Categories.
+                Include(c => c.ChildCategories).
+                ThenInclude(c => c.ChildCategories).
+                FirstOrDefaultAsync(c => c.Id == category_Id);
 
             if (category == null)
             {
                 return NotFound("No such category");
             }
 
-            var all_cat_list = category.ChildCategories.SelectMany(x => x.ChildCategories).Concat(category.ChildCategories.SelectMany(x => x.ChildCategories).SelectMany(x => x.ChildCategories)).ToList();
+            var all_cat_list = category.ChildCategories.
+                SelectMany(x => x.ChildCategories).
+                Concat(category.ChildCategories.SelectMany(x => x.ChildCategories).
+                    SelectMany(x => x.ChildCategories)).ToList();
+            
             all_cat_list.Add(category);
-
-
-
+            
             var articles = new List<dynamic>();
 
-            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity))
+            var category_goods = await _context.Articles.
+                Include(a => a.Title).ThenInclude(t => t.Translations).
+                Include(a => a.Category).
+                Where(a => all_cat_list.Contains(a.Category)).ToListAsync();
+            
+            int total_goods = category_goods.Count;
+            int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
+
+            var pages_arr = new List<int>();
+            foreach (int page in pages)
             {
 
-                var category_goods = await _context.Articles.
-                    //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
-                    Include(a => a.Title).ThenInclude(t => t.Translations).
-                    //Include(a => a.Description).ThenInclude(t => t.Translations).
-                    //Include(a => a.Docket).ThenInclude(t => t.Translations).
-                    Include(a => a.Category).
-                    //Include(a => a.Brand).
-                    //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                    //Include(a => a.Video).
-                    //Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
-                    Where(a => all_cat_list.Contains(a.Category)).ToListAsync();
+                if (page > total_pages) continue;
+                if (page == 0) continue;
 
-
-                int total_goods = category_goods.Count;
-                int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
-
-
-                var pages_arr = new List<int>();
-                foreach (int page in pages)
-                {
-
-                    if (page > total_pages) continue;
-                    if (page == 0) continue;
-
-                    pages_arr.Add(page);
-                }
-
-                pages_arr.Sort();
-
-                var paged_goods = new List<ArticleModel>();
-
-                foreach (int page in pages_arr)
-                {
-                    int skip = (page) * quantity;
-                    paged_goods.AddRange(category_goods.Skip(skip).Take(quantity).ToList());
-                }
-
-                foreach (var article in paged_goods)
-                {
-
-                    articles.Add(ArticleToDtoLight(article, lang));
-
-                }
-
-                var result = new
-                {
-                    data = new
-                    {
-                        articles,
-                        total_goods,
-                        total_pages,
-                        displayed_pages = pages_arr
-                    }
-                };
-
-                return new JsonResult(result);
+                pages_arr.Add(page);
             }
-            else
+
+            pages_arr.Sort();
+
+            var paged_goods = new List<ArticleModel>();
+
+            foreach (int page in pages_arr)
             {
-                var res = int.TryParse("112", out int result) ? result : 0;
-                return BadRequest("Check  parameters!");
+                int skip = (page) * goods_on_page;
+                paged_goods.AddRange(category_goods.Skip(skip).Take(goods_on_page).ToList());
             }
 
+            foreach (var article in paged_goods)
+            {
+                articles.Add(ArticleToDtoLight(article, lang));
+            }
+
+            var result = new
+            {
+                data = new
+                {
+                    articles,
+                    total_goods,
+                    total_pages,
+                    displayed_pages = pages_arr
+                }
+            };
+
+            return new JsonResult(result);
 
         }
 
@@ -403,7 +360,6 @@ namespace DiplomaMarketBackend.Controllers
                 Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
                 Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
                 Include(a => a.Video).
-                //Include(a => a.Images).
                 FirstOrDefaultAsync(a => a.Id == goodsId);
 
             if (article == null)
@@ -572,65 +528,50 @@ namespace DiplomaMarketBackend.Controllers
         [HttpGet]
         [Route("all-actions")]
         [ResponseCache(VaryByQueryKeys = new[] { "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
-        public async Task<IActionResult> GetAllActions([FromQuery] string goods_on_page, string page, string lang)
+        public async Task<IActionResult> GetAllActions([FromQuery] string lang, int goods_on_page=10 ,int page=1)
         {
             lang = lang.NormalizeLang();
 
-            if (string.IsNullOrEmpty(page)) page = "1";
-
             var articles = new List<dynamic>();
+            
+            var action_goods = await _context.Articles.
+                Include(a => a.Title.Translations).
+                Include(a => a.Description).ThenInclude(t => t.Translations).
+                Include(a => a.Category).
+                Include(a => a.Actions).ThenInclude(a => a.Name.Translations).
+                Where(a => a.Actions.Count > 0).ToListAsync();
 
-            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
+
+            int total_goods = action_goods.Count;
+            int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
+
+            if (page > total_pages) page = total_pages;
+
+            int skip = (page - 1) * goods_on_page;
+
+            action_goods = action_goods.Skip(skip).Take(goods_on_page).ToList();
+
+            foreach (var article in action_goods)
             {
 
-                var action_goods = await _context.Articles.
+                articles.Add(ArticleToDtoLight(article, lang));
 
-                    Include(a => a.Title.Translations).
-                    Include(a => a.Description).ThenInclude(t => t.Translations).
-                    //Include(a => a.Docket).ThenInclude(t => t.Translations).
-                    Include(a => a.Category).
-                    //Include(a => a.Seller).
-                    //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                    //Include(a => a.Video).
-                    Include(a => a.Actions).ThenInclude(a => a.Name.Translations).
-                    Where(a => a.Actions.Count > 0).ToListAsync();
+            }
 
-
-                int total_goods = action_goods.Count;
-                int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
-
-                if (page_num == 0) page_num = 1;
-                if (page_num > total_pages) page_num = total_pages;
-
-                int skip = (page_num - 1) * quantity;
-
-                action_goods = action_goods.Skip(skip).Take(quantity).ToList();
-
-                foreach (var article in action_goods)
+            var result = new
+            {
+                data = new
                 {
-
-                    articles.Add(ArticleToDtoLight(article, lang));
-
+                    articles,
+                    total_goods,
+                    total_pages,
+                    displayed_page = page,
+                    breadcrumbs = new List<dynamic> { new { id = 0, name = lang == "UK" ? "Акційні пропозиції" : "Акционные предложения" } }
                 }
+            };
 
-                var result = new
-                {
-                    data = new
-                    {
-                        articles,
-                        total_goods,
-                        total_pages,
-                        displayed_page = page_num,
-                        breadcrumbs = new List<dynamic> { new { id = 0, name = lang == "UK" ? "Акційні пропозиції" : "Акционные предложения" } }
-                    }
-                };
+            return new JsonResult(result);
 
-                return new JsonResult(result);
-            }
-            else
-            {
-                return BadRequest("Check  parameters!");
-            }
         }
 
 
@@ -645,7 +586,7 @@ namespace DiplomaMarketBackend.Controllers
         [HttpGet]
         [Route("best-points")]
         [ResponseCache(VaryByQueryKeys = new[] { "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 360)]
-        public async Task<IActionResult> GetBestPoints([FromQuery] int goods_on_page, int page, string lang)
+        public async Task<IActionResult> GetBestPoints([FromQuery] string lang,int goods_on_page=10 ,int page=1)
         {
             lang = lang.NormalizeLang();
 
@@ -653,22 +594,16 @@ namespace DiplomaMarketBackend.Controllers
 
 
             var action_goods = await  _context.Articles.
-
                 Include(a => a.Title.Translations).
                 Include(a => a.Description).ThenInclude(t => t.Translations).
-                //Include(a => a.Docket).ThenInclude(t => t.Translations).
                 Include(a => a.Category).
-                //Include(a => a.Seller).
-                //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                //Include(a => a.Video).
                 Include(a => a.Actions).ThenInclude(a => a.Name.Translations).
                 Where(a => a.Points > 0).OrderByDescending(a=>a.Points).ToListAsync();
 
 
             int total_goods = action_goods.Count();
             int total_pages = (int)Math.Ceiling(total_goods / (decimal)goods_on_page);
-
-            if (page == 0) page = 1;
+            
             if (page > total_pages) page = total_pages;
 
             int skip = (page - 1) * goods_on_page;
@@ -694,7 +629,6 @@ namespace DiplomaMarketBackend.Controllers
             };
 
             return new JsonResult(result);
-
         }
 
 
@@ -742,18 +676,10 @@ namespace DiplomaMarketBackend.Controllers
                 var rand = new Random();
 
                 var action_goods = await _context.Articles.
-                    //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
                     Include(a => a.Title).ThenInclude(t => t.Translations).
-                   //Include(a => a.Description).ThenInclude(t => t.Translations).
-                   // Include(a => a.Docket).ThenInclude(t => t.Translations).
-                   // Include(a => a.Brand).
-                   Include(a => a.Category).
-                    //  Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                    //  Include(a => a.Video).
-                    //  Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
+                    Include(a => a.Category).
                     OrderByDescending(a => a.Id).Skip(rand.Next(1000)).Take(100).ToListAsync();
-
-
+                
                 int total_goods = action_goods.Count;
                 int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
 
@@ -761,17 +687,12 @@ namespace DiplomaMarketBackend.Controllers
                 if (page_num > total_pages) page_num = total_pages;
 
                 int skip = (page_num - 1) * quantity;
-
-
+                
                 action_goods = action_goods.Skip(skip).Take(quantity).ToList();
-
-
-
+                
                 foreach (var article in action_goods)
                 {
-
                     articles.Add(ArticleToDtoLight(article, lang));
-
                 }
 
                 var result = new
@@ -792,8 +713,7 @@ namespace DiplomaMarketBackend.Controllers
             {
                 return BadRequest("Check  parameters!");
             }
-
-
+            
         }
 
 
@@ -808,69 +728,47 @@ namespace DiplomaMarketBackend.Controllers
         [HttpGet]
         [Route("most-favorites")]
         [ResponseCache(VaryByQueryKeys = new[] { "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 60)]
-        public async Task<IActionResult> MostFavorable([FromQuery] string goods_on_page, string page, string lang)
+        public async Task<IActionResult> MostFavorable([FromQuery]  string lang, int goods_on_page=10, int page=1)
         {
             lang = lang.NormalizeLang();
 
-            if (string.IsNullOrEmpty(page)) page = "1";
-
             var articles = new List<dynamic>();
 
-            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
+            var rand = new Random();
+
+            var action_goods = await _context.Articles.
+                Include(a => a.Title).ThenInclude(t => t.Translations).
+                Include(a => a.Category).
+                OrderByDescending(a => a.rztk_art_id).Skip(rand.Next(1000)).Take(100).ToListAsync();
+
+
+            int total_goods = action_goods.Count;
+            int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
+
+            if (page > total_pages) page = total_pages;
+
+            int skip = (page - 1) * goods_on_page;
+            
+            action_goods = action_goods.Skip(skip).Take(goods_on_page).ToList();
+            
+            foreach (var article in action_goods)
             {
-                var rand = new Random();
+                articles.Add(ArticleToDtoLight(article, lang));
+            }
 
-                var action_goods = await _context.Articles.
-                    //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
-                    Include(a => a.Title).ThenInclude(t => t.Translations).
-                   //Include(a => a.Description).ThenInclude(t => t.Translations).
-                   //Include(a => a.Docket).ThenInclude(t => t.Translations).
-                   // Include(a => a.Brand).
-                   Include(a => a.Category).
-                    // Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                    //Include(a => a.Video).
-                    //Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
-                    OrderByDescending(a => a.rztk_art_id).Skip(rand.Next(1000)).Take(100).ToListAsync();
-
-
-                int total_goods = action_goods.Count;
-                int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
-
-                if (page_num == 0) page_num = 1;
-                if (page_num > total_pages) page_num = total_pages;
-
-                int skip = (page_num - 1) * quantity;
-
-
-                action_goods = action_goods.Skip(skip).Take(quantity).ToList();
-
-
-
-                foreach (var article in action_goods)
+            var result = new
+            {
+                data = new
                 {
-                    articles.Add(ArticleToDtoLight(article, lang));
+                    articles,
+                    total_goods,
+                    total_pages,
+                    displayed_page = page,
+                    breadcrumbs = new List<dynamic> { new {id=0, name = lang == "UK"? "Найчастіше додають в лист бажань": "Чаще всего добавляют в список желаний" } }
                 }
+            };
 
-                var result = new
-                {
-                    data = new
-                    {
-                        articles,
-                        total_goods,
-                        total_pages,
-                        displayed_page = page_num,
-                        breadcrumbs = new List<dynamic> { new {id=0, name = lang == "UK"? "Найчастіше додають в лист бажань": "Чаще всего добавляют в список желаний" } }
-                    }
-                };
-
-                return new JsonResult(result);
-            }
-            else
-            {
-                return BadRequest("Check  parameters!");
-            }
-
-
+            return new JsonResult(result);
         }
 
 
@@ -885,68 +783,46 @@ namespace DiplomaMarketBackend.Controllers
         [HttpGet]
         [Route("most-awaitable")]
         [ResponseCache(VaryByQueryKeys = new[] { "lang", "goods_on_page", "page" }, VaryByHeader = "User-Agent", Duration = 60)]
-        public async Task<IActionResult> MostAwaitable([FromQuery] string goods_on_page, string page, string lang)
+        public async Task<IActionResult> MostAwaitable([FromQuery] string lang, int goods_on_page=10, int page=1)
         {
             lang = lang.NormalizeLang();
 
-            if (string.IsNullOrEmpty(page)) page = "1";
-
             var articles = new List<dynamic>();
 
-            if (goods_on_page != null && int.TryParse(goods_on_page, out int quantity) && int.TryParse(page, out int page_num))
+            var rand = new Random();
+
+            var action_goods = await _context.Articles.
+                Include(a => a.Title).ThenInclude(t => t.Translations).
+                Include(a => a.Category).
+                OrderByDescending(a => a.DocketId).Skip(rand.Next(1000)).Take(100).ToListAsync();
+            
+            int total_goods = action_goods.Count;
+            int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
+            
+            if (page > total_pages) page = total_pages;
+
+            int skip = (page - 1) * goods_on_page;
+
+            action_goods = action_goods.Skip(skip).Take(goods_on_page).ToList();
+
+            foreach (var article in action_goods)
             {
-                var rand = new Random();
+                articles.Add(ArticleToDtoLight(article, lang));
+            }
 
-                var action_goods = await _context.Articles.
-                    // Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
-                    Include(a => a.Title).ThenInclude(t => t.Translations).
-                   //Include(a => a.Description).ThenInclude(t => t.Translations).
-                   // Include(a => a.Docket).ThenInclude(t => t.Translations).
-                   // Include(a => a.Brand).
-                   Include(a => a.Category).
-                    //  Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                    // Include(a => a.Video).
-                    //  Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
-                    OrderByDescending(a => a.DocketId).Skip(rand.Next(1000)).Take(100).ToListAsync();
-
-
-                int total_goods = action_goods.Count;
-                int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)quantity);
-
-                if (page_num == 0) page_num = 1;
-                if (page_num > total_pages) page_num = total_pages;
-
-                int skip = (page_num - 1) * quantity;
-
-                action_goods = action_goods.Skip(skip).Take(quantity).ToList();
-
-                foreach (var article in action_goods)
+            var result = new
+            {
+                data = new
                 {
-
-                    articles.Add(ArticleToDtoLight(article, lang));
-
+                    articles,
+                    total_goods,
+                    total_pages,
+                    displayed_page = page,
+                    breadcrumbs = new List<dynamic> { new { id = 0, name = lang == "UK" ? "Найбільш очікувані" : "Наиболее ожидаемые" } }
                 }
+            };
 
-                var result = new
-                {
-                    data = new
-                    {
-                        articles,
-                        total_goods,
-                        total_pages,
-                        displayed_page = page_num,
-                        breadcrumbs = new List<dynamic> { new { id = 0, name = lang == "UK" ? "Найбільш очікувані" : "Наиболее ожидаемые" } }
-                    }
-                };
-
-                return new JsonResult(result);
-            }
-            else
-            {
-                return BadRequest("Check  parameters!");
-            }
-
-
+            return new JsonResult(result);
         }
 
         /// <summary>
@@ -1030,20 +906,11 @@ namespace DiplomaMarketBackend.Controllers
             {
 
                 var action_goods = await _context.Articles.
-                    //Include(a => a.Breadcrumbs).ThenInclude(b => b.Title).ThenInclude(t => t.Translations).
                     Include(a => a.Title).ThenInclude(t => t.Translations).
-                    //Include(a => a.Description).ThenInclude(t => t.Translations).
-                    //Include(a => a.Docket).ThenInclude(t => t.Translations).
-                    //Include(a => a.Brand).
                     Include(a => a.Category).
-                    //Include(a => a.Seller).
-                    //Include(a => a.Warning).ThenInclude(w => w.Message).ThenInclude(m => m.Translations).
-                    //Include(a => a.Video).
                     Include(a => a.Actions).ThenInclude(a => a.Name).ThenInclude(n => n.Translations).
                     Where(a => articles_Ids.Contains(a.Id)).ToListAsync();
-
-
-
+                
                 foreach (var article in action_goods)
                 {
 
@@ -1346,17 +1213,8 @@ namespace DiplomaMarketBackend.Controllers
             var baseUrl = Request.Scheme + "://" + Request.Host + "/api/Goods/";
 
             var art_images = _context.Images.
-                  //Include(i => i.original).
-                  // Include(i => i.base_action).
-                  Include(i => i.preview).
-                            //Include(i => i.small).
-                            // Include(i => i.medium).
-                            //  Include(i => i.large).
-                            //   Include(i => i.big_tile).
-                            //    Include(i => i.big).
-                            //     Include(i => i.mobile_large).
-                            //      Include(i => i.mobile_medium).
-                            Where(i => i.ArticleModelId == article.Id).ToList();
+                Include(i => i.preview).
+                  Where(i => i.ArticleModelId == article.Id).ToList();
 
             var preview = art_images.First();
 
@@ -1366,8 +1224,7 @@ namespace DiplomaMarketBackend.Controllers
                 width = preview.preview.width,
                 height = preview.preview.height,
             };
-
-
+            
             //actions collect
             var actions = new List<dynamic>();
             if (article.Actions.Count > 0)
@@ -1382,7 +1239,6 @@ namespace DiplomaMarketBackend.Controllers
                     actions.Add(act);
                 }
             }
-
             
             response.Add("id", article.Id);
             response.Add("price", article.Price.ToString());
@@ -1390,7 +1246,6 @@ namespace DiplomaMarketBackend.Controllers
             response.Add("title", article.Title.Content(lang));
             response.Add("sell_status", article.SellStatus ?? "");
             response.Add("category_id", article.CategoryId);
-            //response.Add("images", out_images);
             response.Add("preview_img", preview_img);
             response.Add("actions", actions);
             response.Add("points", article.Points);

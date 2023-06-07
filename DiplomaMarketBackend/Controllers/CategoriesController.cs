@@ -203,7 +203,7 @@ namespace DiplomaMarketBackend.Controllers
         /// <returns>List of all categories or filtered list</returns>
         [HttpGet]
         [Route("flat")]
-        [ResponseCache(VaryByQueryKeys = new[] { "search","lang","limit","page" }, Duration = 3600)]
+        //[ResponseCache(VaryByQueryKeys = new[] { "search","lang","limit","page" }, Duration = 3600)]
         public async Task<IActionResult> GetFlatList([FromQuery] string? search, string lang, int limit=1000, int page=1)
         {
             lang = lang.NormalizeLang();
@@ -563,11 +563,10 @@ namespace DiplomaMarketBackend.Controllers
                             }
 
                         });
-
-                _context.textContents.Remove(category.Name);
-                TextContentHelper.Delete(_context, category.Name);
-
+                //_context.textContents.Remove(category.Name);
                 _context.Categories.Remove(category);
+                TextContentHelper.Delete(_context, category.Name);
+                
                 _context.SaveChanges();
 
                 return Ok();

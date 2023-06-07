@@ -14,44 +14,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/BasicTest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/DeliveryTest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/FavoritesTest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/FilterAdminTest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsTest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230606142955_filter_tables.Designer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230606142955_filter_tables.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ImagesTest.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/ActionsTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ActionsTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/AlphabeticalOrderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Helpers/AlphabeticalOrderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/AuthorizationTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/AuthorizationTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/BannersTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/BannersTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/BrandsTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/BrandsTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/CategoryTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/CategoryTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/CustomWebApplicationFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Helpers/CustomWebApplicationFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/FormHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Helpers/FormHelper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/GoodsAdminTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsAdminTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/OrdersTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/OrdersTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UserAdminTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserAdminTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UserCabinetTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserCabinetTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UserGroupsTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserGroupsTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/DeliveryController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/DeliveryController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FavoritesController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FavoritesController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FiltersAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FiltersAdminController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/CategoriesController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/CategoriesController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ValuesController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ValuesController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Entity/Models/FixedFilterSettingsModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Entity/Models/FixedFilterSettingsModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/BaseContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/BaseContextModelSnapshot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/FixedFilter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/FixedFilter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Services/DeliveryCasher.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Services/DeliveryCasher.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectId" id="2QhyoXfO1BAKaZvICw5dgBSJACs" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -60,21 +35,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.editor",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.editor&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager" selected=".NET Launch Settings Profile.DiplomaMarketBackend: https_test">
+}</component>
+  <component name="RunManager" selected=".NET Launch Settings Profile.DiplomaMarketBackend: https">
     <configuration name="DiplomaMarketBackend: registry.hub.docker.com_filliny1" type="DotNetMsBuildPublish" factoryName="Publish to IIS">
       <riderPublish publish_profile="registry.hub.docker.com_filliny1.pubxml" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny1.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
       <method v="2" />
@@ -162,6 +137,15 @@
       <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue=".NET Launch Settings Profile.DiplomaMarketBackend: http" />
+      <item itemvalue=".NET Launch Settings Profile.DiplomaMarketBackend: https" />
+      <item itemvalue=".NET Launch Settings Profile.DiplomaMarketBackend: https_test" />
+      <item itemvalue=".NET Launch Settings Profile.DiplomaMarketBackend: IIS Express" />
+      <item itemvalue="Docker.DiplomaMarketBackend/Dockerfile" />
+      <item itemvalue="Publish to IIS.DiplomaMarketBackend: registry.hub.docker.com_filliny1" />
+      <item itemvalue="Publish to IIS.DiplomaMarketBackend: registry.hub.docker.com_filliny11" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -178,6 +162,7 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="false" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
   <component name="VcsManagerConfiguration">

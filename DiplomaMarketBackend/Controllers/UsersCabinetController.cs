@@ -193,7 +193,7 @@ namespace DiplomaMarketBackend.Controllers
             return BadRequest(new Result
             {
                 Status = "Error",
-                Message = "Receiver not found"
+                Message = "User not found or not logged"
             });
 
         }
@@ -245,7 +245,13 @@ namespace DiplomaMarketBackend.Controllers
 
             var orders = await _context.Orders.Where(o => o.ReceiverId == id).ToListAsync();
 
-            if (ex_receiver != null && ex_receiver.UserId == user.Id && orders.Count == 0)
+            if(orders.Count> 0) return BadRequest(new Result
+            {
+                Status = "Error",
+                Message = "Receiver have orders related - cant delete!"
+            });
+
+            if (ex_receiver != null && ex_receiver.UserId == user.Id)
             {
                 _context.Receivers.Remove(ex_receiver);
                 _context.SaveChanges();

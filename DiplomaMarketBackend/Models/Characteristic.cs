@@ -12,7 +12,7 @@
             /// <summary>
             /// Translations dictionary "LanguageId":"TranslationString"
             /// </summary>
-            public Dictionary<string,string> Translations { get; set; } = new Dictionary<string,string>();
+            public Dictionary<string,string> translations { get; set; } = new Dictionary<string,string>();
 
         }
 
@@ -31,7 +31,7 @@
             /// <summary>
             /// Translations dictionary "LanguageId":"TranslationString"
             /// </summary>
-            public Dictionary<string, string> Translations { get; set; } = new Dictionary<string, string>();
+            public Dictionary<string, string>? Translations { get; set; } = new Dictionary<string, string>();
 
         }
 
@@ -43,12 +43,12 @@
         /// <summary>
         /// Names translations dictionary "LanguageId":"TranslationString"
         /// </summary>
-        public Dictionary<string, string> Names { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> names { get; set; } = new Dictionary<string, string>();
         
         /// <summary>
         /// List of values
         /// </summary>
-        public List<Value> Values { get; set; } = new List<Value>();
+        public List<Value> values { get; set; } = new List<Value>();
 
         /// <summary>
         /// Characterisitc group

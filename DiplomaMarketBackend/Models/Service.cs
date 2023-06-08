@@ -7,46 +7,46 @@
         /// <summary>
         /// Service name
         /// </summary>
-        public string Name { get; set; } = string.Empty;   
+        public string name { get; set; } = string.Empty;   
         
         /// <summary>
         /// Service Address
         /// </summary>
-        public string Address { get; set; } = string.Empty;
+        public string address { get; set; } = string.Empty;
 
         /// <summary>
         /// Service phone
         /// </summary>
-        public string Phone { get; set; } = string.Empty;
+        public string phone { get; set; } = string.Empty;
 
         /// <summary>
         /// Service work hours
         /// </summary>
-        public string WorkHours { get; set; } = string.Empty;
+        public string work_hours { get; set; } = string.Empty;
 
         /// <summary>
         /// City name for new city creation 
         /// </summary>
-        public string? City { get; set; } = string.Empty;
+        public string? city_name { get; set; } = string.Empty;
 
         /// <summary>
         /// Id of existing city found in Reference section of API
         /// </summary>
-        public int  CityId { get; set; }
+        public int  city_id { get; set; }
 
         /// <summary>
         /// Id of existing area found in Reference section of API
         /// </summary>
-        public int AreaId { get; set; }
+        public int? area_id { get; set; }
 
         /// <summary>
         /// Id of brand related to service company
         /// </summary>
-        public int BrandId { get; set; }
+        public int brand_id { get; set; }
 
         /// <summary>
         /// List of categories related to service
         /// </summary>
-        public int CategoryId { get; set; }
+        public int category_id { get; set; }
     }
 }

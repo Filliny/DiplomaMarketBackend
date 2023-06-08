@@ -241,7 +241,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 foreach (var name in characteristic[0].Key.Title.Translations)
                 {
-                    result.Names.Add(name.LanguageId, name.TranslationString);
+                    result.names.Add(name.LanguageId, name.TranslationString);
                 }
 
                 if (characteristic[0].Key.Group != null)
@@ -264,10 +264,10 @@ namespace DiplomaMarketBackend.Controllers
 
                         foreach (var transl in value.Title.Translations)
                         {
-                            add_val.Translations.Add(transl.LanguageId, transl.TranslationString);
+                            add_val.translations.Add(transl.LanguageId, transl.TranslationString);
                         }
 
-                        result.Values.Add(add_val);
+                        result.values.Add(add_val);
                     }
                 }
 
@@ -342,7 +342,7 @@ namespace DiplomaMarketBackend.Controllers
 
             try
             {
-                if (!characteristic.Names.ContainsKey("UK")) return BadRequest(new Result()
+                if (!characteristic.names.ContainsKey("UK")) return BadRequest(new Result()
                 {
                     Status = "Error",
                     Message = "Name lacks default translation string locale UK",
@@ -350,7 +350,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 });
 
-                new_characteristic.Title = TextContentHelper.CreateFromDictionary(_context, characteristic.Names);
+                new_characteristic.Title = TextContentHelper.CreateFromDictionary(_context, characteristic.names);
                 new_characteristic.Name = new_characteristic.Title;
                 new_characteristic.Status = characteristic.is_active ? "active" : "inactive";
                 new_characteristic.CategoryId = characteristic.category_id;
@@ -358,18 +358,20 @@ namespace DiplomaMarketBackend.Controllers
                 new_characteristic.Comparable = characteristic.comparable;
                 new_characteristic.filterType = Enum.TryParse(typeof(FilterType), characteristic.filter_type, out object? result) ? (FilterType)result : FilterType.checkbox;
                 new_characteristic.show_in_filter = characteristic.show_in_filter;
-
-                foreach (var value in characteristic.Values)
+                
+                //processing values
+                foreach (var value in characteristic.values)
                 {
                     var new_value = new ValueModel()
                     {
-                        Title = TextContentHelper.CreateFromDictionary(_context, value.Translations),
+                        Title = TextContentHelper.CreateFromDictionary(_context, value.translations),
                     };
 
                     op_values.Add(new_value);
                     new_characteristic.Values.Add(new_value);
                 }
-
+                
+                //processing group
                 if (characteristic.group != null)
                 {
                     if (characteristic.group.id != 0) new_characteristic.GroupId = characteristic.group.id;
@@ -455,14 +457,14 @@ namespace DiplomaMarketBackend.Controllers
 
             try
             {
-                foreach (var name in characteristic.Names)
+                foreach (var name in characteristic.names)
                 {
 
                     TextContentHelper.UpdateTextContent(_context, name.Value, exist_chr.TitleId, name.Key);
 
                 }
 
-                foreach (var value in characteristic.Values)
+                foreach (var value in characteristic.values)
                 {
                     if (value.id != 0)
                     {
@@ -472,7 +474,7 @@ namespace DiplomaMarketBackend.Controllers
                         if (exst_val != null)
                         {
 
-                            foreach (var trans in value.Translations)
+                            foreach (var trans in value.translations)
                             {
                                 TextContentHelper.UpdateTextContent(_context, trans.Value, exst_val.TitleId, trans.Key);
                             }
@@ -485,7 +487,7 @@ namespace DiplomaMarketBackend.Controllers
                     {
                         var new_val = new ValueModel()
                         {
-                            Title = TextContentHelper.CreateFromDictionary(_context, value.Translations)
+                            Title = TextContentHelper.CreateFromDictionary(_context, value.translations)
                         };
 
                         exist_chr.Values.Add(new_val);
@@ -560,7 +562,7 @@ namespace DiplomaMarketBackend.Controllers
 
             });
 
-            if (!no_check && _context.ArticleCharacteristics.Include(c => c.Values).ThenInclude(v => v.Articles).Any(c => c.Values.Any(v => v.Articles.Count != 0)))
+            if (!no_check && NotEmpty(id) )
             {
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new Result()
@@ -575,6 +577,7 @@ namespace DiplomaMarketBackend.Controllers
             }
 
             _context.ArticleCharacteristics.Remove(characteristic);
+            _context.SaveChanges();
 
             return StatusCode(StatusCodes.Status200OK, new Result()
             {
@@ -582,6 +585,19 @@ namespace DiplomaMarketBackend.Controllers
                 Message = "Characteristic deleted",
 
             });
+        }
+
+        /// <summary>
+        /// check if characteristic have related articles
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private bool NotEmpty(int id)
+        {
+           var res= _context.ArticleCharacteristics.Include(c => c.Values).ThenInclude(v => v.Articles)
+                .Any(c => c.Id == id &&  c.Values.Any(v => v.Articles.Count != 0));
+
+           return res;
         }
     }
 

@@ -136,23 +136,20 @@ namespace DiplomaMarketBackend.Controllers
         [HttpDelete]
         //[Authorize(Roles="Admin")]
         [Route("delete_review")]
-        public async Task<IActionResult> DeleteReview([FromQuery] string review_id)
+        public async Task<IActionResult> DeleteReview([FromQuery] int review_id)
         {
-            if (int.TryParse(review_id, out int id))
+
+            var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == review_id);
+
+            if (review != null)
             {
-                var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == id);
-
-                if (review != null)
-                {
-                    _context.Reviews.Remove(review);
-                    _context.SaveChanges();
-                    return Ok(review);
-                }
-
-                return NotFound("No such review or id is wrong!");
+                _context.Reviews.Remove(review);
+                _context.SaveChanges();
+                return Ok(review);
             }
 
-            return BadRequest("Check parameters!");
+            return NotFound("No such review or id is wrong!");
+
         }
 
         /// <summary>

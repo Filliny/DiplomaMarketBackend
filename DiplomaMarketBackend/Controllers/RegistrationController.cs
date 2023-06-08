@@ -177,7 +177,7 @@ namespace DiplomaMarketBackend.Controllers
 		{
 			try
 			{
-				var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+				var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
 				if (user ==  null || !(await _userManager.HasPasswordAsync(user)))
 				{

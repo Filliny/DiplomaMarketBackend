@@ -59,7 +59,7 @@ public class FilterAdminTest:BasicTest
 
         if (data != null)
         {
-            data["category_id"] = id;
+            data["category_id"] = id-1;
         }
         string str = JsonConvert.SerializeObject(data);
         

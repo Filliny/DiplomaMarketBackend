@@ -14,18 +14,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/RegistrationTest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ReviewsTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/SearchTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ServicesTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ValuesTest.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/FilterAdminTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/FilterAdminTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ReviewsTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ReviewsTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserCabinetTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserCabinetTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FiltersAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/FiltersAdminController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/RegistrationController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/RegistrationController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ReviewsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ReviewsController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/UsersAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/UsersAdminController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ServicesController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ServicesController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/UsersCabinetController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/UsersCabinetController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ValuesController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ValuesController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Characteristic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Characteristic.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Service.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/20fd7f9eb74642ce9c6654e64dc453771e3880/25/d446fc04/ControllerBase.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectId" id="2QhyoXfO1BAKaZvICw5dgBSJACs" />
@@ -36,21 +47,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.editor&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.sourceCode.C#",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "C:\\Users\\oleg\\AppData\\Roaming\\JetBrains\\Rider2023.1\\resharper-host\\DecompilerCache",
+      "C:\\Users\\oleg\\AppData\\Roaming\\JetBrains\\Rider2023.1\\resharper-host\\SourcesCache",
+      "C:\\Users\\oleg\\AppData\\Local\\Symbols\\src"
+    ]
   }
-}</component>
-  <component name="RunManager" selected="Docker.DiplomaMarketBackend/Dockerfile  build">
+}]]></component>
+  <component name="RunManager" selected=".NET Launch Settings Profile.DiplomaMarketBackend: https">
     <configuration name="DiplomaMarketBackend: registry.hub.docker.com_filliny1" type="DotNetMsBuildPublish" factoryName="Publish to IIS">
       <riderPublish configuration="Release" platform="Any CPU" publish_profile="&lt;no publish profile&gt;" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny1.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
       <method v="2" />
@@ -149,7 +168,9 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="docker-image" temporary="true">
-      <deployment type="docker-image" />
+      <deployment type="docker-image">
+        <settings />
+      </deployment>
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
@@ -179,6 +200,8 @@
       <option name="presentableId" value="Default" />
       <updated>1685820286762</updated>
       <workItem from="1685820287894" duration="712000" />
+      <workItem from="1686219507708" duration="38000" />
+      <workItem from="1686219562340" duration="11148000" />
     </task>
     <task id="LOCAL-00001" summary="- flat cashe fix">
       <created>1686140732540</created>
@@ -196,6 +219,17 @@
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="false" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="- flat cashe fix" />
@@ -255,6 +289,97 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="109" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/FilterAdminTest.cs</url>
+          <line>61</line>
+          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend.IntegrationTests\Tests\FilterAdminTest.cs" initialLine="61" containingFunctionPresentation="Method 'CreateSetting_Success'">
+            <startOffsets>
+              <option value="1690" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1717" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="111" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/FilterAdminTest.cs</url>
+          <line>63</line>
+          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend.IntegrationTests\Tests\FilterAdminTest.cs" initialLine="63" containingFunctionPresentation="Method 'CreateSetting_Success'">
+            <startOffsets>
+              <option value="1736" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1783" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="112" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/FilterAdminTest.cs</url>
+          <line>74</line>
+          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend.IntegrationTests\Tests\FilterAdminTest.cs" initialLine="74" containingFunctionPresentation="Method 'CreateSetting_Success'">
+            <startOffsets>
+              <option value="2082" />
+            </startOffsets>
+            <endOffsets>
+              <option value="2105" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="113" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ServicesTest.cs</url>
+          <line>71</line>
+          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend.IntegrationTests\Tests\ServicesTest.cs" initialLine="71" containingFunctionPresentation="Method 'DeleteService_Sucess'">
+            <startOffsets>
+              <option value="2146" />
+            </startOffsets>
+            <endOffsets>
+              <option value="2229" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="114" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserAdminTest.cs</url>
+          <line>113</line>
+          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend.IntegrationTests\Tests\UserAdminTest.cs" initialLine="113" containingFunctionPresentation="Method 'Admin3_UpdateUser_Success'">
+            <startOffsets>
+              <option value="3914" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3994" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="126" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserAdminTest.cs</url>
+          <line>111</line>
+          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend.IntegrationTests\Tests\UserAdminTest.cs" initialLine="111" containingFunctionPresentation="Method 'Admin3_UpdateUser_Success'">
+            <startOffsets>
+              <option value="3750" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3904" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="127" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserAdminTest.cs</url>
+          <line>102</line>
+          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend.IntegrationTests\Tests\UserAdminTest.cs" initialLine="102" containingFunctionPresentation="Method 'Admin3_UpdateUser_Success'">
+            <startOffsets>
+              <option value="3403" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3456" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="128" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -108,7 +108,7 @@ namespace DiplomaMarketBackend.Controllers
         [Route("create")]
         public async Task<ActionResult<FixedFilter>> CreateSetting([FromBody] FixedFilter filter)
         {
-            if (_context.FixedFilterSettings.Any(f => f.Id == filter.category_id)) return BadRequest(new Result
+            if (_context.FixedFilterSettings.Any(f => f.CategoryId == filter.category_id)) return BadRequest(new Result
             {
                 Status = "Error",
                 Message = "Settings for this category already exist",

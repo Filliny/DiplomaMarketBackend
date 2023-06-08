@@ -84,12 +84,12 @@ namespace DiplomaMarketBackend.Controllers
 		{
 			var entity = service.Adapt<ServiceModel>();
 
-			if(service.CityId == 0 && !service.City.IsNullOrEmpty())
+			if(service.city_id == 0 && !service.city_name.IsNullOrEmpty() && service.area_id != null)
 			{
 				var new_city = new CityModel
 				{
-					Name = TextContentHelper.CreateFull(_context, service.City, service.City),
-					AreaId = service.AreaId
+					Name = TextContentHelper.CreateFull(_context, service.city_name, service.city_name),
+					AreaId = service.area_id
 				};
 
 				entity.City = new_city;
@@ -129,12 +129,12 @@ namespace DiplomaMarketBackend.Controllers
 
             service.Adapt(exist);
 
-            if (service.CityId == 0 && !service.City.IsNullOrEmpty())
+            if (service.city_id == 0 && !service.city_name.IsNullOrEmpty())
             {
                 var new_city = new CityModel
                 {
-                    Name = TextContentHelper.CreateFull(_context, service.City, service.City),
-                    AreaId = service.AreaId
+                    Name = TextContentHelper.CreateFull(_context, service.city_name, service.city_name),
+                    AreaId = service.area_id
                 };
 
                 exist.City = new_city;

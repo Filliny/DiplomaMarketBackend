@@ -18,7 +18,7 @@ public class ServicesTest:BasicTest
             address=Faker.Address.ZipCode()+" "+Faker.Address.Country()+" "+Faker.Address.City()+" "+Faker.Address.StreetAddress(),
             phone=Faker.Phone.Number(),
             work_hours=Faker.Lorem.Sentence(),
-            city_id = 1,
+            city_id = 301,
             brand_id=1,
             category_id=2
         };
@@ -44,7 +44,7 @@ public class ServicesTest:BasicTest
             address=Faker.Address.ZipCode()+" "+Faker.Address.Country()+" "+Faker.Address.City()+" "+Faker.Address.StreetAddress(),
             phone=Faker.Phone.Number(),
             work_hours=Faker.Lorem.Sentence(),
-            city_id = 1,
+            city_id = 300,
             brand_id=1,
             category_id=2
         };

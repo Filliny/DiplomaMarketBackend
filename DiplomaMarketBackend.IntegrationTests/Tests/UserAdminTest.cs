@@ -64,7 +64,6 @@ public class UserAdminTest:BasicTest
             birth_day = Faker.Identification.DateOfBirth(),
             phone_number = Faker.Phone.Number(),
             customer_group_id = 2,
-            //roles = new string[] { "user", "manager" },
             preferred_language_id = "UK",
 
         };

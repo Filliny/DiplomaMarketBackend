@@ -13,6 +13,7 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using System.Data;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using MongoDB.Driver.Linq;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -31,6 +32,88 @@ namespace DiplomaMarketBackend.Controllers
             _context = context;
             _fileService = fileService;
             _mapper = mapper;
+        }
+
+        /// <summary>
+        /// Articles list with filtering for articles and storage admin
+        /// </summary>
+        /// <param name="lang">Languge id</param>
+        /// <param name="search">Search by article name string(can be null)</param>
+        /// <param name="article_id">Search by article id(can be null)</param>
+        /// <param name="category_id">Search by category id (can be null)</param>
+        /// <param name="page">Page number for pagination (default = 1)</param>
+        /// <param name="limit">Articles quantity for display (default =10)</param>
+        /// <returns>List of for display table with preview image and quantity</returns>
+        [HttpGet]
+        [Route("get-list")]
+        public async Task<IActionResult> GetArticlesList([FromQuery]string lang, string? search, int? article_id, int? category_id, int page=1, int limit=10 )
+        {
+            lang = lang.NormalizeLang();
+
+            var articles = new List<dynamic>();
+
+            var goods = _context.Articles.AsNoTracking().AsSplitQuery().
+                Include(a => a.Title.Translations).
+                Include(a => a.Category).
+                Include(a=>a.Images).ThenInclude(p=>p.small).
+                Include(a=>a.Category.Name.Translations).
+                Select(a=>a);
+
+            if (article_id is not null)
+            {
+                goods = goods.Where(a => a.Id == article_id);
+            }
+            else
+            {
+                if (category_id is not null)
+                {
+                    goods = goods.Where(a => a.CategoryId == category_id);
+                }
+                
+                if (search is not null)
+                {
+                    goods = goods.Where(c => c.Title.Translations.Any(t => t.TranslationString.ToLower().Contains(search.ToLower()) && t.LanguageId == lang));
+                }
+            }
+
+            var goodsList = await goods.ToListAsync();
+
+            int total_goods = goodsList.Count;
+            int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)limit);
+            
+            if (page > total_pages) page = total_pages;
+
+            int skip = (page - 1) * limit;
+
+            goodsList = goodsList.Skip(skip).Take(limit).ToList();
+
+            foreach (var article in goodsList)
+            {
+                articles.Add(new
+                {
+                    id= article.Id,
+                    name = article.Title.Content(lang),
+                    price = article.Price,
+                    category = article.Category.Name.Content(lang),
+                    preview = Request.GetImageURL(BucketNames.small.ToString(),article.Images.First().small.url??""),
+                    quantity = article.Quantity,
+                    status = article.Status
+                });
+            }
+
+            var result = new
+            {
+                data = new
+                {
+                    articles,
+                    total_goods,
+                    total_pages,
+                    displayed_page = page
+                }
+            };
+
+            return new JsonResult(result);
+            
         }
 
         /// <summary>

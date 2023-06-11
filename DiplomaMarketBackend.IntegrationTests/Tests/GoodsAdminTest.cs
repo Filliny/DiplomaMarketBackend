@@ -1,10 +1,21 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+
 namespace DiplomaMarketBackend.IntegrationTests.Tests
 {
     public class GoodsAdminTest:BasicTest
     {
         
+        [Fact]
+        public async void GetListTest_Success()
+        {
+            // Act
+            var response = await _httpClient.GetAsync($"/api/GoodsAdmin/get-list?lang=uk");
+            
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.IsSuccessStatusCode);
+        }
 
         [Theory]
         [InlineData(1)]
@@ -12,10 +23,12 @@ namespace DiplomaMarketBackend.IntegrationTests.Tests
         {
             // Act
             var response = await _httpClient.GetAsync($"/api/GoodsAdmin/get?id={id}");
-
+        
+            // Assert
             Assert.True(response.IsSuccessStatusCode);
-
+        
         }
+
 
         [Fact]
         public async void CreateArticle_Success()

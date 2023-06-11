@@ -16,7 +16,6 @@ public class BasicTest
     {
         var webApplicationFactory = new CustomWebApplicationFactory<Program>();
         _httpClient = webApplicationFactory.CreateDefaultClient();
-        
 
     }
     

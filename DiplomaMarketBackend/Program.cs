@@ -24,7 +24,7 @@ namespace DiplomaMarketBackend
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            
             builder.Services.Configure<EmailSettings>
                                 (options => builder.Configuration.GetSection("EmailSettings").Bind(options));
 
@@ -98,7 +98,7 @@ namespace DiplomaMarketBackend
             builder.Services.RegisterMapsterConfiguration();
 
             builder.Services.AddTransient(typeof(SetImgFullURL));
-
+      
 
             //Allow CORS default policy
             builder.Services.AddCors(options =>

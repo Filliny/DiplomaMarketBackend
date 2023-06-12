@@ -14,12 +14,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/StorageController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/BasicTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/BasicTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsAdminTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/GoodsAdminTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserAdminTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserAdminTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/StorageController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/StorageController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/WorkController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/WorkController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Entity/Models/ArticleModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Entity/Models/ArticleModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Article.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Article.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -70,7 +70,7 @@ namespace DiplomaMarketBackend.Models
         public string status { get; set;} = "active";
 
         /// <summary>
-        /// Selling status (available/unavailable)
+        /// Selling status (available/unavailable/ended/toend/awaiting)
         /// </summary>
         public string sell_status { get; set; } = "available";
 

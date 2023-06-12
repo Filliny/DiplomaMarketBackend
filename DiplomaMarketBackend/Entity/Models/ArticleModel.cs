@@ -28,7 +28,7 @@ namespace DiplomaMarketBackend.Entity.Models
         public int? BrandId { get; set; }
         public BrandModel? Brand { get; set; }
         public string? Status { get; set; } //active/inactive   
-        public string? SellStatus { get; set; }//available/unavailable
+        public string? SellStatus { get; set; }//available/unavailable/ended/toend/awaiting
         public List<WarningModel> Warning { get; set; }
         public List<VideoModel> Video { get; set; }
         public List<ImageModel> Images { get; set; }

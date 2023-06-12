@@ -1,4 +1,5 @@
 ﻿using DiplomaMarketBackend.Entity;
+using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,28 @@ namespace DiplomaMarketBackend.Controllers
             _logger = logger;
             _context = context;
 
+        }
+        
+        /// <summary>
+        /// Order statuses enum values and names
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("order-status")]
+        public IActionResult GetOrderStatuses()
+        {
+            var list = new List<dynamic>();
+            
+            foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+            {
+                list.Add(new
+                {
+                    id= status,
+                    name = status.ToString()
+                });
+            }
+
+            return Ok(list);
         }
 
         /// <summary>

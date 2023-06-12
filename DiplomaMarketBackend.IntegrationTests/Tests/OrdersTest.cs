@@ -149,5 +149,18 @@ namespace DiplomaMarketBackend.IntegrationTests.Tests
             Assert.NotNull(result);
             Assert.True(result.IsSuccessStatusCode);
         }
+        
+        [Fact]
+        public async void GetOrdersList_Success()
+        {
+            // Arrange
+
+            // Act
+            var result = await _httpClient.GetAsync($"/api/Orders/orders-list?lang=uk");
+
+            // Assert
+            Assert.NotNull( result );
+            Assert.True(result.IsSuccessStatusCode );
+        }
     }
 }

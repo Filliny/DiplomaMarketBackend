@@ -115,7 +115,7 @@ namespace DiplomaMarketBackend.Controllers
                 }
             };
 
-            return Ok();
+            return Ok(result);
         }
 
         /// <summary>
@@ -160,7 +160,6 @@ namespace DiplomaMarketBackend.Controllers
                 {
                     Status = "Error",
                     Message = "Certificate not found!",
-
                 });
             }
         }

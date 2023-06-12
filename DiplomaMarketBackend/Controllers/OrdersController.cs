@@ -15,6 +15,7 @@ using PasswordGenerator;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
+using MongoDB.Driver.Linq;
 using WebShopApp.Abstract;
 
 
@@ -42,6 +43,79 @@ namespace DiplomaMarketBackend.Controllers
             _userManager = userManager;
             _configuration = configuration;
             _liqpayOptions = liqpayOptions;
+        }
+        
+        
+        /// <summary>
+        /// Orders list for admin page - for new and in process list
+        /// Нові замовлення, Замовлення в обробці (only_new = false)
+        /// </summary>
+        /// <param name="lang">Language</param>
+        /// <param name="page">Display page</param>
+        /// <param name="limit">Items on page</param>
+        /// <param name="only_new">Only new orders show</param>
+        /// <returns>List of orders</returns>
+        [HttpGet]
+        [Route("orders-list")]
+        //[Authorize(Roles = "OrdersRead")]
+        public async Task<IActionResult> GetOrdersList([FromQuery] string lang, int page, int limit=10, bool only_new = true)
+        {
+            var ordersq = _context.Orders.
+                Include(o=>o.User).
+                Where(o => o.Status != OrderStatus.Closed);
+
+            if (only_new)
+            {
+                ordersq = ordersq.Where(o => o.Status == OrderStatus.New);
+            }
+            else
+            {
+                ordersq = ordersq.Where(o => o.Status != OrderStatus.New);
+            }
+            
+            var orders = await ordersq.ToListAsync();
+            
+
+            int totalOrders = orders.Count;
+            int totalPages = (int)Math.Ceiling((decimal)totalOrders / (decimal)limit);
+            
+            if (page > totalPages) page = totalPages;
+            int skip = (page - 1) * limit;
+            
+            orders = orders.Skip(skip).Take(limit).ToList();
+
+            var outlist = new List<dynamic>();
+            foreach (var order in orders)
+            {
+                var userOrders = await _context.Orders.OrderBy(o => o.CreatedAt).
+                    Where(o => o.UserId == order.UserId)
+                    .ToListAsync();
+                
+                outlist.Add(new
+                {
+                    id = order.Id,
+                    payment_status = "payed",
+                    orders = userOrders.Count.ToString()+" від "+userOrders.First().CreatedAt.ToString("dd MM yyyy"),
+                    buyer_name = order.User?.LastName??""+" "+ order.User?.FirstName??"",
+                    phone = order.User?.PhoneNumber,
+                    order_date = order.CreatedAt.ToString("dd MM yyyy"),
+                    status = order.Status
+                    
+                });
+            }
+            
+            var result = new
+            {
+                data = new
+                {
+                    orders = outlist,
+                    total_goods = totalOrders,
+                    total_pages = totalPages,
+                    displayed_page = page
+                }
+            };
+
+            return Ok();
         }
 
         /// <summary>

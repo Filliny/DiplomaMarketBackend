@@ -10,11 +10,11 @@ namespace DiplomaMarketBackend.Controllers;
 [Route("api/[controller]")]
 public class StorageController:ControllerBase
 {
-    ILogger<GoodsController> _logger;
+    ILogger<StorageController> _logger;
     BaseContext _context;
     IFileService _fileService;
 
-    public StorageController(ILogger<GoodsController> logger, BaseContext context, IFileService fileService)
+    public StorageController(ILogger<StorageController> logger, BaseContext context, IFileService fileService)
     {
         _logger = logger;
         _context = context;

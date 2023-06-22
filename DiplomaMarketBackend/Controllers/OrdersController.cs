@@ -429,6 +429,14 @@ namespace DiplomaMarketBackend.Controllers
 
             //var payment_type = await _context.PaymentTypes.FindAsync(new_order.PaymentTypeId);
 
+            var user_dto = logged_user.Adapt<UserFull>();
+            var role = await _userManager.GetRolesAsync(logged_user);
+
+            if (role != null)
+            {
+                user_dto.roles = role;
+            }
+
             return Ok(new Result
             {
                 Status = "Success",
@@ -437,6 +445,7 @@ namespace DiplomaMarketBackend.Controllers
                 {
                     jwt,
                     payment_callback = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/api/Order/liqpay-callback", //payment_type.CallbackURL
+                    user = user_dto,
                     order_id = new_order.Id,
 
                 }

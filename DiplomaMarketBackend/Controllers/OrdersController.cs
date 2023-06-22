@@ -397,30 +397,32 @@ namespace DiplomaMarketBackend.Controllers
             };
 
             new_order.Items = order.goods.Adapt<List<OrderItemModel>>();
-
-            foreach (var cert in order.certificates)
-            {
-                var certificate = await _context.Certificates.FirstOrDefaultAsync(c => c.CertificateCode.Equals(cert));
-                if (certificate == null) return BadRequest(new Result { Status = "Error", Message = $"Certificate id:{cert} not exist!" });
-                if (certificate.ValidUntil.Date < DateTime.Now.Date || !certificate.Unused) return BadRequest(new Result { Status = "Error", Message = $"Certificate id:{cert} valid untill {certificate.ValidUntil.ToShortDateString()} is expired or already Used!" });
-
-                if (logged_user.UserName != "admin@gmail.com" && certificate.CertificateCode != "11110000")
+            
+            if(order.certificates is not null)
+                foreach (var cert in order.certificates)
                 {
-                    certificate.Closed = DateTime.Now;
-                    certificate.Unused = false;
-                    _context.Certificates.Update(certificate);
-                    new_order.Certificates.Add(certificate);
+                    var certificate = await _context.Certificates.FirstOrDefaultAsync(c => c.CertificateCode.Equals(cert));
+                    if (certificate == null) return BadRequest(new Result { Status = "Error", Message = $"Certificate id:{cert} not exist!" });
+                    if (certificate.ValidUntil.Date < DateTime.Now.Date || !certificate.Unused) return BadRequest(new Result { Status = "Error", Message = $"Certificate id:{cert} valid untill {certificate.ValidUntil.ToShortDateString()} is expired or already Used!" });
+
+                    if ( certificate.CertificateCode != "11110000")//todo clean certificate
+                    {
+                        certificate.Closed = DateTime.Now;
+                        certificate.Unused = false;
+                        _context.Certificates.Update(certificate);
+                        new_order.Certificates.Add(certificate);
+                    }
+
                 }
-
-            }
-
-            foreach (var promo in order.promo_codes)
-            {
-                var promocode = await _context.PromoCodes.FirstOrDefaultAsync(c => c.PromoCode.Equals(promo));
-                if (promocode == null) return BadRequest(new Result { Status = "Error", Message = $"Promocode id:{promo} not exist!" });
-                if (promocode.ValidUntil.Date < DateTime.Now.Date || promocode.Closed != null) return BadRequest(new Result { Status = "Error", Message = $"Promocode id:{promo} expired!" });
-                new_order.PromoCodes.Add(promocode);
-            }
+            
+            if(order.promo_codes is not null)
+                foreach (var promo in order.promo_codes)
+                {
+                    var promocode = await _context.PromoCodes.FirstOrDefaultAsync(c => c.PromoCode.Equals(promo));
+                    if (promocode == null) return BadRequest(new Result { Status = "Error", Message = $"Promocode id:{promo} not exist!" });
+                    if (promocode.ValidUntil.Date < DateTime.Now.Date || promocode.Closed != null) return BadRequest(new Result { Status = "Error", Message = $"Promocode id:{promo} expired!" });
+                    new_order.PromoCodes.Add(promocode);
+                }
 
             _context.Orders.Add(new_order);
             _context.SaveChanges();
@@ -607,19 +609,21 @@ namespace DiplomaMarketBackend.Controllers
                 total_summ += article.Price * item.quantity;
             }
 
-            foreach (var cert in order.certificates)
-            {
-                var certificate = await _context.Certificates.FirstOrDefaultAsync(c => c.CertificateCode.Equals(cert));
-                if (certificate == null) continue;
-                total_summ -= certificate.Summ;
-            }
-
-            foreach (var promo in order.promo_codes)
-            {
-                var promocode = await _context.PromoCodes.FirstOrDefaultAsync(c => c.PromoCode.Equals(promo));
-                if (promocode == null) continue;
-                total_summ -= promocode.Summ;
-            }
+            if(order.certificates is not null)
+                foreach (var cert in order.certificates)
+                {
+                    var certificate = await _context.Certificates.FirstOrDefaultAsync(c => c.CertificateCode.Equals(cert));
+                    if (certificate == null) continue;
+                    total_summ -= certificate.Summ;
+                }
+            
+            if(order.promo_codes is not null)
+                foreach (var promo in order.promo_codes)
+                {
+                    var promocode = await _context.PromoCodes.FirstOrDefaultAsync(c => c.PromoCode.Equals(promo));
+                    if (promocode == null) continue;
+                    total_summ -= promocode.Summ;
+                }
 
             return total_summ;
         }

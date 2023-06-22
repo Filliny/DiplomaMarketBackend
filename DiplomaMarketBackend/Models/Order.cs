@@ -13,7 +13,7 @@
             public string middle_name { get; set; } = string.Empty;
             public string? profile_name { get; set;} 
             public string email { get; set; } = string.Empty;
-            public string? phone { get; set; }
+            public string? phone { get; set; } = string.Empty;
         }
 
         /// <summary>
@@ -98,12 +98,12 @@
         /// <summary>
         /// List of certificates codes
         /// </summary>
-        public List<string> certificates { get; set; } = new List<string>();
+        public List<string>? certificates { get; set; }
 
         /// <summary>
         /// List of promocodes codes
         /// </summary>
-        public List<string> promo_codes { get; set; } = new List<string>();
+        public List<string>? promo_codes { get; set; }
 
         /// <summary>
         /// Id of delivery branch

@@ -7,6 +7,7 @@
         public string? last_name { get; set; } = string.Empty;
         public string? middle_name { get; set; } = string.Empty;
         public string? preferred_language_id { get; set; }
+        
         public DateTime reg_date { get; set;}
         public DateTime birth_day { get; set; }
         public string? phone_number { get; set; } = string.Empty;

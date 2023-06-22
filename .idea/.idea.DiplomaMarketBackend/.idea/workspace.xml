@@ -14,12 +14,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/StrorageTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UITests/ArticleDisplayTest_Success.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/OrdersTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/OrdersTest.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ReferenceController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ReferenceController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/StorageController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/StorageController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Order.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Order.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/UserContacts.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/UserContacts.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/UserFull.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/UserFull.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,7 +29,6 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/20fd7f9eb74642ce9c6654e64dc453771e3880/25/d446fc04/ControllerBase.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectId" id="2QhyoXfO1BAKaZvICw5dgBSJACs" />
@@ -40,29 +39,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;CodeLensConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "CodeLensConfigurable",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;rider.external.source.directories&quot;: [
-      &quot;C:\\Users\\oleg\\AppData\\Roaming\\JetBrains\\Rider2023.1\\resharper-host\\DecompilerCache&quot;,
-      &quot;C:\\Users\\oleg\\AppData\\Roaming\\JetBrains\\Rider2023.1\\resharper-host\\SourcesCache&quot;,
-      &quot;C:\\Users\\oleg\\AppData\\Local\\Symbols\\src&quot;
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "/Users/oleg/Library/Application Support/JetBrains/Rider2023.1/resharper-host/DecompilerCache",
+      "/Users/oleg/Library/Application Support/JetBrains/Rider2023.1/resharper-host/SourcesCache",
+      "/Users/oleg/.local/share/Symbols/src"
     ]
   }
-}</component>
-  <component name="RunManager" selected=".NET Launch Settings Profile.DiplomaMarketBackend: https">
+}]]></component>
+  <component name="RunManager" selected="Docker.DiplomaMarketBackend/Dockerfile  build">
     <configuration name="DiplomaMarketBackend: registry.hub.docker.com_filliny1" type="DotNetMsBuildPublish" factoryName="Publish to IIS">
       <riderPublish configuration="Release" platform="Any CPU" publish_profile="&lt;no publish profile&gt;" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny1.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
       <method v="2" />
@@ -195,6 +194,7 @@
       <workItem from="1685820287894" duration="712000" />
       <workItem from="1686572749526" duration="5265000" />
       <workItem from="1686591671918" duration="647000" />
+      <workItem from="1687362276922" duration="15109000" />
     </task>
     <task id="LOCAL-00001" summary="- flat cashe fix">
       <created>1686140732540</created>
@@ -294,20 +294,54 @@
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/DiplomaMarketBackend/Controllers/StorageController.cs</url>
           <line>40</line>
-          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend\Controllers\StorageController.cs" initialLine="40" containingFunctionPresentation="Method 'GetRefillList'">
+          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend\Controllers\StorageController.cs" initialLine="40" containingFunctionPresentation="Method 'GetRefillList'" />
+          <option name="timeStamp" value="110" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UITests/ArticleDisplayTest_Success.cs</url>
+          <line>27</line>
+          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UITests/ArticleDisplayTest_Success.cs" initialLine="27" containingFunctionPresentation="Method 'ArticleDisplayTest_Success'">
             <startOffsets>
-              <option value="1343" />
+              <option value="884" />
             </startOffsets>
             <endOffsets>
-              <option value="1371" />
+              <option value="906" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="110" />
+          <option name="timeStamp" value="118" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/StrorageTest.cs</url>
+          <line>43</line>
+          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/StrorageTest.cs" initialLine="43" containingFunctionPresentation="Method 'ChangeStatus_Success'">
+            <startOffsets>
+              <option value="1126" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1149" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="119" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs</url>
+          <line>410</line>
+          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" initialLine="410" containingFunctionPresentation="Method 'NewOrder'">
+            <startOffsets>
+              <option value="15803" />
+            </startOffsets>
+            <endOffsets>
+              <option value="15830" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="127" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
+        <PinnedItemInfo parentTag="Type#OpenQA.Selenium.WebElement" memberName="elementId" />
+        <PinnedItemInfo parentTag="Type#OpenQA.Selenium.WebElement" memberName="Text" />
         <PinnedItemInfo parentTag="Type#DiplomaMarketBackend.Entity.Models.TextContent" memberName="Translations" />
       </pinned-members>
     </pin-to-top-manager>

@@ -1,4 +1,6 @@
-﻿namespace DiplomaMarketBackend.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DiplomaMarketBackend.Models
 {
     public class Order
     {
@@ -8,10 +10,16 @@
         public class Receiver
         {
             public int Id { get; set; }
+            
+            [Required(ErrorMessage = "first name is required")]
             public string first_name { get; set; } = string.Empty;
+            
+            [Required(ErrorMessage = "last name is required")]
             public string last_name { get; set; } = string.Empty;
             public string middle_name { get; set; } = string.Empty;
             public string? profile_name { get; set;} 
+            
+            [Required(ErrorMessage = "Email is required")]
             public string email { get; set; } = string.Empty;
             public string? phone { get; set; } = string.Empty;
         }
@@ -21,9 +29,14 @@
         /// </summary>
         public class OrderUser
         {
+            [Required(ErrorMessage = "first name is required")]
             public string first_name { get; set; } = string.Empty;
+            
+            [Required(ErrorMessage = "last name is required")]
             public string last_name { get; set; } = string.Empty;
             public string phone { get; set; } = string.Empty;
+            
+            [Required(ErrorMessage = "Email is required")]
             public string email { get; set; } = string.Empty;
         }
 
@@ -32,6 +45,7 @@
         /// </summary>
         public class PayData
         {
+            [Required(ErrorMessage = "payment_type_id is required")]
             public int payment_type_id { get; set; }
             public string? email { get; set; }
             public string? EDRPOU { get; set; }
@@ -44,13 +58,18 @@
         /// </summary>
         public class Item
         {
+            [Required(ErrorMessage = "id is required")]
             public int article_id { get; set; }
+            
+            [Required(ErrorMessage = "price is required")]
             public decimal price { get; set; }
+            
+            [Required(ErrorMessage = "quantity is required")]
             public int quantity { get; set; }
 
         }
 
-
+        //entity serializes into db string 
         public class DeliveryAdress
         {
             public string city_name { get; set; } = string.Empty;
@@ -88,11 +107,13 @@
         /// <summary>
         /// Payment data with payment type id and required fuileds
         /// </summary>
+        [Required(ErrorMessage = "payData is required")]
         public PayData payData { get; set; } = new PayData();
 
         /// <summary>
         /// List of order items (articles, goods)
         /// </summary>
+        [Required(ErrorMessage = "goods is required")]
         public List<Item> goods { get; set; } = new List<Item>();
 
         /// <summary>
@@ -108,6 +129,7 @@
         /// <summary>
         /// Id of delivery branch
         /// </summary>
+        [Required(ErrorMessage = "delivery_branch_id is required")]
         public int delivery_branch_id { get; set;}
 
         /// <summary>
@@ -118,6 +140,7 @@
         /// <summary>
         /// Order view summ for checking
         /// </summary>
+        [Required(ErrorMessage = "total_price is required")]
         public decimal total_price { get; set;}
 
     }

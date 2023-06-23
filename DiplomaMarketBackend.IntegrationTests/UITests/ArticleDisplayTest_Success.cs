@@ -26,9 +26,6 @@ public class ArticlesTest:BasicTest
         // Assert
         
         Assert.NotEmpty(name);
-        
-
-
     }
     
 }

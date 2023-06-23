@@ -37,7 +37,7 @@ public class StorageTest : BasicTest
     {
         // Arrange
         // Act
-        var result = await _httpClient.PutAsync("api/Storage/change-status?order_id=1&status=2",new StringContent(""));
+        var result = await _httpClient.PutAsync("api/Storage/change-status?order_id=10&status=2",new StringContent(""));
         var content = await result.Content.ReadAsStringAsync();
         
         //Assert
@@ -49,7 +49,7 @@ public class StorageTest : BasicTest
     public async void CloseOrders_Success()
     {
         // Arrange
-        var orders = new [] { 1 };
+        var orders = new [] { 10 };
         var content = JsonConvert.SerializeObject(orders);
         // Act
         var result = await _httpClient.PutAsync("api/Storage/close-orders",new StringContent(content,Encoding.UTF8,"application/json"));

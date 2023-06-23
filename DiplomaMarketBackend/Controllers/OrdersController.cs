@@ -287,7 +287,7 @@ namespace DiplomaMarketBackend.Controllers
 
                     if (exist_user != null)
                     {
-                        return Conflict(new Result
+                        return Unauthorized(new Result
                         {
                             Status = "Error",
                             Message = "User with email exist - proceed to login !",

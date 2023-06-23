@@ -123,6 +123,8 @@ namespace DiplomaMarketBackend.Helpers
 
         public static TextContent CreateFromDictionary(BaseContext _db, Dictionary <string,string> translations, bool save = true)
         {
+            if (translations.Count == 0) return new TextContent {OriginalLanguageId = "UK", OriginalText = ""};
+            
             if (!translations.ContainsKey("UK")) throw new Exception("Dictionary for content creation lacks default locale 'UK' !");
 
             var textContent = new TextContent()

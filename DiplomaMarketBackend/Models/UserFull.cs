@@ -1,5 +1,8 @@
 ﻿namespace DiplomaMarketBackend.Models
 {
+    /// <summary>
+    /// Entitiy used mostly in return
+    /// </summary>
     public class UserFull:User
     {
         public string? Id { get; set; }

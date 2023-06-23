@@ -14,11 +14,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UITests/ArticleDisplayTest_Success.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/StrorageTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/StrorageTest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UITests/ArticleDisplayTest_Success.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UITests/ArticleDisplayTest_Success.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Helpers/TextContentHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Helpers/TextContentHelper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Article.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Article.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Order.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Order.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/UserContacts.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/UserContacts.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/UserFull.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/UserFull.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -194,7 +198,7 @@
       <workItem from="1685820287894" duration="712000" />
       <workItem from="1686572749526" duration="5265000" />
       <workItem from="1686591671918" duration="647000" />
-      <workItem from="1687362276922" duration="15109000" />
+      <workItem from="1687362276922" duration="26962000" />
     </task>
     <task id="LOCAL-00001" summary="- flat cashe fix">
       <created>1686140732540</created>
@@ -210,7 +214,14 @@
       <option name="project" value="LOCAL" />
       <updated>1686234568797</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="- Orders fix">
+      <created>1687438679847</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1687438679847</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -234,7 +245,8 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="- flat cashe fix" />
     <MESSAGE value="- small test fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="- small test fix" />
+    <MESSAGE value="- Orders fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Orders fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -298,43 +310,30 @@
           <option name="timeStamp" value="110" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UITests/ArticleDisplayTest_Success.cs</url>
-          <line>27</line>
-          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UITests/ArticleDisplayTest_Success.cs" initialLine="27" containingFunctionPresentation="Method 'ArticleDisplayTest_Success'">
-            <startOffsets>
-              <option value="884" />
-            </startOffsets>
-            <endOffsets>
-              <option value="906" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="118" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/StrorageTest.cs</url>
-          <line>43</line>
-          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/StrorageTest.cs" initialLine="43" containingFunctionPresentation="Method 'ChangeStatus_Success'">
-            <startOffsets>
-              <option value="1126" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1149" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="119" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs</url>
           <line>410</line>
           <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" initialLine="410" containingFunctionPresentation="Method 'NewOrder'">
             <startOffsets>
-              <option value="15803" />
+              <option value="15807" />
             </startOffsets>
             <endOffsets>
-              <option value="15830" />
+              <option value="15834" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="127" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs</url>
+          <line>200</line>
+          <properties documentPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" initialLine="200" containingFunctionPresentation="Method 'CreateArticle'">
+            <startOffsets>
+              <option value="8077" />
+            </startOffsets>
+            <endOffsets>
+              <option value="8101" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="129" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -213,11 +213,12 @@ namespace DiplomaMarketBackend.Controllers
                     var bonuses_char = _context.CharacteristicValues.Include(c => c.Title).FirstOrDefault(c => c.Title.OriginalText.Equals("З бонусами"));
                     if(bonuses_char != null) { new_entry.CharacteristicValues.Add(bonuses_char); }
                 }
-
-                new_entry.Warning = new_article.warnings.Select(w => new WarningModel()
-                {
-                    Message = TextContentHelper.CreateFromDictionary(_context, w.messages, false)
-                }).ToList();
+                
+                if(new_article.warnings is not null)
+                    new_entry.Warning = new_article.warnings.Select(w => new WarningModel()
+                    {
+                        Message = TextContentHelper.CreateFromDictionary(_context, w.messages, false)
+                    }).ToList();
 
                 foreach (var value in new_article.values)
                 {
@@ -274,6 +275,7 @@ namespace DiplomaMarketBackend.Controllers
 
                 _context.Articles.Add(new_entry);
                 _context.SaveChanges();
+                new_article.id = new_entry.Id;
             }
             catch (Exception ex)
             {

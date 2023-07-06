@@ -99,7 +99,8 @@ namespace DiplomaMarketBackend.Controllers
                     buyer_name = order.User?.LastName??""+" "+ order.User?.FirstName??"",
                     phone = order.User?.PhoneNumber,
                     order_date = order.CreatedAt.ToString("dd MM yyyy"),
-                    status = order.Status
+                    status = order.Status,
+                    order_sum = order.TotalPrice
                     
                 });
             }
@@ -475,9 +476,30 @@ namespace DiplomaMarketBackend.Controllers
             });
 
             var result = order.Adapt<Order>();
+            result.create_date = order.CreatedAt.ToString("dd/MM/yyyy");
 
             result.payData = JsonConvert.DeserializeObject<Order.PayData>(order.PaymentData);
-            result.goods = order.Items.Adapt<List<Order.Item>>();
+            
+            result.goods = new ();
+
+            foreach (var item in order.Items)
+            {
+                var article = _context.Articles.
+                    Include(a=>a.Images).ThenInclude(i=>i.preview).
+                    Include(a=>a.Title.Translations).
+                    First(a => a.Id == item.ArticleId);
+
+                var preview = article.Images.First().preview ?? new PictureModel();
+                
+                result.goods.Add( new Order.Item()
+                {
+                    article_id = item.ArticleId,
+                    price = item.Price,
+                    quantity = item.Quantity,
+                    small_img = Request.GetImageURL(BucketNames.preview.ToString(), preview.url??""),
+                    title = article.Title.Content("UK")
+                });
+            }
 
 
             return Ok(result);
@@ -657,6 +679,29 @@ namespace DiplomaMarketBackend.Controllers
             var comparable = Convert.ToBase64String(sha1);
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("dashboard")]
+        public async Task<IActionResult> DashboardData()
+        {
+            var result = new
+            {
+                orders_procent = 5,
+                orders_total = _context.Orders.Count(),
+                actions_procent = 8,
+                action_articles = _context.Articles.Include(a => a.Actions).Count(a => a.Actions.Count != 0),
+                sells_procent = 2,
+                total_sells = 3,
+                byers_procent = 11,
+                total_byers = 124,
+                online_procent = 22,
+                buyers_online = 25,
+                registrations_procent = 1,
+                new_registrations = 4
+            };
+
+            return new JsonResult(result);
         }
     }
 }

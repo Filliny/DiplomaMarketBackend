@@ -66,6 +66,10 @@ namespace DiplomaMarketBackend.Models
             
             [Required(ErrorMessage = "quantity is required")]
             public int quantity { get; set; }
+            
+            public string? title { get; set; }
+            
+            public string? small_img { get; set; }
 
         }
 
@@ -142,6 +146,8 @@ namespace DiplomaMarketBackend.Models
         /// </summary>
         [Required(ErrorMessage = "total_price is required")]
         public decimal total_price { get; set;}
+        
+        public string? create_date { get; set; }
 
     }
 }

@@ -5,7 +5,7 @@
       <paths name="SSDATA">
         <serverdata>
           <mappings>
-            <mapping deploy="\" local="$PROJECT_DIR$/" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.sln" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/DiplomaMarketBackend.csproj" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/DiplomaMarketBackend.IntegrationTests.csproj" web="/" />
             <mapping local="$USER_HOME$/.nuget/packages/selenium.webdriver/4.8.2/manager/linux/selenium-manager" web="/" />
@@ -32,11 +32,11 @@
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ReviewsController.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/SearchController.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ServicesController.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/StorageController.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/UsersAdminController.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/UsersCabinetController.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ValuesController.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/WorkController.cs" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/StorageController.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Entity/Models/Delivery/AreaModel.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Entity/Models/Delivery/BranchModel.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Entity/Models/Delivery/CityModel.cs" web="/" />
@@ -153,8 +153,8 @@
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230529185017_users_gender.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230530174809_rename_actions_table.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230530204102_actions_dates_status.cs" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/BaseContextModelSnapshot.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230606142955_filter_tables.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/BaseContextModelSnapshot.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230405130342_initial.Designer.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230405145330_rm_art_id_from_char_type.Designer.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Migrations/20230405161153_article_non_null_texts.Designer.cs" web="/" />
@@ -256,25 +256,10 @@
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Services/DeliveryCasher.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Services/EmailService.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Services/FileService.cs" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Інструменти та автотовари.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Алкогольні напої та продукти.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Дача, сад і город.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Дитячі товари.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Зоотовари.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Краса та здоров’я.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Ноутбуки та комп’ютери.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Одяг, взуття та прикраси.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Офіс, школа, книги.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Побутова техніка.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Сантехніка та ремонт.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Смартфони, ТВ і електроніка.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Спорт і захоплення.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Товари для геймерів.png" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Товари для дому.png" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/icons/Зоотовары.png" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/files/images/cat.jpg" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/mongo/docker-compose.yml" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny1.pubxml" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny11.pubxml" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/mongo/Dockerfile_mac" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/Properties/launchSettings.json" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/obj/Debug/net7.0/DiplomaMarketBackend.GlobalUsings.g.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/obj/Debug/net7.0/DiplomaMarketBackend.AssemblyInfo.cs" web="/" />
@@ -287,15 +272,11 @@
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/appsettings.Development.json" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/appsettings.json" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend/synthetic-keel-381920-292ea9f4af88.json" web="/" />
-            <mapping local="$PROJECT_DIR$/../../../../../Program Files/dotnet/sdk/7.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_7_default.editorconfig" web="/" />
+            <mapping local="/usr/local/share/dotnet/sdk/7.0.203/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_7_default.editorconfig" web="/" />
             <mapping local="$PROJECT_DIR$/.dockerignore" web="/" />
             <mapping local="$USER_HOME$/.nuget/packages/selenium.webdriver/4.8.2/manager/linux/selenium-manager" web="/" />
             <mapping local="$USER_HOME$/.nuget/packages/selenium.webdriver/4.8.2/manager/macos/selenium-manager" web="/" />
             <mapping local="$USER_HOME$/.nuget/packages/selenium.webdriver/4.8.2/manager/windows/selenium-manager.exe" web="/" />
-            <mapping local="$USER_HOME$/.nuget/packages/microsoft.net.test.sdk/17.5.0/build/netcoreapp3.1/Microsoft.NET.Test.Sdk.Program.cs" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/obj/Debug/net7.0/DiplomaMarketBackend.IntegrationTests.GlobalUsings.g.cs" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/obj/Debug/net7.0/DiplomaMarketBackend.IntegrationTests.AssemblyInfo.cs" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/obj/Debug/net7.0/DiplomaMarketBackend.IntegrationTests.GeneratedMSBuildEditorConfig.editorconfig" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Helpers/AlphabeticalOrderer.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Helpers/CustomWebApplicationFactory.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Helpers/FormHelper.cs" web="/" />
@@ -314,20 +295,25 @@
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/OrdersTest.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/RegistrationTest.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ReviewsTest.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/SearchTest.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ServicesTest.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserAdminTest.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserCabinetTest.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/UserGroupsTest.cs" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/SearchTest.cs" web="/" />
-            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ServicesTest.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/ValuesTest.cs" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Tests/StrorageTest.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/files/icons/Zoo.png" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/files/images/cat.jpg" web="/" />
+            <mapping local="$USER_HOME$/.nuget/packages/microsoft.net.test.sdk/17.5.0/build/netcoreapp3.1/Microsoft.NET.Test.Sdk.Program.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/obj/Debug/net7.0/DiplomaMarketBackend.IntegrationTests.GlobalUsings.g.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/obj/Debug/net7.0/DiplomaMarketBackend.IntegrationTests.AssemblyInfo.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/obj/Debug/net7.0/DiplomaMarketBackend.IntegrationTests.GeneratedMSBuildEditorConfig.editorconfig" web="/" />
             <mapping local="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.5/build/netcoreapp3.1/xunit.runner.visualstudio.dotnetcore.testadapter.dll" web="/" />
             <mapping local="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.5/build/netcoreapp3.1/xunit.runner.reporters.netcoreapp10.dll" web="/" />
             <mapping local="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.5/build/netcoreapp3.1/xunit.runner.utility.netcoreapp10.dll" web="/" />
-            <mapping local="$USER_HOME$/.nuget/packages/microsoft.testplatform.testhost/17.5.0/build/netcoreapp3.1/x64/testhost.exe" web="/" />
-            <mapping local="$USER_HOME$/.nuget/packages/microsoft.testplatform.testhost/17.5.0/build/netcoreapp3.1/x64/testhost.dll" web="/" />
             <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/Usings.cs" web="/" />
-            <mapping local="$PROJECT_DIR$/../../../../../Program Files/dotnet/sdk/7.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_7_default.editorconfig" web="/" />
+            <mapping local="/usr/local/share/dotnet/sdk/7.0.203/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_7_default.editorconfig" web="/" />
+            <mapping local="$PROJECT_DIR$/DiplomaMarketBackend.IntegrationTests/UITests/ArticleDisplayTest_Success.cs" web="/" />
             <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>

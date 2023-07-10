@@ -15,6 +15,7 @@ using PasswordGenerator;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MongoDB.Driver.Linq;
 using WebShopApp.Abstract;
 
@@ -44,8 +45,8 @@ namespace DiplomaMarketBackend.Controllers
             _configuration = configuration;
             _liqpayOptions = liqpayOptions;
         }
-        
-        
+
+
         /// <summary>
         /// Orders list for admin page - for new and in process list
         /// Нові замовлення, Замовлення в обробці (only_new = false)
@@ -54,11 +55,15 @@ namespace DiplomaMarketBackend.Controllers
         /// <param name="page">Display page</param>
         /// <param name="limit">Items on page</param>
         /// <param name="only_new">Only new orders show</param>
+        /// <param name="byer_search">Search by buyer name and last name space separated</param>
+        /// <param name="order_id">Search by order Id</param>
+        /// <param name="start_date">Search start date (YYYY-MM-DD)</param>
+        /// <param name="end_date">Search end date (YYYY-MM-DD)</param>
         /// <returns>List of orders</returns>
         [HttpGet]
         [Route("orders-list")]
         //[Authorize(Roles = "OrdersRead")]
-        public async Task<IActionResult> GetOrdersList([FromQuery] string lang, int page, int limit=10, bool only_new = true)
+        public async Task<IActionResult> GetOrdersList([FromQuery, BindRequired] string lang,string? byer_search,int? order_id, DateTime? start_date, DateTime? end_date,int page=1, int limit=10, bool only_new = true)
         {
             var ordersq = _context.Orders.
                 Include(o=>o.User).
@@ -72,6 +77,60 @@ namespace DiplomaMarketBackend.Controllers
             {
                 ordersq = ordersq.Where(o => o.Status != OrderStatus.New);
             }
+
+            if (byer_search is not null)
+            {
+                byer_search = byer_search.Trim();
+                
+                var arr = byer_search.Split(' ');
+
+                if (arr.Count() == 1)
+                {
+                    var name = arr[0];
+                    
+                    var usersIdList = await _context.Users.Where(u => u.FirstName.Equals(name) || u.LastName.Equals(name)).Select(u=>u.Id).ToListAsync();
+
+                    ordersq = usersIdList.Count > 0 ? ordersq.Where(o => usersIdList.Contains(o.UserId)) : ordersq.Where(o => o.UserId == "");
+                    
+                }
+                else if(arr.Length == 2)
+                {
+                    var last = arr[0];
+                    var name = arr[1];
+
+                    var usersIdList = await _context.Users.Where(u => u.FirstName.Equals(name) && u.LastName.Equals(last)).Select(u=>u.Id).ToListAsync();
+
+                    ordersq = usersIdList.Count > 0 ? ordersq.Where(o => usersIdList.Contains(o.UserId)) : ordersq.Where(o => o.UserId == "");
+                }
+                else
+                {
+                    ordersq = ordersq.Where(o => o.UserId == "");
+                }
+
+            }
+
+            if (order_id is not null)
+            {
+                ordersq = ordersq.Where(o => o.Id == order_id);
+            }
+
+            if (end_date is not null && start_date is not null)
+            {
+                if (start_date > end_date)
+                    (start_date, end_date) = (end_date, start_date);
+            }
+
+            if (start_date is not null)
+            {
+                ordersq = ordersq.Where(o => o.CreatedAt >= start_date);
+            }
+            
+            if (end_date is not null)
+            {
+                ordersq = ordersq.Where(o => o.CreatedAt <= end_date);
+            }
+
+            ordersq = ordersq.OrderByDescending(o => o.CreatedAt);
             
             var orders = await ordersq.ToListAsync();
             

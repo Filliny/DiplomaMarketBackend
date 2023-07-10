@@ -1,6 +1,7 @@
 ﻿using DiplomaMarketBackend.Abstract;
 using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Helpers;
+using DiplomaMarketBackend.Parser.Article;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -105,7 +106,8 @@ namespace DiplomaMarketBackend.Controllers
             lang = lang.NormalizeLang();
 
             var deliveries = await _context.Branches.AsNoTracking().AsSplitQuery().
-                Include(b=>b.Delivery.Name.Translations).
+               Include(b=>b.Address.Translations).
+               Include(b=>b.Description.Translations).
                 Where(b=>b.BranchCityId == city_id).
                 GroupBy(b=>b.Delivery).
                 ToListAsync();
@@ -114,11 +116,30 @@ namespace DiplomaMarketBackend.Controllers
 
             foreach(var deliver in deliveries)
             {
+                var delivery = _context.Deliveries.AsNoTracking().Include(d => d.Name.Translations)
+                    .FirstOrDefault(d => d.Id == deliver.Key.Id);
+
+                var branches = new List<dynamic>();
+
+                foreach (var branch in deliver)
+                {
+                  branches.Add(new
+                  {
+                      id=branch.Id,
+                      local_number = branch.LocalBranchNumber,
+                      address = branch.Address.Content(lang),
+                      description = branch.Description.Content(lang),
+                      working_hours = branch.WorkHours
+                  });
+                }
+                
                 result.Add(new
                 {
                     id = deliver.Key?.Id,
-                    name = deliver.Key?.Name?.Content(lang)
+                    name = delivery?.Name?.Content(lang),
+                    branches
                 }) ;
+                
             }
 
             return(new JsonResult(new {data=result}));

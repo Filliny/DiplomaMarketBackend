@@ -14,13 +14,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/shelf/Uncommitted_changes_before_Update_at_08_06_2023_18_04__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/shelf/Uncommitted_changes_before_Update_at_11_06_2023_19_51__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/shelf/Uncommitted_changes_before_Update_at_12_06_2023_13_23__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/DeliveryController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/DeliveryController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Order.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Models/Order.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +24,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/de449bf1d030cdafcfe5e0dcd865573dbc103861f920f39d99a4dc848fb4fb0/ManualResetEventSlim.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/DeliveryController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/FiltersAdminController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/OrdersController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/OrdersController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Entity/Models/Delivery/BranchModel.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectId" id="2QhyoXfO1BAKaZvICw5dgBSJACs" />
@@ -61,7 +61,7 @@
     ]
   }
 }</component>
-  <component name="RunManager" selected="Docker.DiplomaMarketBackend/Dockerfile  build">
+  <component name="RunManager" selected=".NET Launch Settings Profile.DiplomaMarketBackend: https_test">
     <configuration name="DiplomaMarketBackend: registry.hub.docker.com_filliny1" type="DotNetMsBuildPublish" factoryName="Publish to IIS">
       <riderPublish configuration="Release" platform="Any CPU" publish_profile="&lt;no publish profile&gt;" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny1.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
       <method v="2" />

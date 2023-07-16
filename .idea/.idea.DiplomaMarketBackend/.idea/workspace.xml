@@ -15,8 +15,7 @@
   <component name="ChangeListManager">
     <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/DeliveryController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/DeliveryController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/OrdersController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ReferenceController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/ReferenceController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +27,7 @@
     <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/FiltersAdminController.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/OrdersController.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/OrdersController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/ReferenceController.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Entity/Models/Delivery/BranchModel.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />

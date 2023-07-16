@@ -1,6 +1,7 @@
 ﻿using DiplomaMarketBackend.Entity;
 using DiplomaMarketBackend.Entity.Models;
 using DiplomaMarketBackend.Helpers;
+using DiplomaMarketBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -134,6 +135,33 @@ namespace DiplomaMarketBackend.Controllers
 
             return Json(response);
 
+        }
+
+
+        [HttpPost]
+        [Route("franchise")]
+        public async Task<IActionResult> FranchiseForm([FromForm]string formData, IFormFile [] images )
+        {
+
+            _logger.LogInformation(formData);
+
+
+            if( images == null )
+            {
+                return new JsonResult(new Result
+                {
+                    Status = "Error",
+                    Message = "Додайте документи!"
+
+                });
+            }
+
+
+            return new JsonResult ( new Result
+            {
+                Status="Success",
+                Message="Форму прийнято!"
+            });
         }
 
     }

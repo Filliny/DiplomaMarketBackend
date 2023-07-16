@@ -220,16 +220,17 @@ namespace DiplomaMarketBackend.Helpers
         {
             if(textContent == null) return;
 
-            if(textContent.Translations.Count == 0) // if u forget extract translations in outer request
-                textContent.Translations  = _db.translations.Where(t=>t.TextContentId == textContent.Id).ToList();
+            // Treanslations removed by trigger
+            //if(textContent.Translations.Count == 0) // if u forget extract translations in outer request
+            //    textContent.Translations  = _db.translations.Where(t=>t.TextContentId == textContent.Id).ToList();
 
-            if (textContent.Translations.Count > 0) { 
+            //if (textContent.Translations.Count > 0) { 
             
-                foreach(var translation in textContent.Translations)
-                {
-                    _db.translations.Remove(translation);
-                }
-            }
+            //    foreach(var translation in textContent.Translations)
+            //    {
+            //        _db.translations.Remove(translation);
+            //    }
+            //}
             _db.textContents.Remove(textContent);
         }
     }

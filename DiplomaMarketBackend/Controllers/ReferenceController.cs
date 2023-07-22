@@ -4,6 +4,7 @@ using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing.Drawing2D;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -43,6 +44,22 @@ namespace DiplomaMarketBackend.Controllers
             return Ok(list);
         }
 
+        /// <summary>
+        /// Get article sell status string values
+        /// </summary>
+        /// <returns>List of string values </returns>
+        [HttpGet]
+        [Route("goods-sell-statuses")]
+        public IActionResult GetSellStatuses()
+        {
+
+            var compares = new string[] { "available", "unavailable", "ended", "toend", "awaiting" };
+
+            return new JsonResult(new { data = compares });
+
+        }
+
+        
         /// <summary>
         /// System languages reference list
         /// </summary>

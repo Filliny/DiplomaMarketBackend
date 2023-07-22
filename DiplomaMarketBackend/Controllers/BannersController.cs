@@ -33,8 +33,12 @@ namespace DiplomaMarketBackend.Controllers
         [ResponseCache(VaryByQueryKeys = new[] { "category_id" }, Duration = 3600)]
         public async Task<IActionResult> GetCategoryBanners([FromQuery] int category_id = 0) {
 
-            //Show banners from main if no in category
-            if (category_id != 0 && _context.Banners.Where(b => b.CategoryId == category_id).Count() == 0) category_id = 0;
+            var category = await _context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == category_id);
+
+            var is_top = category != null && category.ParentCategoryId == null;
+
+           //Show banners from main if no in category
+            if (category_id != 0 && _context.Banners.Where(b => b.CategoryId == category_id).Count() == 0 && is_top) category_id = 0;
 
             var result = await _context.Banners.Where(b => b.CategoryId == category_id).Select(b => new { id = b.Id, name = b.Name, url=Request.GetImageURL(BucketNames.banner, b.Url ) }).ToListAsync();
 

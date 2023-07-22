@@ -6,7 +6,6 @@ using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using DiplomaMarketBackend.Parser.Categories;
 using HtmlAgilityPack;
-using DiplomaMarketBackend.Entity.Models;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -1268,7 +1267,7 @@ namespace DiplomaMarketBackend.Controllers
             string page_query = "";
 
             List<int> pages = new List<int>();
-            int maxpage = (int)Math.Ceiling(((decimal) quantity) / 60);
+            int maxpage = (int)Math.Ceiling(((decimal)quantity) / 60);
 
             for (int page = 1; page <= maxpage; page++)
             {
@@ -2217,7 +2216,7 @@ namespace DiplomaMarketBackend.Controllers
 
             foreach (var article in articles)
             {
-                
+
                 if (bonuses_char != null) { article.CharacteristicValues.Add(bonuses_char); }
 
             }

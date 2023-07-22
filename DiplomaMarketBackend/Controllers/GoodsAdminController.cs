@@ -14,6 +14,7 @@ using System.Data;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using MongoDB.Driver.Linq;
+using System.Net;
 
 namespace DiplomaMarketBackend.Controllers
 {
@@ -294,6 +295,123 @@ namespace DiplomaMarketBackend.Controllers
             });
         }
 
+
+        /// <summary>
+        /// create article from simple json with images from outer url
+        /// </summary>
+        /// <param name="new_article"></param>
+        /// <returns></returns>
+        //[HttpPost]
+        //[Route("create-json")]
+        //public async Task<ActionResult<Article>> CreateJsonArticle([FromBody] Article new_article)
+        //{
+        //     try{
+
+
+        //        if (new_article == null) throw new Exception("Deserialize result is null");
+
+        //        var new_entry = new_article.Adapt<ArticleModel>();
+
+        //        new_entry.Title = TextContentHelper.CreateFromDictionary(_context, new_article.titles, false);
+        //        new_entry.Description = TextContentHelper.CreateFromDictionary(_context, new_article.descriptions, false);
+        //        new_entry.Docket = TextContentHelper.CreateFromDictionary(_context, new_article.dockets, false);
+        //        new_entry.Video = new_article.video_urls.Select(v => new VideoModel(v)).ToList();
+        //        new_entry.TopCategoryId = await CatHelper.GetTopCat(_context, new_article.category_id);
+
+        //        if (new_article.points != 0)
+        //        {
+        //            var bonuses_char = _context.CharacteristicValues.Include(c => c.Title).FirstOrDefault(c => c.Title.OriginalText.Equals("З бонусами"));
+        //            if (bonuses_char != null) { new_entry.CharacteristicValues.Add(bonuses_char); }
+        //        }
+
+        //        if (new_article.warnings is not null)
+        //            new_entry.Warning = new_article.warnings.Select(w => new WarningModel()
+        //            {
+        //                Message = TextContentHelper.CreateFromDictionary(_context, w.messages, false)
+        //            }).ToList();
+
+        //        foreach (var value in new_article.values)
+        //        {
+        //            if (value.value_id == 0)
+        //            {
+        //                if (value.charcteristic_id != 0)
+        //                {
+        //                    var new_value = new ValueModel
+        //                    {
+        //                        //todo auto add translations 
+        //                        Title = new TextContent { OriginalText = value.value_name, OriginalLanguageId = "UK" },
+        //                        CharacteristicTypeId = value.charcteristic_id,
+        //                    };
+        //                    new_entry.CharacteristicValues.Add(new_value);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                var ex_value = _context.CharacteristicValues.FirstOrDefault(v => v.Id == value.value_id);
+        //                if (ex_value != null)
+        //                    new_entry.CharacteristicValues.Add(ex_value);
+        //            }
+
+        //        }
+
+        //        foreach (var action_id in new_article.actions_ids)
+        //        {
+        //            var action = _context.Actions.FirstOrDefault(v => v.Id == action_id);
+        //            if (action != null)
+        //                new_entry.Actions.Add(action);
+        //        }
+
+        //        new_entry.Images.Clear();
+
+        //        foreach (var image in new_article.images)
+        //        {
+        //            using (var webclient = new WebClient())
+        //            {
+        //                var content = webclient.DownloadData(image.url);
+        //                using (var stream = new MemoryStream(content))
+        //                {
+        //                    new_entry.Images.Add(await GetImagePictires(stream, "certificate_" + new_entry.Price.ToString()));
+        //                }
+        //            }
+        //        }
+
+        //        new_entry.Created = DateTime.Now;
+        //        new_entry.Id = 0; //ensure for test
+
+        //        //process category-brands relation
+        //        var category = await _context.Categories.Include(c => c.Brands).FirstOrDefaultAsync(c => c.Id == new_article.category_id);
+        //        if (category != null)
+        //        {
+        //            if (!category.Brands.Any(b => b.Id == new_article.brand_id))
+        //            {
+        //                var brand = await _context.Brands.FindAsync(new_article.brand_id);
+        //                if (brand != null) category.Brands.Add(brand);
+        //                //_context.SaveChanges();
+        //            }
+        //        }
+
+        //        _context.Articles.Add(new_entry);
+        //        _context.SaveChanges();
+        //        new_article.id = new_entry.Id;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status400BadRequest, new Result
+        //        {
+        //            Status = "Error",
+        //            Message = "Error create article :" + ex.Message,
+        //        });
+        //    }
+
+        //    return StatusCode(StatusCodes.Status201Created, new Result
+        //    {
+        //        Status = "Success",
+        //        Message = "Article created",
+        //        Entity = new_article
+        //    });
+        //}
+
+
         /// <summary>
         /// Update existing article
         /// </summary>
@@ -565,6 +683,29 @@ namespace DiplomaMarketBackend.Controllers
                 Message = "Article deleted!"
             });
         }
+
+
+        [HttpPost]
+        [Route("add-picture")]
+        public async Task<IActionResult> AddPicture([FromForm] int id, IFormFile image)
+        {
+            var article = await _context.Articles.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (article == null) { return StatusCode(StatusCodes.Status404NotFound, "Article not found"); }
+
+            var pictires = await GetImagePictires(image.OpenReadStream(),image.FileName);
+
+            if (pictires != null)
+            {
+                article.Images.Add(pictires);
+            }
+
+            _context.Articles.Update(article);
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
 
         private async Task<ImageModel> GetImagePictires(Stream file_stream, string filename)
         {

@@ -1216,7 +1216,7 @@ namespace DiplomaMarketBackend.Controllers
                 Include(i => i.preview).
                   Where(i => i.ArticleModelId == article.Id).ToList();
 
-            var preview = art_images.First();
+            var preview = art_images.First(); //todo find out how deal to no images added to article (add one no-picture at article creation?)
 
             var preview_img = new
             {

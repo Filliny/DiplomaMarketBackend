@@ -68,6 +68,8 @@ namespace DiplomaMarketBackend.Controllers
 
             foreach(var category in stop_categories)
             {
+                if(category.is_active != null && category.is_active == false) continue;
+
                 response.Add(getInnerTree(category, lang, doubled));
             }   
 
@@ -90,6 +92,7 @@ namespace DiplomaMarketBackend.Controllers
 
         private OutCategory getInnerTree(CategoryModel category,string lang, List<CategoryModel> added)
         {
+           
             if (added.Any(c => c.ShowInCategoryId == category.Id))
                 category.ChildCategories.Add(added.First(c => c.ShowInCategoryId == category.Id));
 

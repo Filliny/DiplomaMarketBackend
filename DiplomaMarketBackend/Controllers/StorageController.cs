@@ -5,6 +5,7 @@ using DiplomaMarketBackend.Helpers;
 using DiplomaMarketBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaMarketBackend.Controllers;
@@ -30,33 +31,45 @@ public class StorageController:ControllerBase
     /// </summary>
     /// <param name="lang">Language</param>
     /// <param name="search">Search string</param>
+    /// <param name="article_id">Article id</param>
     /// <param name="category_id">Category id</param>
     /// <param name="page">Page to display</param>
     /// <param name="limit">Articles to display on page</param>
+    /// <param name="only_ending">Show only needed refilling articles (sell statuses !available || !awaiting)</param>
     /// <returns></returns>
     [HttpGet]
     [Route("refill_list")]
-    public async Task<IActionResult> GetRefillList([FromQuery]string lang, string? search, int? category_id, int page=1, int limit=10 )
+    public async Task<IActionResult> GetRefillList([FromQuery, BindRequired] string lang, string? search, int? article_id, int? category_id, int page = 1, int limit = 10, bool only_ending=false )
     {
         lang = lang.NormalizeLang();
 
         var articles = new List<dynamic>();
 
-        var goods = _context.Articles.AsNoTracking().AsSplitQuery().
+        var goods = _context.Articles.AsSplitQuery().
             Include(a => a.Title.Translations).
             Include(a => a.Category).
-            Include(a=>a.Images).ThenInclude(p=>p.small).
-            Include(a=>a.Category.Name.Translations).
-            Where(a=>a.Status != "available" && a.Status != "awaiting" );
+            Include(a => a.Images).ThenInclude(p => p.small).
+            Include(a => a.Category.Name.Translations).AsNoTracking();
+
 
         if (category_id is not null)
         {
             goods = goods.Where(a => a.CategoryId == category_id);
         }
-        
+
+        if (article_id is not null)
+        {
+            goods = goods.Where(a => a.Id == article_id);
+        }
+
         if (search is not null)
         {
             goods = goods.Where(c => c.Title.Translations.Any(t => t.TranslationString.ToLower().Contains(search.ToLower()) && t.LanguageId == lang));
+        }
+
+        if (only_ending)
+        {
+            goods = goods.Where(a => !a.SellStatus.Equals("available")).Where(a => !a.SellStatus.Equals("awaiting"));
         }
 
         var goodsList = await goods.ToListAsync();
@@ -80,7 +93,8 @@ public class StorageController:ControllerBase
                 category = article.Category.Name.Content(lang),
                 preview = Request.GetImageURL(BucketNames.small.ToString(),article.Images.First().small.url??""),
                 quantity = article.Quantity,
-                status = article.Status
+                status = article.Status,
+                sell_status = article.SellStatus,
             });
         }
 

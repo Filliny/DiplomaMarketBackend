@@ -98,12 +98,12 @@ namespace DiplomaMarketBackend.Controllers
 
             var articles = new List<dynamic>();
             
-            var action_goods = await _context.Articles.
+            var actionGoodsQ =  _context.Articles.
                 Include(a => a.Title).ThenInclude(t => t.Translations).
                 Include(a => a.Category).
-                Where(a => flat.Contains(a.Category)).ToListAsync();
+                Where(a => flat.Contains(a.Category));
             
-            int total_goods = action_goods.Count;
+            int total_goods = actionGoodsQ.Count();
             int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
 
             if (page == 0) page = 1;
@@ -111,7 +111,18 @@ namespace DiplomaMarketBackend.Controllers
 
             int skip = (page - 1) * goods_on_page;
 
-            action_goods = action_goods.Skip(skip).Take(goods_on_page).ToList();
+            var action_goods = await actionGoodsQ.Skip(skip).Take(goods_on_page).ToListAsync();
+            
+            var filterCounts = await actionGoodsQ.
+                Include(a => a.CharacteristicValues).
+                SelectMany(a=>a.CharacteristicValues.Select(v=>new {v,a})).
+                GroupBy(x=>x.v.Id).
+                Select(g=> new
+                {
+                    key=g.Key,
+                    count = g.Select(s=>s.a).Count()
+                })
+                .ToListAsync();
 
             foreach (var article in action_goods)
             {
@@ -125,7 +136,8 @@ namespace DiplomaMarketBackend.Controllers
                     articles,
                     total_goods,
                     total_pages,
-                    displayed_page = page
+                    displayed_page = page,
+                    filter_data = filterCounts
                 }
             };
 
@@ -170,11 +182,14 @@ namespace DiplomaMarketBackend.Controllers
 
             var articles = new List<dynamic>();
 
-            var action_goods = await _context.Articles.
+            var actionGoodsQ = _context.Articles.
                 Include(a => a.Title).ThenInclude(t => t.Translations).
                 Include(a => a.Category).
                 Include(a => a.CharacteristicValues).
-                Where(a => flat.Contains(a.Category)).ToListAsync();
+                Where(a => flat.Contains(a.Category));
+            
+            
+
             
             //filter section
             if (filter != null)
@@ -203,21 +218,21 @@ namespace DiplomaMarketBackend.Controllers
                 }
 
                 if (filter.brands_id.Count() > 0)
-                    action_goods = action_goods.Where(a => filter.brands_id.Contains(a.BrandId)).ToList();
+                    actionGoodsQ = actionGoodsQ.Where(a => filter.brands_id.Contains(a.BrandId));
 
                 if (filter.values_id.Count() > 0)
-                    action_goods = action_goods.Where(a => a.CharacteristicValues.Any(v => filter.values_id.Contains(v.Id))).ToList();
+                    actionGoodsQ = actionGoodsQ.Where(a => a.CharacteristicValues.Any(v => filter.values_id.Contains(v.Id)));
 
                 if (filter.price_low != 0)
-                    action_goods = action_goods.Where(a => a.Price >= filter.price_low).ToList();
+                    actionGoodsQ = actionGoodsQ.Where(a => a.Price >= filter.price_low);
 
                 if (filter.price_high != 0)
-                    action_goods = action_goods.Where(a => a.Price <= filter.price_high).ToList();
+                    actionGoodsQ = actionGoodsQ.Where(a => a.Price <= filter.price_high);
 
 
             }
             
-            int total_goods = action_goods.Count;
+            int total_goods = actionGoodsQ.Count();
             int total_pages = (int)Math.Ceiling((decimal)total_goods / (decimal)goods_on_page);
 
             if (page == 0) page = 1;
@@ -225,7 +240,19 @@ namespace DiplomaMarketBackend.Controllers
 
             int skip = (page - 1) * goods_on_page;
 
-            action_goods = action_goods.Skip(skip).Take(goods_on_page).ToList();
+            var action_goods = await actionGoodsQ.Skip(skip).Take(goods_on_page).ToListAsync();
+            
+            
+            var filterCounts = await actionGoodsQ.
+                Include(a => a.CharacteristicValues).
+                SelectMany(a=>a.CharacteristicValues.Select(v=>new {v,a})).
+                GroupBy(x=>x.v.Id).
+                Select(g=> new
+                {
+                    key=g.Key,
+                    count = g.Select(s=>s.a).Count()
+                })
+                .ToListAsync();
 
             foreach (var article in action_goods)
             {
@@ -241,7 +268,8 @@ namespace DiplomaMarketBackend.Controllers
                     articles,
                     total_goods,
                     total_pages,
-                    displayed_page = page
+                    displayed_page = page,
+                    filter_data = filterCounts
                 }
             };
 

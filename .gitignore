@@ -369,3 +369,7 @@ FodyWeavers.xsd
 /.idea/.idea.DiplomaMarketBackend/.idea/vcs.xml
 /.idea/.idea.DiplomaMarketBackend/.idea/indexLayout.xml
 /.idea/.idea.DiplomaMarketBackend/.idea/encodings.xml
+/DiplomaMarketBackend/synthetic-keel-381920-292ea9f4af88.json
+/DiplomaMarketBackend/appsettings.json
+/DiplomaMarketBackend/docker-compose.yml
+/DiplomaMarketBackend/docker-compose-mac.yml

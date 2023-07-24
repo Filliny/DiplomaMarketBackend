@@ -23,7 +23,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/GoodsAdminController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/GoodsController.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectId" id="2QhyoXfO1BAKaZvICw5dgBSJACs" />
@@ -192,7 +192,7 @@
       <workItem from="1687362276922" duration="33899000" />
       <workItem from="1688551472402" duration="16431000" />
       <workItem from="1689959228562" duration="2786000" />
-      <workItem from="1690125550367" duration="4931000" />
+      <workItem from="1690125550367" duration="19671000" />
     </task>
     <task id="LOCAL-00001" summary="- flat cashe fix">
       <created>1686140732540</created>
@@ -326,29 +326,16 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs</url>
-          <line>113</line>
-          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend\Controllers\GoodsController.cs" initialLine="116" containingFunctionPresentation="Method 'GetCategoryArticlesPages'">
+          <line>219</line>
+          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend\Controllers\GoodsController.cs" initialLine="237" containingFunctionPresentation="Method 'GetCategoryArticlesPages'">
             <startOffsets>
-              <option value="4704" />
+              <option value="9026" />
             </startOffsets>
             <endOffsets>
-              <option value="4787" />
+              <option value="9141" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="134" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs</url>
-          <line>194</line>
-          <properties documentPath="C:\Users\oleg\source\repos\DiplomaMarketBackend\DiplomaMarketBackend\Controllers\GoodsController.cs" initialLine="183" containingFunctionPresentation="Method 'GetCategoryArticlesPages'">
-            <startOffsets>
-              <option value="7738" />
-            </startOffsets>
-            <endOffsets>
-              <option value="7757" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="136" />
+          <option name="timeStamp" value="140" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -161,10 +161,8 @@ namespace DiplomaMarketBackend.Controllers
         public async Task<IActionResult> GetCategoryArticlesPages([FromQuery] int category_Id, int goods_on_page, int page, string lang,
             [FromBody] Filter? filter)
         {
-
-
+            
             lang = lang.NormalizeLang();
-
 
             var category = await _context.Categories.Include(c => c.ChildCategories).ThenInclude(c => c.ChildCategories).FirstOrDefaultAsync(c => c.Id == category_Id);
 
@@ -182,15 +180,13 @@ namespace DiplomaMarketBackend.Controllers
 
             var articles = new List<dynamic>();
 
-            var actionGoodsQ = _context.Articles.
+            var actionGoodsQ = await _context.Articles.
                 Include(a => a.Title).ThenInclude(t => t.Translations).
                 Include(a => a.Category).
                 Include(a => a.CharacteristicValues).
-                Where(a => flat.Contains(a.Category));
+                Where(a => flat.Contains(a.Category)).ToListAsync();
             
-            
-
-            
+                      
             //filter section
             if (filter != null)
             {
@@ -217,19 +213,18 @@ namespace DiplomaMarketBackend.Controllers
                     filter.values_id.AddRange(add_search_ids);
                 }
 
-                if (filter.brands_id.Count() > 0)
-                    actionGoodsQ = actionGoodsQ.Where(a => filter.brands_id.Contains(a.BrandId));
-
-                if (filter.values_id.Count() > 0)
-                    actionGoodsQ = actionGoodsQ.Where(a => a.CharacteristicValues.Any(v => filter.values_id.Contains(v.Id)));
+                if (filter.brands_id.Any())
+                    actionGoodsQ = actionGoodsQ.Where(a => filter.brands_id.Contains(a.BrandId)).ToList();
+                
+                if (filter.values_id.Any())
+                    actionGoodsQ = actionGoodsQ.Where(a => filter.values_id.All(f=>a.CharacteristicValues.Any(c=>c.Id == f))).ToList();
 
                 if (filter.price_low != 0)
-                    actionGoodsQ = actionGoodsQ.Where(a => a.Price >= filter.price_low);
+                    actionGoodsQ = actionGoodsQ.Where(a => a.Price >= filter.price_low).ToList();
 
                 if (filter.price_high != 0)
-                    actionGoodsQ = actionGoodsQ.Where(a => a.Price <= filter.price_high);
-
-
+                    actionGoodsQ = actionGoodsQ.Where(a => a.Price <= filter.price_high).ToList();
+                
             }
             
             int total_goods = actionGoodsQ.Count();
@@ -240,11 +235,11 @@ namespace DiplomaMarketBackend.Controllers
 
             int skip = (page - 1) * goods_on_page;
 
-            var action_goods = await actionGoodsQ.Skip(skip).Take(goods_on_page).ToListAsync();
+            var action_goods =  actionGoodsQ.Skip(skip).Take(goods_on_page);
             
             
-            var filterCounts = await actionGoodsQ.
-                Include(a => a.CharacteristicValues).
+            var filterCounts =  actionGoodsQ.
+               
                 SelectMany(a=>a.CharacteristicValues.Select(v=>new {v,a})).
                 GroupBy(x=>x.v.Id).
                 Select(g=> new
@@ -252,7 +247,7 @@ namespace DiplomaMarketBackend.Controllers
                     key=g.Key,
                     count = g.Select(s=>s.a).Count()
                 })
-                .ToListAsync();
+                .ToList();
 
             foreach (var article in action_goods)
             {

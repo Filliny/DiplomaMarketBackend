@@ -13,9 +13,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DiplomaMarketBackend/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/Controllers/GoodsController.cs" afterDir="false" />
+    <list default="true" id="68cc5178-c05a-41ab-b028-2f48d4e63632" name="Changes" comment="- inclusive filter implementation for values">
+      <change beforePath="$PROJECT_DIR$/DiplomaMarketBackend/DiplomaMarketBackend.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/DiplomaMarketBackend/DiplomaMarketBackend.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +22,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/GoodsController.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/oleg/source/repos/DiplomaMarketBackend/DiplomaMarketBackend/Controllers/GoodsController.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
@@ -56,7 +56,7 @@
     ]
   }
 }</component>
-  <component name="RunManager" selected=".NET Launch Settings Profile.DiplomaMarketBackend: https">
+  <component name="RunManager" selected="Docker.DiplomaMarketBackend/Dockerfile  build">
     <configuration name="DiplomaMarketBackend: registry.hub.docker.com_filliny1" type="DotNetMsBuildPublish" factoryName="Publish to IIS">
       <riderPublish configuration="Release" platform="Any CPU" publish_profile="&lt;no publish profile&gt;" pubxml_path="$PROJECT_DIR$/DiplomaMarketBackend/Properties/PublishProfiles/registry.hub.docker.com_filliny1.pubxml" user_name="filliny1" uuid_high="1754325455525396765" uuid_low="-8689101690245568343" />
       <method v="2" />
@@ -192,7 +192,7 @@
       <workItem from="1687362276922" duration="33899000" />
       <workItem from="1688551472402" duration="16431000" />
       <workItem from="1689959228562" duration="2786000" />
-      <workItem from="1690125550367" duration="19671000" />
+      <workItem from="1690125550367" duration="22176000" />
     </task>
     <task id="LOCAL-00001" summary="- flat cashe fix">
       <created>1686140732540</created>
@@ -222,7 +222,14 @@
       <option name="project" value="LOCAL" />
       <updated>1687525731564</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="- inclusive filter implementation for values">
+      <created>1690211255037</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1690211255037</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -248,7 +255,8 @@
     <MESSAGE value="- small test fix" />
     <MESSAGE value="- Orders fix" />
     <MESSAGE value="- article creation requrements" />
-    <option name="LAST_COMMIT_MESSAGE" value="- article creation requrements" />
+    <MESSAGE value="- inclusive filter implementation for values" />
+    <option name="LAST_COMMIT_MESSAGE" value="- inclusive filter implementation for values" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
